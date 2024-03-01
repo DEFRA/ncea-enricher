@@ -74,7 +74,7 @@ static void ConfigureFileShareClient(IConfigurationRoot configuration, HostAppli
         builder.UseCredential(new DefaultAzureCredential());
 
         builder.AddClient<ShareClient, ShareClientOptions>(
-            (_, _, provider) => provider.GetService<ShareServiceClient>()!.CreateShare(fileShareName))
+            (_, _, provider) => provider.GetService<ShareServiceClient>()!.GetShareClient(fileShareName))
         .WithName(fileShareName);
     });
 }
