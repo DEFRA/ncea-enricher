@@ -12,7 +12,7 @@ namespace ncea.enricher.Processor;
 public class OrchestrationService : IOrchestrationService
 {
     #region Initialization
-    private readonly ShareServiceClient _fileShareServiceClient;
+    private readonly ShareClient _fileShareClient;
     private readonly ServiceBusProcessor _processor;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<OrchestrationService> _logger;
@@ -21,12 +21,12 @@ public class OrchestrationService : IOrchestrationService
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
         IServiceProvider serviceProvider,
         ILogger<OrchestrationService> logger,
-        ShareServiceClient fileShareServiceClient)
+        ShareClient fileShareClient)
     {
         var mapperQueueName = configuration.GetValue<string>("MapperQueueName");
 
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
-        _fileShareServiceClient = fileShareServiceClient;
+        _fileShareClient = fileShareClient;
         _serviceProvider = serviceProvider;
         _logger = logger;
     }
@@ -46,7 +46,7 @@ public class OrchestrationService : IOrchestrationService
         {
             var body = args.Message.Body.ToString();
             var dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
-            var mdcMappedData = await _serviceProvider.GetRequiredKeyedService<IEnricherService>(dataSource).Transform(body);
+            var mdcMappedData = await _serviceProvider.GetRequiredKeyedService<IEnricherService>(dataSource).Enrich(body);
             
             await UploadToFileShareAsync(mdcMappedData, dataSource!);
             await args.CompleteMessageAsync(args.Message);
@@ -82,11 +82,11 @@ public class OrchestrationService : IOrchestrationService
             return;
         }
 
-        var shareClient = _fileShareServiceClient.GetShareClient(dataSource);
-        await shareClient.CreateIfNotExistsAsync();
-        ShareDirectoryClient directory = shareClient.GetDirectoryClient("");
+        var directory = _fileShareClient.GetDirectoryClient(dataSource);
+        await directory.CreateIfNotExistsAsync();
+
         var fileName = string.Concat(fileIdentifier, ".xml");
-        ShareFileClient file = directory.GetFileClient(fileName);
+        var file = directory.GetFileClient(fileName);
 
         using (var fileStream = GenerateStreamFromString(message))
         {

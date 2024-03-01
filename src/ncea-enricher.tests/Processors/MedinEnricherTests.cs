@@ -30,7 +30,7 @@ public class MedinEnricherTests
 
 
         // Act
-        await medinService.Transform(It.IsAny<string>(), It.IsAny<CancellationToken>());
+        await medinService.Enrich(It.IsAny<string>(), It.IsAny<CancellationToken>());
 
 
         // Assert

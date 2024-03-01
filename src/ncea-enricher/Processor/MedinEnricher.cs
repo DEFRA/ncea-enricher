@@ -10,9 +10,9 @@ public class MedinEnricher : IEnricherService
     {     
         _logger = logger;
     }
-    public async Task<string> Transform(string harvestedData, CancellationToken cancellationToken = default)
+    public async Task<string> Enrich(string mappeddata, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation($"Medin transformer");
-        return await Task.FromResult(harvestedData);
+        _logger.LogInformation($"Medin enricher");
+        return await Task.FromResult(mappeddata);
     }
 }

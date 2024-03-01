@@ -2,5 +2,5 @@
 
 public interface IEnricherService
 {
-    Task<string> Transform(string harvestedData, CancellationToken cancellationToken = default);
+    Task<string> Enrich(string mappedData, CancellationToken cancellationToken = default);
 }

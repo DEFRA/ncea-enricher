@@ -30,7 +30,7 @@ public class JnccEnricherTests
 
 
         // Act
-        await jnccService.Transform(It.IsAny<string>(), It.IsAny<CancellationToken>());
+        await jnccService.Enrich(It.IsAny<string>(), It.IsAny<CancellationToken>());
 
 
         // Assert
