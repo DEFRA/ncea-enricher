@@ -37,7 +37,7 @@ steps:
     overrideValues: |
         image.repository=$(containerRepositoryFullPath)
         image.tag=$(imageTag)
-        serviceAccount.name=$(serviceAccountenEnricher)
+        serviceAccount.name=$(serviceAccountEnricher)
         env.serviceBusHostName=$(serviceBusHostName)
         env.keyVaultUri=$(keyVaultUri)
         env.fileShareClientUri=$(fileShareClientUri)
