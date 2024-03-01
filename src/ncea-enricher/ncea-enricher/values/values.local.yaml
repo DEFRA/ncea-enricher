@@ -15,6 +15,7 @@ serviceAccount:
 env:
   serviceBusHostName: nceapocsbox.servicebus.windows.net
   keyVaultUri: https://nceapocsbox.vault.azure.net/
+  fileShareClientUri: https://nceaharvesterblob.file.core.windows.net/
 
 podAnnotations: {}
 podLabels: 

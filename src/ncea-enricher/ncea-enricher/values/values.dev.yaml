@@ -15,6 +15,7 @@ serviceAccount:
 env:
   serviceBusHostName: 
   keyVaultUri: 
+  fileShareClientUri: 
 
 podAnnotations: {}
 podLabels: 

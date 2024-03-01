@@ -40,5 +40,6 @@ steps:
         serviceAccount.name=$(serviceAccountenEnicher)
         env.serviceBusHostName=$(serviceBusHostName)
         env.keyVaultUri=$(keyVaultUri)
+        env.fileShareClientUri=$(fileShareClientUri)
     install: true
     force: true
