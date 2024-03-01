@@ -13,6 +13,7 @@ public static class OrchestrationServiceForTests
 {
     public static void Get<T>(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<T>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor,
@@ -29,6 +30,7 @@ public static class OrchestrationServiceForTests
                             .AddInMemoryCollection(lstProps)
                             .Build();
         mockServiceBusProcessorFactory = new Mock<IAzureClientFactory<ServiceBusProcessor>>();
+        mockFileShareClientFactory = new Mock<IAzureClientFactory<ShareClient>>();
 
 
         mockServiceBusProcessor = new Mock<ServiceBusProcessor>();

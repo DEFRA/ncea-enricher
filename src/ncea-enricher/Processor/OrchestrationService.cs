@@ -19,14 +19,15 @@ public class OrchestrationService : IOrchestrationService
 
     public OrchestrationService(IConfiguration configuration,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
+        IAzureClientFactory<ShareClient> fileShareClientFactory,
         IServiceProvider serviceProvider,
-        ILogger<OrchestrationService> logger,
-        ShareClient fileShareClient)
+        ILogger<OrchestrationService> logger)
     {
         var mapperQueueName = configuration.GetValue<string>("MapperQueueName");
+        var fileShareName = configuration.GetValue<string>("FileShareName");
 
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
-        _fileShareClient = fileShareClient;
+        _fileShareClient = fileShareClientFactory.CreateClient(fileShareName);
         _serviceProvider = serviceProvider;
         _logger = logger;
     }
