@@ -1,0 +1,19 @@
+steps:
+
+- task: Docker@2
+  displayName: 'Docker Build'
+  condition: succeeded()
+  inputs:
+    command: build
+    containerRegistry: $(acrContainerRegistryServiceConnection)
+    repository: $(acrContainerRepositoryMapper)
+    tags: '$(imageTag)'
+
+- task: Docker@2
+  displayName: 'Docker Push'
+  condition: and(succeeded(), or(eq(variables['isMain'], 'true'), eq(variables['isPullRequest'], 'true')))
+  inputs:
+    command: push
+    containerRegistry: $(acrContainerRegistryServiceConnection)
+    repository: $(acrContainerRepositoryMapper)
+    tags: '$(imageTag)'

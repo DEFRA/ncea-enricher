@@ -1,0 +1,44 @@
+replicaCount: 1
+
+image:
+  repository: nceapocsbox.azurecr.io/defra/ncea-enricher-service
+  pullPolicy: IfNotPresent
+  tag: 20240229.16_feature-314989-create-heml-chart
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  name: serviceaccount-nceaenricher-sbox
+
+env:
+  serviceBusHostName: nceapocsbox.servicebus.windows.net
+  keyVaultUri: https://nceapocsbox.vault.azure.net/
+
+podAnnotations: {}
+podLabels: 
+  azure.workload.identity/use: "true"
+
+podSecurityContext: {}
+
+securityContext: {}
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+volumes: []
+
+volumeMounts: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

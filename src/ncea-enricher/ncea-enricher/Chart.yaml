@@ -1,0 +1,6 @@
+apiVersion: v2
+name: ncea-enricher
+description: A Helm chart for ncea enricher service
+type: application
+version: 1.0.0
+appVersion: "0.0.1"

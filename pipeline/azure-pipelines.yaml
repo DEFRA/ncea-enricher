@@ -1,0 +1,95 @@
+
+name: $(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - main
+      - feature/*
+
+variables: 
+  - template: templates/variables-global.yml
+  - name : acrContainerRegistryServiceConnection
+    value: acr-AZR-NCE-SND1
+  - name : deployToDev
+    value: false
+
+stages:
+- stage: 'Build'
+  displayName: 'Build Mapper Service'
+  jobs: 
+  - job: 'Build'
+    displayName: 'Build job'
+    pool:
+      vmImage: 'ubuntu-latest'
+    variables:
+      - template: templates/variables-build.yml      
+    steps:
+      - template: steps-build-and-test.yaml
+      - template: steps-build-and-push-docker-images.yaml
+      - template: steps-package-and-push-helm-charts.yaml
+
+- stage: 'sandbox'
+  displayName: 'Deploy to Sandbox'
+  dependsOn: Build
+  condition:  and(succeeded(), eq(variables.isPullRequest, true))  
+  jobs:
+  - deployment: Deploy
+    pool:
+      vmImage: 'ubuntu-latest'
+    variables:
+      - template: templates/variables-sandbox.yml
+      - name : aksServiceConnection
+        value: aksServiceConn-AZR-NCE-SND1
+    environment: sandbox 
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - template: steps-deploy-helm-charts.yaml
+              parameters:
+                envName: sandbox
+                releaseName: ncea-mapper-sandbox
+                aksServiceConnection: aksServiceConn-AZR-NCE-SND1
+
+- stage: 'dev'
+  displayName: 'Deploy to Dev'
+  dependsOn: Build
+  condition: and(succeeded(), and(eq(variables.isMain, true), eq(variables.deployToDev, true)))
+  jobs:
+  - deployment: Deploy
+    pool:
+      vmImage: 'ubuntu-latest'
+    variables:
+      - template: templates/variables-dev.yml
+    environment: dev 
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - template: steps-deploy-helm-charts.yaml
+              parameters:
+                envName: dev
+                releaseName: ncea-mapper-dev
+                aksServiceConnection: aksServiceConn-AZR-NCE-SND1
+
+- stage: 'test'
+  displayName: 'Deploy to test'
+  dependsOn: dev
+  condition:  succeeded()
+  jobs:
+  - deployment: Deploy
+    pool:
+      vmImage: 'ubuntu-latest'
+    variables:
+      - template: templates/variables-test.yml
+    environment: test 
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - template: steps-deploy-helm-charts.yaml
+              parameters:
+                envName: dev
+                releaseName: ncea-mapper-test
+                aksServiceConnection: aksServiceConn-AZR-NCE-SND1
