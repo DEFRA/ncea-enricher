@@ -16,6 +16,8 @@ using ncea.enricher.Processor.Contracts;
 using Ncea.Enricher.Processors;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Storage.Files.Shares;
+using Azure.Core;
+using Azure.Storage;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -34,7 +36,7 @@ builder.Services.AddHttpClient();
 ConfigureKeyVault(configuration, builder);
 ConfigureLogging(builder);
 await ConfigureServiceBusQueue(configuration, builder);
-ConfigureFileShareClient(configuration, builder);
+ConfigureFileShareClientAsync(configuration, builder);
 ConfigureServices(builder);
 
 var host = builder.Build();
@@ -63,14 +65,16 @@ static async Task ConfigureServiceBusQueue(IConfigurationRoot configuration, Hos
     });
 }
 
-static void ConfigureFileShareClient(IConfigurationRoot configuration, HostApplicationBuilder builder)
+static void ConfigureFileShareClientAsync(IConfigurationRoot configuration, HostApplicationBuilder builder)
 {
     var fileShareEndpoint = new Uri(configuration.GetValue<string>("FileShareClientUri")!);
     var fileShareName = configuration.GetValue<string>("FileShareName");
 
+    var fileShareConnectionString = builder.Configuration.GetValue<string>("FileShare:ConnectionString");
+
     builder.Services.AddAzureClients(builder =>
     {
-        builder.AddFileServiceClient(fileShareEndpoint);
+        builder.AddFileServiceClient(fileShareConnectionString);
         builder.UseCredential(new DefaultAzureCredential());
 
         builder.AddClient<ShareClient, ShareClientOptions>(

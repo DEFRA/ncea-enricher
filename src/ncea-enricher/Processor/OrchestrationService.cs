@@ -24,7 +24,7 @@ public class OrchestrationService : IOrchestrationService
         ILogger<OrchestrationService> logger)
     {
         var mapperQueueName = configuration.GetValue<string>("MapperQueueName");
-        var fileShareName = configuration.GetValue<string>("FileShareName");
+        var fileShareName = configuration.GetValue<string>("FileShareName")!;
 
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
         _fileShareClient = fileShareClientFactory.CreateClient(fileShareName);
@@ -83,17 +83,29 @@ public class OrchestrationService : IOrchestrationService
             return;
         }
 
-        var directory = _fileShareClient.GetDirectoryClient(dataSource);
-        await directory.CreateIfNotExistsAsync();
-
-        var fileName = string.Concat(fileIdentifier, ".xml");
-        var file = directory.GetFileClient(fileName);
-
-        using (var fileStream = GenerateStreamFromString(message))
+        try
         {
-            file.Create(fileStream.Length);
-            file.UploadRange(new HttpRange(0, fileStream.Length), fileStream);
+            if (await _fileShareClient.ExistsAsync())
+            {
+                var directory = _fileShareClient.GetDirectoryClient(dataSource);
+                await directory.CreateIfNotExistsAsync();
+
+                if(await directory.ExistsAsync())
+                {
+                    var fileName = string.Concat(fileIdentifier, ".xml");
+                    var file = directory.GetFileClient(fileName);
+
+                    using (var fileStream = GenerateStreamFromString(message))
+                    {
+                        file.Create(fileStream.Length);
+                        file.UploadRange(new HttpRange(0, fileStream.Length), fileStream);
+                    }
+                }                
+            }                
         }
+        catch(Exception ex) {
+            _logger.LogError("Error occured while uploading enriched files on file share {ex}", ex);
+        } 
     }
 
     private static MemoryStream GenerateStreamFromString(string fileContent)
