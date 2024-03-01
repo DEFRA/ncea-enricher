@@ -2,7 +2,6 @@ using Azure.Identity;
 using Ncea.Enricher;
 using Ncea.Enricher.Infrastructure;
 using Azure.Messaging.ServiceBus;
-using Azure.Storage.Files;
 using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Processors.Contracts;
 using Azure.Security.KeyVault.Secrets;
@@ -16,8 +15,6 @@ using ncea.enricher.Processor.Contracts;
 using Ncea.Enricher.Processors;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Storage.Files.Shares;
-using Azure.Core;
-using Azure.Storage;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())

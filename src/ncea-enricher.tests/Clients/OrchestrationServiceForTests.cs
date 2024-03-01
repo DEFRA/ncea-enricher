@@ -1,4 +1,5 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using Azure;
+using Azure.Messaging.ServiceBus;
 using Azure.Storage.Files.Shares;
 using Azure.Storage.Files.Shares.Models;
 using Microsoft.Extensions.Azure;
@@ -33,6 +34,7 @@ public static class OrchestrationServiceForTests
         mockFileShareClientFactory = new Mock<IAzureClientFactory<ShareClient>>();
 
 
+
         mockServiceBusProcessor = new Mock<ServiceBusProcessor>();
         mockFileShareServiceClient = new Mock<ShareServiceClient> ();
         mockShareClient = new Mock<ShareClient>();
@@ -63,7 +65,10 @@ public static class OrchestrationServiceForTests
         mockOrchestrationService.Setup(x => x.StartProcessorAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         mockServiceBusProcessor.Setup(x => x.StopProcessingAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         mockServiceBusProcessorFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockServiceBusProcessor.Object);
+        mockFileShareClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockShareClient.Object);
         mockShareDirectoryClient.Setup(x => x.GetFileClient(It.IsAny<string>())).Returns(mockShareFileClient.Object);
+        mockShareDirectoryClient.Setup(x => x.ExistsAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(Response.FromValue(true, Mock.Of<Response>())));
+        mockShareClient.Setup(x => x.ExistsAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(Response.FromValue(true, Mock.Of<Response>())));
         mockShareClient.Setup(x => x.GetDirectoryClient(It.IsAny<string>())).Returns(mockShareDirectoryClient.Object);
         mockShareClient.Setup(x => x.CreateIfNotExistsAsync(It.IsAny<ShareCreateOptions>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(It.IsAny<Azure.Response<ShareInfo>>()));
         mockFileShareServiceClient.Setup(x => x.GetShareClient(It.IsAny<string>())).Returns(mockShareClient.Object);
