@@ -18,6 +18,7 @@ public class MedinEnricherTests
         //Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<MedinEnricher>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor,

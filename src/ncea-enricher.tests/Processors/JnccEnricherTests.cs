@@ -18,6 +18,7 @@ public class JnccEnricherTests
         //Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<JnccEnricher>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor,
