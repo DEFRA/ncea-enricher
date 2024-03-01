@@ -16,7 +16,7 @@ variables:
 
 stages:
 - stage: 'Build'
-  displayName: 'Build Mapper Service'
+  displayName: 'Build Enricher Service'
   jobs: 
   - job: 'Build'
     displayName: 'Build job'
@@ -49,7 +49,7 @@ stages:
             - template: steps-deploy-helm-charts.yaml
               parameters:
                 envName: sandbox
-                releaseName: ncea-mapper-sandbox
+                releaseName: ncea-enricher-sandbox
                 aksServiceConnection: aksServiceConn-AZR-NCE-SND1
 
 - stage: 'dev'
@@ -70,7 +70,7 @@ stages:
             - template: steps-deploy-helm-charts.yaml
               parameters:
                 envName: dev
-                releaseName: ncea-mapper-dev
+                releaseName: ncea-enricher-dev
                 aksServiceConnection: aksServiceConn-AZR-NCE-SND1
 
 - stage: 'test'
@@ -91,5 +91,5 @@ stages:
             - template: steps-deploy-helm-charts.yaml
               parameters:
                 envName: dev
-                releaseName: ncea-mapper-test
+                releaseName: ncea-enricher-test
                 aksServiceConnection: aksServiceConn-AZR-NCE-SND1

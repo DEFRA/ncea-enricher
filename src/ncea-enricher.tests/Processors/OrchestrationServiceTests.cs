@@ -1,6 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Files.Shares;
-using Azure.Storage.Files.Shares.Models;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

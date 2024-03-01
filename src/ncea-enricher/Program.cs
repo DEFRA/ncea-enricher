@@ -14,9 +14,6 @@ using ncea.enricher.Processor;
 using ncea.enricher.Processor.Contracts;
 using Ncea.Enricher.Processors;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
-using Azure.Storage;
-using Azure.Storage.Files.Shares;
-using System.Security.Cryptography.X509Certificates;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -71,6 +68,7 @@ static void ConfigureFileShareClient(IConfigurationRoot configuration, HostAppli
     builder.Services.AddAzureClients(builder =>
     {
         builder.AddFileServiceClient(fileShareEndpoint);
+        builder.UseCredential(new DefaultAzureCredential());
     });
 }
 

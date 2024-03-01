@@ -32,12 +32,12 @@ steps:
     namespace: $(aksNamespace)
     command: 'upgrade'
     chartType: 'FilePath'
-    chartPath: '$(Pipeline.Workspace)/ncea-mapper-$(Build.BuildNumber).tgz'
-    valueFile: $(Pipeline.Workspace)/chart/ncea-mapper/values/values.${{ parameters.envName }}.yaml
+    chartPath: '$(Pipeline.Workspace)/ncea-enricher-$(Build.BuildNumber).tgz'
+    valueFile: $(Pipeline.Workspace)/chart/ncea-enricher/values/values.${{ parameters.envName }}.yaml
     overrideValues: |
         image.repository=$(containerRepositoryFullPath)
         image.tag=$(imageTag)
-        serviceAccount.name=$(serviceAccountMapper)
+        serviceAccount.name=$(serviceAccountenEnicher)
         env.serviceBusHostName=$(serviceBusHostName)
         env.keyVaultUri=$(keyVaultUri)
     install: true

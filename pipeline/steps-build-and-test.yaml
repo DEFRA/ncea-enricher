@@ -9,8 +9,8 @@ steps:
     inputs:
       SonarCloud: 'defra-sonarcloud'
       organization: '$(sonarCloudOrganization)'
-      projectKey: '$(sonarProjectKeyMapper)'
-      projectName: '$(sonarProjectNameMapper)'
+      projectKey: '$(sonarProjectKeyEnricher)'
+      projectName: '$(sonarProjectNameEnricher)'
       extraProperties: |
           sonar.exclusions=**/obj/**,**/*.dll,**/*.xml,**/*.yaml,**/DockerFile
           sonar.coverage.exclusions=**/*.xml,**/*.yaml,**/DockerFile,**/Program.cs

@@ -6,7 +6,7 @@ steps:
   inputs:
     command: build
     containerRegistry: $(acrContainerRegistryServiceConnection)
-    repository: $(acrContainerRepositoryMapper)
+    repository: $(acrContainerRepositoryEnricher)
     tags: '$(imageTag)'
 
 - task: Docker@2
@@ -15,5 +15,5 @@ steps:
   inputs:
     command: push
     containerRegistry: $(acrContainerRegistryServiceConnection)
-    repository: $(acrContainerRepositoryMapper)
+    repository: $(acrContainerRepositoryEnricher)
     tags: '$(imageTag)'

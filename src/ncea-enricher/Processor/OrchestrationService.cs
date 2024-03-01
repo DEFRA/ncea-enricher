@@ -1,12 +1,8 @@
-﻿using System.Drawing;
-using System.IO;
-using System.Text;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Linq;
 using Azure;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Files.Shares;
-using Azure.Storage.Files.Shares.Models;
 using Microsoft.Extensions.Azure;
 using ncea.enricher.Processor.Contracts;
 using Ncea.Enricher.Processors.Contracts;
@@ -35,9 +31,6 @@ public class OrchestrationService : IOrchestrationService
         _logger = logger;
     }
     #endregion
-
-
-
 
     #region ServiceBusMessage Processor
     public async Task StartProcessorAsync(CancellationToken cancellationToken = default)
@@ -71,9 +64,6 @@ public class OrchestrationService : IOrchestrationService
         return Task.CompletedTask;
     }
     #endregion
-
-
-
 
     #region File share
     private async Task UploadToFileShareAsync(string message, string dataSource)

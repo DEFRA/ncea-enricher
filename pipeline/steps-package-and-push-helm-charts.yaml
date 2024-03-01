@@ -12,5 +12,5 @@ steps:
 - task: PublishPipelineArtifact@1
   condition: and(succeeded(), or(eq(variables['isMain'], 'true'), eq(variables['isPullRequest'], 'true')))
   inputs:
-    targetPath: $(Build.ArtifactStagingDirectory)/ncea-mapper-$(Build.BuildNumber).tgz
+    targetPath: $(Build.ArtifactStagingDirectory)/ncea-enricher-$(Build.BuildNumber).tgz
     artifactName: charts
