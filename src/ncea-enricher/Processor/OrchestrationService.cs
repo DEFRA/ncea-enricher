@@ -95,7 +95,7 @@ public class OrchestrationService : IOrchestrationService
         }
     }
 
-    private Stream GenerateStreamFromString(string fileContent)
+    private static MemoryStream GenerateStreamFromString(string fileContent)
     {
         MemoryStream stream = new MemoryStream();
         StreamWriter writer = new StreamWriter(stream);
