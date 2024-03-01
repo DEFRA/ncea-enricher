@@ -264,11 +264,41 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockServiceProvider.Object, loggerMock.Object, mockShareClient.Object);
         var GetFileIdentifierMethod = typeof(OrchestrationService).GetMethod("GetFileIdentifier", BindingFlags.NonPublic | BindingFlags.Static);
-        var fileIdentifier = (string)(GetFileIdentifierMethod?.Invoke(service, new object[] { message }));
+        var fileIdentifier = (string?)(GetFileIdentifierMethod?.Invoke(service, new object[] { message }));
 
 
         // Assert
         Assert.Equal("test-file-identifier", fileIdentifier!);
+    }
+
+    [Fact]
+    public void GetFileIdentifier_Should_Return_null()
+    {
+        // Arrange
+        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IOrchestrationService> mockOrchestrationService,
+                            out Mock<ILogger<OrchestrationService>> loggerMock,
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
+                            out Mock<ShareServiceClient> mockFileShareServiceClient,
+                            out Mock<ShareClient> mockShareClient,
+                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
+                            out Mock<ShareFileClient> mockShareFileClient);
+        var mockServiceProvider = new Mock<IServiceProvider>();
+        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                        "<gmd:MD_Metadata " +
+                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
+                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
+                        "</gmd:MD_Metadata>";
+
+        // Act
+        var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockServiceProvider.Object, loggerMock.Object, mockShareClient.Object);
+        var GetFileIdentifierMethod = typeof(OrchestrationService).GetMethod("GetFileIdentifier", BindingFlags.NonPublic | BindingFlags.Static);
+        var fileIdentifier = (string?)(GetFileIdentifierMethod?.Invoke(service, new object[] { message }));
+
+
+        // Assert
+        Assert.Null(fileIdentifier!);
     }
 
     [Fact]
@@ -296,7 +326,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockServiceProvider.Object, loggerMock.Object, mockShareClient.Object);
-        var GenerateStreamFromStringMethod = typeof(OrchestrationService).GetMethod("GenerateStreamFromString", BindingFlags.NonPublic | BindingFlags.Instance);
+        var GenerateStreamFromStringMethod = typeof(OrchestrationService).GetMethod("GenerateStreamFromString", BindingFlags.NonPublic | BindingFlags.Static);
         var fileStream = (Stream?)(GenerateStreamFromStringMethod?.Invoke(service, new object[] { message }));
 
 
@@ -322,7 +352,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockServiceProvider.Object, loggerMock.Object, mockShareClient.Object);
-        var GenerateStreamFromStringMethod = typeof(OrchestrationService).GetMethod("GenerateStreamFromString", BindingFlags.NonPublic | BindingFlags.Instance);
+        var GenerateStreamFromStringMethod = typeof(OrchestrationService).GetMethod("GenerateStreamFromString", BindingFlags.NonPublic | BindingFlags.Static);
         var fileStream = (Stream?)(GenerateStreamFromStringMethod?.Invoke(service, new object[] { message }));
 
 
