@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: nceapocsbox.azurecr.io/defra/ncea-enricher-service
   pullPolicy: IfNotPresent
-  tag: 20240301.17_feature-310857-Enricher-Boilerplate
+  tag: 20240304.19_feature-310857-Enricher-Boilerplate
 
 imagePullSecrets: []
 nameOverride: ""
