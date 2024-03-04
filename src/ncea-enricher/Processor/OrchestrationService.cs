@@ -91,18 +91,22 @@ public class OrchestrationService : IOrchestrationService
         {
             if (await _fileShareClient.ExistsAsync())
             {
+                _logger.LogInformation("Upload started - 1");
                 var directory = _fileShareClient.GetDirectoryClient(dataSource);
                 await directory.CreateIfNotExistsAsync();
 
                 if(await directory.ExistsAsync())
                 {
+                    _logger.LogInformation("Upload started - 2");
                     var fileName = string.Concat(fileIdentifier, ".xml");
                     var file = directory.GetFileClient(fileName);
 
                     using (var fileStream = GenerateStreamFromString(message))
                     {
+                        _logger.LogInformation("Upload started - 3");
                         file.Create(fileStream.Length);
                         file.UploadRange(new HttpRange(0, fileStream.Length), fileStream);
+                        _logger.LogInformation("Upload started - 4");
                     }
                 }                
             }                
