@@ -43,10 +43,11 @@ public class OrchestrationService : IOrchestrationService
 
     private async Task ProcessMessagesAsync(ProcessMessageEventArgs args)
     {
+        _logger.LogInformation("Received a messaage to enrich metadata");
         try
         {
             var body = args.Message.Body.ToString();
-            var dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
+            var dataSource = args.Message.ApplicationProperties["DataSource"].ToString();            ;
             var mdcMappedData = await _serviceProvider.GetRequiredKeyedService<IEnricherService>(dataSource).Enrich(body);
             
             await UploadToFileShareAsync(mdcMappedData, dataSource!);
@@ -69,6 +70,8 @@ public class OrchestrationService : IOrchestrationService
     #region File share
     private async Task UploadToFileShareAsync(string message, string dataSource)
     {
+        _logger.LogInformation("Upload started");
+
         if (string.IsNullOrWhiteSpace(message))
         {
             _logger.LogError("Empty enriched xml.failed uploading.");
@@ -82,6 +85,7 @@ public class OrchestrationService : IOrchestrationService
             _logger.LogError("Invalid enriched xml.failed uploading.");
             return;
         }
+        _logger.LogInformation("Upload in-progress for {fileIdentifier}", fileIdentifier);
 
         try
         {
@@ -105,7 +109,9 @@ public class OrchestrationService : IOrchestrationService
         }
         catch(Exception ex) {
             _logger.LogError("Error occured while uploading enriched files on fileshare {ex}", ex);
-        } 
+        }
+
+        _logger.LogInformation("Upload completed for {fileIdentifier}", fileIdentifier);
     }
 
     private static MemoryStream GenerateStreamFromString(string fileContent)

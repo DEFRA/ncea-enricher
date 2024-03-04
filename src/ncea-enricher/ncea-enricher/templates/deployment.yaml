@@ -47,14 +47,7 @@ spec:
             initialDelaySeconds: 15
             failureThreshold: 2
             timeoutSeconds: 3
-            periodSeconds: 20
-          readinessProbe:
-            tcpSocket:
-              port: health-check
-            initialDelaySeconds: 5
-            failureThreshold: 2
-            timeoutSeconds: 3
-            periodSeconds: 10
+            periodSeconds: 60          
           env:
             - name: ServiceBusHostName
               value: {{ .Values.env.serviceBusHostName }}
