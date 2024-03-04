@@ -108,6 +108,8 @@ public class OrchestrationService : IOrchestrationService
                         file.Create(fileStream.Length);
                         file.UploadRange(new HttpRange(0, fileStream.Length), fileStream);
 
+                        fileStream.Position = 0;
+
                         var requestToSaveAsBlob = new SaveBlobRequest(fileStream, $"{dataSource}/{fileIdentifier}.xml", _fileShareName);
                         await _blobStorageService.SaveAsync(requestToSaveAsBlob);
                     }
