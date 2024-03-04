@@ -20,7 +20,6 @@ spec:
         {{- with .Values.podAnnotations }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
-
       labels:
         {{- include "ncea-enricher.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
