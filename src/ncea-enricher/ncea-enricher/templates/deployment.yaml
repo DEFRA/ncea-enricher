@@ -16,7 +16,7 @@ spec:
     metadata:      
       annotations:
         rollme: {{ randAlphaNum 5 | quote }}
-        timstamp: {{ now | date "20060102150405" | quote }}
+        timestamp: {{ now | date "20060102150405" | quote }}
         {{- with .Values.podAnnotations }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
