@@ -17,7 +17,9 @@ env:
   keyVaultUri: https://nceapocsbox.vault.azure.net/
   fileShareClientUri: https://nceapocsbox.file.core.windows.net/
 
-podAnnotations: {}
+podAnnotations: 
+  rollme: "randAlphaNum 5"
+
 podLabels: 
   azure.workload.identity/use: "true"
 

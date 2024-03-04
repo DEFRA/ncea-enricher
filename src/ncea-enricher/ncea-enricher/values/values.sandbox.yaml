@@ -17,7 +17,10 @@ env:
   keyVaultUri: 
   fileShareClientUri: 
 
-podAnnotations: {}
+podAnnotations: 
+  rollme: {{ randAlphaNum 5 | quote }}
+  timstamp: {{ now | date "20060102150405" }}
+
 podLabels: 
   azure.workload.identity/use: "true"
 
