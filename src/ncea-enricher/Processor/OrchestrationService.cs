@@ -104,7 +104,7 @@ public class OrchestrationService : IOrchestrationService
             }                
         }
         catch(Exception ex) {
-            _logger.LogError("Error occured while uploading enriched files on file share {ex}", ex);
+            _logger.LogError("Error occured while uploading enriched files on fileshare {ex}", ex);
         } 
     }
 

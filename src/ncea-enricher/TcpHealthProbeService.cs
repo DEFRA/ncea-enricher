@@ -27,7 +27,7 @@ public sealed class TcpHealthProbeService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Started health check service.");
+        _logger.LogInformation("Started health check service for ncea-enricher.");
         await Task.Yield();
         _listener.Start();
         while (!stoppingToken.IsCancellationRequested)
@@ -51,7 +51,7 @@ public sealed class TcpHealthProbeService : BackgroundService
             if (!isHealthy)
             {
                 _listener.Stop();
-                _logger.LogInformation("Service is unhealthy. Listener stopped.");
+                _logger.LogInformation("The ncea-enricher service is unhealthy. Listener stopped.");
                 return;
             }
 
@@ -60,14 +60,14 @@ public sealed class TcpHealthProbeService : BackgroundService
             {
                 var client = await _listener.AcceptTcpClientAsync(cancellationToken);
                 client.Close();
-                _logger.LogInformation("Successfully processed health check request.");
+                _logger.LogInformation("Successfully processed health check request for ncea-enricher service.");
             }
 
-            _logger.LogDebug("Heartbeat check executed.");
+            _logger.LogDebug("Heartbeat check executed for ncea-enricher service.");
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, "An error occurred while checking heartbeat.");
+            _logger.LogCritical(ex, "An error occurred while checking heartbeat for ncea-enricher service.");
         }
     }
 }
