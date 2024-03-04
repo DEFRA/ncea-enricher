@@ -13,12 +13,14 @@ spec:
     matchLabels:
       {{- include "ncea-enricher.selectorLabels" . | nindent 6 }}
   template:
-    metadata:
-      {{- with .Values.podAnnotations }}
+    metadata:      
       annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
         timstamp: {{ now | date "20060102150405" }}
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- with .Values.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+
       labels:
         {{- include "ncea-enricher.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}

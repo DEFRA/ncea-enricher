@@ -17,9 +17,7 @@ env:
   keyVaultUri: 
   fileShareClientUri: 
 
-podAnnotations: 
-  rollme: "randAlphaNum 5"
-
+podAnnotations: {}
 podLabels: 
   azure.workload.identity/use: "true"
 
