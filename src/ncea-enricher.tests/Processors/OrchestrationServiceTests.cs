@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Azure.Storage.Blobs;
 using Azure.Storage.Files.Shares;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
@@ -29,8 +30,19 @@ public class OrchestrationServiceTests
                             out Mock<ShareClient> mockShareClient,
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
+
+        var blobService = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
+                                              out Mock<BlobContainerClient> mockBlobContainerClient,
+                                              out Mock<BlobClient> mockBlobClient);
+
         var serviceProvider = new Mock<IServiceProvider>();
-        var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockFileShareClientFactory.Object, serviceProvider.Object, loggerMock.Object);
+
+        var service = new OrchestrationService(configuration, 
+            mockServiceBusProcessorFactory.Object, 
+            mockFileShareClientFactory.Object,
+            blobService,
+            serviceProvider.Object, 
+            loggerMock.Object);
 
         // Act
         await service.StartProcessorAsync(It.IsAny<CancellationToken>());
@@ -43,7 +55,7 @@ public class OrchestrationServiceTests
     public async Task CreateProcessor_ShouldCall_CreateProcessor_On_ServiceBusClient()
     {
         // Arrange
-        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+        OrchestrationServiceForTests.Get<OrchestrationService>(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
                             out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
@@ -53,10 +65,22 @@ public class OrchestrationServiceTests
                             out Mock<ShareClient> mockShareClient,
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
-        var mockServiceProvider = new Mock<IServiceProvider>();
+
+        var blobService = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
+                                              out Mock<BlobContainerClient> mockBlobContainerClient,
+                                              out Mock<BlobClient> mockBlobClient);
+
+        var serviceProvider = new Mock<IServiceProvider>();
+
+        var service = new OrchestrationService(configuration,
+            mockServiceBusProcessorFactory.Object,
+            mockFileShareClientFactory.Object,
+            blobService,
+            serviceProvider.Object,
+            loggerMock.Object);
 
         // Act
-        var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockFileShareClientFactory.Object, mockServiceProvider.Object, loggerMock.Object);
+        // Act
         await service.StartProcessorAsync(It.IsAny<CancellationToken>());
 
         // Assert        
@@ -67,7 +91,7 @@ public class OrchestrationServiceTests
     public async Task ErrorHandlerAsync_Should_Complete_Task()
     {
         // Arrange
-        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+        OrchestrationServiceForTests.Get<OrchestrationService>(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
                             out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
@@ -77,9 +101,20 @@ public class OrchestrationServiceTests
                             out Mock<ShareClient> mockShareClient,
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
-        var mockServiceProvider = new Mock<IServiceProvider>();
 
-        var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockFileShareClientFactory.Object, mockServiceProvider.Object, loggerMock.Object);
+        var blobService = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
+                                              out Mock<BlobContainerClient> mockBlobContainerClient,
+                                              out Mock<BlobClient> mockBlobClient);
+
+        var serviceProvider = new Mock<IServiceProvider>();
+
+        var service = new OrchestrationService(configuration,
+            mockServiceBusProcessorFactory.Object,
+            mockFileShareClientFactory.Object,
+            blobService,
+            serviceProvider.Object,
+            loggerMock.Object);
+
         var args = new ProcessErrorEventArgs(new Exception("test-exception"), It.IsAny<ServiceBusErrorSource>(),
                                              It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                                              It.IsAny<CancellationToken>());
@@ -104,7 +139,7 @@ public class OrchestrationServiceTests
     public async Task ProcessMessagesAsync_Should_CompleteMessageAsync()
     {
         // Arrange
-        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+        OrchestrationServiceForTests.Get<OrchestrationService>(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
                             out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
@@ -114,7 +149,12 @@ public class OrchestrationServiceTests
                             out Mock<ShareClient> mockShareClient,
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
-        LoggerForTests.Get<MedinEnricher>(out Mock<ILogger<MedinEnricher>> mockLogger);
+
+        var blobService = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
+                                              out Mock<BlobContainerClient> mockBlobContainerClient,
+                                              out Mock<BlobClient> mockBlobClient);        
+
+        // Act
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -135,7 +175,13 @@ public class OrchestrationServiceTests
 
 
         // Act
-        var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockFileShareClientFactory.Object, mockServiceProvider, loggerMock.Object);
+        var service = new OrchestrationService(configuration,
+            mockServiceBusProcessorFactory.Object,
+            mockFileShareClientFactory.Object,
+            blobService,
+            mockServiceProvider,
+            loggerMock.Object);
+
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
         if (task != null) await task;
@@ -159,14 +205,25 @@ public class OrchestrationServiceTests
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
 
+        var blobService = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
+                                              out Mock<BlobContainerClient> mockBlobContainerClient,
+                                              out Mock<BlobClient> mockBlobClient);
+
         var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: null, messageId: "messageId");
         var mockReceiver = new Mock<ServiceBusReceiver>();
         var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
         mockProcessMessageEventArgs.Setup(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         var mockServiceProvider = new Mock<IServiceProvider>();
+
         // Act
-        var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockFileShareClientFactory.Object, mockServiceProvider.Object, loggerMock.Object);
+        var service = new OrchestrationService(configuration,
+            mockServiceBusProcessorFactory.Object,
+            mockFileShareClientFactory.Object,
+            blobService,
+            mockServiceProvider.Object,
+            loggerMock.Object);
+
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
         if (task != null) await task;
@@ -194,11 +251,22 @@ public class OrchestrationServiceTests
                             out Mock<ShareClient> mockShareClient,
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
+
+        var blobService = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
+                                              out Mock<BlobContainerClient> mockBlobContainerClient,
+                                              out Mock<BlobClient> mockBlobClient);
+
         var mockServiceProvider = new Mock<IServiceProvider>();
 
 
         // Act
-        var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockFileShareClientFactory.Object, mockServiceProvider.Object, loggerMock.Object);
+        var service = new OrchestrationService(configuration,
+            mockServiceBusProcessorFactory.Object,
+            mockFileShareClientFactory.Object,
+            blobService,
+            mockServiceProvider.Object,
+            loggerMock.Object);
+
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("UploadToFileShareAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { string.Empty, It.IsAny<string>() }));
         if (task != null) await task;
@@ -221,6 +289,11 @@ public class OrchestrationServiceTests
                             out Mock<ShareClient> mockShareClient,
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
+
+        var blobService = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
+                                              out Mock<BlobContainerClient> mockBlobContainerClient,
+                                              out Mock<BlobClient> mockBlobClient);
+
         var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -232,7 +305,13 @@ public class OrchestrationServiceTests
                         "</gmd:MD_Metadata>";
 
         // Act
-        var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockFileShareClientFactory.Object, mockServiceProvider.Object, loggerMock.Object);
+        var service = new OrchestrationService(configuration,
+            mockServiceBusProcessorFactory.Object,
+            mockFileShareClientFactory.Object,
+            blobService,
+            mockServiceProvider.Object,
+            loggerMock.Object);
+
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("UploadToFileShareAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { message, It.IsAny<string>() }));
         if (task != null) await task;
@@ -259,6 +338,11 @@ public class OrchestrationServiceTests
                             out Mock<ShareClient> mockShareClient,
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
+
+        var blobService = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
+                                              out Mock<BlobContainerClient> mockBlobContainerClient,
+                                              out Mock<BlobClient> mockBlobClient);
+
         var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -270,7 +354,13 @@ public class OrchestrationServiceTests
                         "</gmd:MD_Metadata>";
 
         // Act
-        var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockFileShareClientFactory.Object, mockServiceProvider.Object, loggerMock.Object);
+        var service = new OrchestrationService(configuration,
+            mockServiceBusProcessorFactory.Object,
+            mockFileShareClientFactory.Object,
+            blobService,
+            mockServiceProvider.Object,
+            loggerMock.Object);
+
         var GetFileIdentifierMethod = typeof(OrchestrationService).GetMethod("GetFileIdentifier", BindingFlags.NonPublic | BindingFlags.Static);
         var fileIdentifier = (string?)(GetFileIdentifierMethod?.Invoke(service, new object[] { message }));
 
@@ -293,6 +383,11 @@ public class OrchestrationServiceTests
                             out Mock<ShareClient> mockShareClient,
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
+
+        var blobService = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
+                                              out Mock<BlobContainerClient> mockBlobContainerClient,
+                                              out Mock<BlobClient> mockBlobClient);
+
         var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -301,7 +396,13 @@ public class OrchestrationServiceTests
                         "</gmd:MD_Metadata>";
 
         // Act
-        var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockFileShareClientFactory.Object, mockServiceProvider.Object, loggerMock.Object);
+        var service = new OrchestrationService(configuration,
+            mockServiceBusProcessorFactory.Object,
+            mockFileShareClientFactory.Object,
+            blobService,
+            mockServiceProvider.Object,
+            loggerMock.Object);
+
         var GetFileIdentifierMethod = typeof(OrchestrationService).GetMethod("GetFileIdentifier", BindingFlags.NonPublic | BindingFlags.Static);
         var fileIdentifier = (string?)(GetFileIdentifierMethod?.Invoke(service, new object[] { message }));
 
@@ -324,6 +425,11 @@ public class OrchestrationServiceTests
                             out Mock<ShareClient> mockShareClient,
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
+
+        var blobService = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
+                                              out Mock<BlobContainerClient> mockBlobContainerClient,
+                                              out Mock<BlobClient> mockBlobClient);
+
         var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -335,7 +441,12 @@ public class OrchestrationServiceTests
                         "</gmd:MD_Metadata>";
 
         // Act
-        var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockFileShareClientFactory.Object, mockServiceProvider.Object, loggerMock.Object);
+        var service = new OrchestrationService(configuration,
+            mockServiceBusProcessorFactory.Object,
+            mockFileShareClientFactory.Object,
+            blobService,
+            mockServiceProvider.Object,
+            loggerMock.Object);
         var GenerateStreamFromStringMethod = typeof(OrchestrationService).GetMethod("GenerateStreamFromString", BindingFlags.NonPublic | BindingFlags.Static);
         var fileStream = (Stream?)(GenerateStreamFromStringMethod?.Invoke(service, new object[] { message }));
 
@@ -358,11 +469,21 @@ public class OrchestrationServiceTests
                             out Mock<ShareClient> mockShareClient,
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
+
+        var blobService = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
+                                              out Mock<BlobContainerClient> mockBlobContainerClient,
+                                              out Mock<BlobClient> mockBlobClient);
+
         var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "";
 
         // Act
-        var service = new OrchestrationService(configuration, mockServiceBusProcessorFactory.Object, mockFileShareClientFactory.Object, mockServiceProvider.Object, loggerMock.Object);
+        var service = new OrchestrationService(configuration,
+            mockServiceBusProcessorFactory.Object,
+            mockFileShareClientFactory.Object,
+            blobService,
+            mockServiceProvider.Object,
+            loggerMock.Object);
         var GenerateStreamFromStringMethod = typeof(OrchestrationService).GetMethod("GenerateStreamFromString", BindingFlags.NonPublic | BindingFlags.Static);
         var fileStream = (Stream?)(GenerateStreamFromStringMethod?.Invoke(service, new object[] { message }));
 

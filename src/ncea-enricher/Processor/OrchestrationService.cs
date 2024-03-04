@@ -5,6 +5,8 @@ using Azure.Messaging.ServiceBus;
 using Azure.Storage.Files.Shares;
 using Microsoft.Extensions.Azure;
 using ncea.enricher.Processor.Contracts;
+using Ncea.Enricher.Infrastructure.Contracts;
+using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Processors.Contracts;
 
 namespace ncea.enricher.Processor;
@@ -12,22 +14,26 @@ namespace ncea.enricher.Processor;
 public class OrchestrationService : IOrchestrationService
 {
     #region Initialization
+    private readonly string _fileShareName;
     private readonly ShareClient _fileShareClient;
     private readonly ServiceBusProcessor _processor;
+    private readonly IBlobStorageService _blobStorageService;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<OrchestrationService> _logger;
 
     public OrchestrationService(IConfiguration configuration,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
         IAzureClientFactory<ShareClient> fileShareClientFactory,
+        IBlobStorageService blobStorageService,
         IServiceProvider serviceProvider,
         ILogger<OrchestrationService> logger)
     {
         var mapperQueueName = configuration.GetValue<string>("MapperQueueName");
-        var fileShareName = configuration.GetValue<string>("FileShareName")!;
+        _fileShareName = configuration.GetValue<string>("FileShareName")!;
 
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
-        _fileShareClient = fileShareClientFactory.CreateClient(fileShareName);
+        _fileShareClient = fileShareClientFactory.CreateClient(_fileShareName);
+        _blobStorageService = blobStorageService;
         _serviceProvider = serviceProvider;
         _logger = logger;
     }
@@ -47,10 +53,11 @@ public class OrchestrationService : IOrchestrationService
         try
         {
             var body = args.Message.Body.ToString();
-            var dataSource = args.Message.ApplicationProperties["DataSource"].ToString();            ;
+            var dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
             var mdcMappedData = await _serviceProvider.GetRequiredKeyedService<IEnricherService>(dataSource).Enrich(body);
             
             await UploadToFileShareAsync(mdcMappedData, dataSource!);
+            
             await args.CompleteMessageAsync(args.Message);
         }
         catch (Exception ex)
@@ -70,8 +77,6 @@ public class OrchestrationService : IOrchestrationService
     #region File share
     private async Task UploadToFileShareAsync(string message, string dataSource)
     {
-        _logger.LogInformation("Upload started");
-
         if (string.IsNullOrWhiteSpace(message))
         {
             _logger.LogError("Empty enriched xml.failed uploading.");
@@ -85,37 +90,34 @@ public class OrchestrationService : IOrchestrationService
             _logger.LogError("Invalid enriched xml.failed uploading.");
             return;
         }
-        _logger.LogInformation("Upload in-progress for {fileIdentifier}", fileIdentifier);
 
         try
         {
             if (await _fileShareClient.ExistsAsync())
             {
-                _logger.LogInformation("Upload started - 1");
                 var directory = _fileShareClient.GetDirectoryClient(dataSource);
                 await directory.CreateIfNotExistsAsync();
 
                 if(await directory.ExistsAsync())
                 {
-                    _logger.LogInformation("Upload started - 2");
                     var fileName = string.Concat(fileIdentifier, ".xml");
                     var file = directory.GetFileClient(fileName);
 
                     using (var fileStream = GenerateStreamFromString(message))
                     {
-                        _logger.LogInformation("Upload started - 3");
                         file.Create(fileStream.Length);
                         file.UploadRange(new HttpRange(0, fileStream.Length), fileStream);
-                        _logger.LogInformation("Upload started - 4");
+
+                        var requestToSaveAsBlob = new SaveBlobRequest(fileStream, $"{dataSource}/{fileIdentifier}.xml", _fileShareName);
+                        await _blobStorageService.SaveAsync(requestToSaveAsBlob);
                     }
                 }                
             }                
         }
-        catch(Exception ex) {
+        catch(Exception ex) 
+        {
             _logger.LogError("Error occured while uploading enriched files on fileshare {ex}", ex);
         }
-
-        _logger.LogInformation("Upload completed for {fileIdentifier}", fileIdentifier);
     }
 
     private static MemoryStream GenerateStreamFromString(string fileContent)

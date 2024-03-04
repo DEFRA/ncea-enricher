@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ncea.enricher.Processor.Contracts;
+using Ncea.Enricher.Infrastructure.Contracts;
 
 namespace Ncea.Enricher.Tests.Clients;
 
@@ -32,8 +33,6 @@ public static class OrchestrationServiceForTests
                             .Build();
         mockServiceBusProcessorFactory = new Mock<IAzureClientFactory<ServiceBusProcessor>>();
         mockFileShareClientFactory = new Mock<IAzureClientFactory<ShareClient>>();
-
-
 
         mockServiceBusProcessor = new Mock<ServiceBusProcessor>();
         mockFileShareServiceClient = new Mock<ShareServiceClient> ();
