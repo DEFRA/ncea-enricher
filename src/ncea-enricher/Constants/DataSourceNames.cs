@@ -1,6 +1,6 @@
 ﻿namespace Ncea.Enricher.Constants;
 
-public enum ProcessorType
+public enum DataSourceNames
 {
     Medin,
     Jncc

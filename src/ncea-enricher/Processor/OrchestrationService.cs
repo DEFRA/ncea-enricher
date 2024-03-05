@@ -79,7 +79,7 @@ public class OrchestrationService : IOrchestrationService
     {
         if (string.IsNullOrWhiteSpace(message))
         {
-            _logger.LogError("Empty enriched xml.failed uploading.");
+            _logger.LogError("Empty enriched xml failed uploading.");
             return;
         }
 
@@ -93,28 +93,23 @@ public class OrchestrationService : IOrchestrationService
 
         try
         {
-            if (await _fileShareClient.ExistsAsync())
+            var fileName = string.Concat(fileIdentifier, ".xml");
+
+            var directory = _fileShareClient.GetDirectoryClient(dataSource);            
+            var file = directory.GetFileClient(fileName);
+
+            using (var fileStream = GenerateStreamFromString(message))
             {
-                var directory = _fileShareClient.GetDirectoryClient(dataSource);
-                await directory.CreateIfNotExistsAsync();
+                await file.CreateAsync(fileStream.Length);
+                await file.UploadRangeAsync(new HttpRange(0, fileStream.Length), 
+                    fileStream, 
+                    new Azure.Storage.Files.Shares.Models.ShareFileUploadRangeOptions { });
 
-                if(await directory.ExistsAsync())
-                {
-                    var fileName = string.Concat(fileIdentifier, ".xml");
-                    var file = directory.GetFileClient(fileName);
+                fileStream.Position = 0;
 
-                    using (var fileStream = GenerateStreamFromString(message))
-                    {
-                        file.Create(fileStream.Length);
-                        file.UploadRange(new HttpRange(0, fileStream.Length), fileStream);
-
-                        fileStream.Position = 0;
-
-                        var requestToSaveAsBlob = new SaveBlobRequest(fileStream, $"{dataSource}/{fileIdentifier}.xml", _fileShareName);
-                        await _blobStorageService.SaveAsync(requestToSaveAsBlob);
-                    }
-                }                
-            }                
+                var requestToSaveAsBlob = new SaveBlobRequest(fileStream, $"{dataSource}/{fileIdentifier}.xml", _fileShareName);
+                await _blobStorageService.SaveAsync(requestToSaveAsBlob);
+            }
         }
         catch(Exception ex) 
         {

@@ -317,10 +317,7 @@ public class OrchestrationServiceTests
         if (task != null) await task;
 
         // Assert
-        mockShareClient.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
         mockShareClient.Verify(x => x.GetDirectoryClient(It.IsAny<string>()), Times.Once);
-        mockShareDirectoryClient.Verify(x => x.CreateIfNotExistsAsync(It.IsAny<IDictionary<string, string>>(), null, null, It.IsAny<CancellationToken>()), Times.Once);        
-        mockShareDirectoryClient.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
         mockShareDirectoryClient.Verify(x => x.GetFileClient(It.IsAny<string>()), Times.Once);        
     }
 

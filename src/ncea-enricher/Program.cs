@@ -16,6 +16,7 @@ using Ncea.Enricher.Processors;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Storage.Files.Shares;
 using Azure.Storage.Blobs;
+using Ncea.Enricher.Constants;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -34,7 +35,7 @@ builder.Services.AddHttpClient();
 ConfigureKeyVault(configuration, builder);
 ConfigureLogging(builder);
 await ConfigureServiceBusQueue(configuration, builder);
-ConfigureFileShareClient(configuration, builder);
+await ConfigureFileShareClient(configuration, builder);
 await ConfigureBlobStorage(configuration, builder);
 ConfigureServices(builder);
 
@@ -61,15 +62,16 @@ static async Task ConfigureServiceBusQueue(IConfigurationRoot configuration, Hos
         builder.AddClient<ServiceBusProcessor, ServiceBusClientOptions>(
             (_, _, provider) => provider.GetService<ServiceBusClient>()!.CreateProcessor(mapperQueueName))
             .WithName(mapperQueueName);
-    });
+    });   
 }
 
-static void ConfigureFileShareClient(IConfigurationRoot configuration, HostApplicationBuilder builder)
+static async Task ConfigureFileShareClient(IConfigurationRoot configuration, HostApplicationBuilder builder)
 {
     var fileShareEndpoint = new Uri(configuration.GetValue<string>("FileShareClientUri")!);
     var fileShareName = configuration.GetValue<string>("FileShareName");
 
     var fileShareConnectionString = builder.Configuration.GetValue<string>("FileShare:ConnectionString");
+    await InitializeFileShare(fileShareName, fileShareConnectionString);
 
     builder.Services.AddAzureClients(builder =>
     {
@@ -140,6 +142,17 @@ static async Task CreateServiceBusQueueIfNotExist(ServiceBusAdministrationClient
     if (!queueExists)
     {
         await servicebusAdminClient.CreateQueueAsync(queueName);
+    }
+}
+
+static async Task InitializeFileShare(string? fileShareName, string? fileShareConnectionString)
+{
+    var shareClient = new ShareClient(fileShareConnectionString, fileShareName);
+    await shareClient.CreateIfNotExistsAsync();
+    foreach (string dataSourceName in Enum.GetNames(typeof(DataSourceNames)))
+    {
+        var directory = shareClient.GetDirectoryClient(dataSourceName);
+        await directory.CreateIfNotExistsAsync();
     }
 }
 
