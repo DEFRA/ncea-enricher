@@ -52,5 +52,6 @@ steps:
         env.serviceBusHostName=$(serviceBusHostName)
         env.keyVaultUri=$(keyVaultUri)
         env.fileShareClientUri=$(fileShareClientUri)
+        env.blobStorageUri=$(blobStorageUri)
     install: true
     force: true
