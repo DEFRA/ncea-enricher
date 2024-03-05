@@ -31,7 +31,7 @@ public class Worker : BackgroundService
             {
                 await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
 
-                _telemetryClient.TrackEvent("Harvesting completed");
+                _telemetryClient.TrackEvent("Ncea Enricher service up and running...");
             }
         }
     }
