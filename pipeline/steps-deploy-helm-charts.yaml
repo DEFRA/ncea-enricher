@@ -22,16 +22,16 @@ steps:
     overwriteExistingFiles: true
     destinationFolder: '$(Pipeline.Workspace)/chart' 
 
-- task: HelmDeploy@0
-  displayName: 'Helm Deploy'
-  condition: succeeded()
-  inputs:
-    connectionType: 'Kubernetes Service Connection'
-    kubernetesServiceConnection: ${{ parameters.aksServiceConnection }}
-    releaseName: ${{ parameters.releaseName }}
-    namespace: $(aksNamespace)
-    command: 'uninstall'
-    arguments: ${{ parameters.releaseName }}
+# - task: HelmDeploy@0
+#   displayName: 'Helm Uninstall'
+#   condition: succeeded()
+#   inputs:
+#     connectionType: 'Kubernetes Service Connection'
+#     kubernetesServiceConnection: ${{ parameters.aksServiceConnection }}
+#     releaseName: ${{ parameters.releaseName }}
+#     namespace: $(aksNamespace)
+#     command: 'uninstall'
+#     arguments: ${{ parameters.releaseName }}
  
 - task: HelmDeploy@0
   displayName: 'Helm Deploy'
