@@ -30,7 +30,7 @@ steps:
     kubernetesServiceConnection: ${{ parameters.aksServiceConnection }}
     releaseName: ${{ parameters.releaseName }}
     namespace: $(aksNamespace)
-    command: 'delete'
+    command: 'uninstall'
     arguments: ${{ parameters.releaseName }}
  
 - task: HelmDeploy@0
