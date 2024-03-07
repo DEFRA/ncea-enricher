@@ -14,6 +14,7 @@ namespace ncea.enricher.Processor;
 public class OrchestrationService : IOrchestrationService
 {
     #region Initialization
+    private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
     private readonly string _fileShareName;
     private readonly ShareClient _fileShareClient;
     private readonly ServiceBusProcessor _processor;
@@ -62,14 +63,14 @@ public class OrchestrationService : IOrchestrationService
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error processing message: {ex.Message}", ex.Message);
+            _logger.LogError(ex, ProcessorErrorMessage);
             await args.AbandonMessageAsync(args.Message);
         }
     }
 
     private Task ErrorHandlerAsync(ProcessErrorEventArgs args)
     {
-        _logger.LogError("Error processing message: {args.Exception.Message}", args.Exception.Message);
+        _logger.LogError(args.Exception, ProcessorErrorMessage);
         return Task.CompletedTask;
     }
     #endregion
@@ -113,7 +114,7 @@ public class OrchestrationService : IOrchestrationService
         }
         catch(Exception ex) 
         {
-            _logger.LogError("Error occured while uploading enriched files on fileshare {ex}", ex);
+            _logger.LogError(ex, "Error occured while uploading enriched files on fileshare");
         }
     }
 

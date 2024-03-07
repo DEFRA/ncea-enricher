@@ -12,7 +12,7 @@ public class MedinEnricher : IEnricherService
     }
     public async Task<string> Enrich(string mappedData, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation($"Medin enricher");
+        _logger.LogInformation("Medin enricher");
         return await Task.FromResult(mappedData);
     }
 }

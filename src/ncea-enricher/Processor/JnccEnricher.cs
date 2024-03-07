@@ -12,7 +12,7 @@ public class JnccEnricher : IEnricherService
     }
     public async Task<string> Enrich(string mappedData, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation($"Jncc enricher");
+        _logger.LogInformation("Jncc enricher");
         return await Task.FromResult(mappedData);
     }
 }
