@@ -35,7 +35,7 @@ steps:
  
 - task: HelmDeploy@0
   displayName: 'Helm Deploy'
-  condition: succeeded()
+  condition: succeededOrFailed()
   inputs:
     connectionType: 'Kubernetes Service Connection'
     kubernetesServiceConnection: ${{ parameters.aksServiceConnection }}
