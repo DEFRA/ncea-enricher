@@ -1,0 +1,57 @@
+parameters:
+  - name: envName
+    type: string
+  - name: releaseName
+    type: string
+  - name: aksServiceConnection
+    type: string
+
+steps:
+
+- task: DownloadPipelineArtifact@2
+  displayName: 'Download Helm Charts'
+  condition: succeeded()
+  inputs:
+    buildType: 'current'
+    artifact: charts
+
+- task: ExtractFiles@1
+  inputs:
+    archiveFilePatterns: '$(Pipeline.Workspace)/charts/*.tgz'
+    cleanDestinationFolder: true
+    overwriteExistingFiles: true
+    destinationFolder: '$(Pipeline.Workspace)/chart' 
+
+- task: HelmDeploy@0
+  displayName: 'Helm Uninstall'
+  condition: succeeded()
+  inputs:
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceConnection: ${{ parameters.aksServiceConnection }}
+    releaseName: ${{ parameters.releaseName }}
+    namespace: $(aksNamespace)
+    command: 'uninstall'
+    arguments: ${{ parameters.releaseName }}
+ 
+- task: HelmDeploy@0
+  displayName: 'Helm Deploy'
+  condition: succeededOrFailed()
+  inputs:
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceConnection: ${{ parameters.aksServiceConnection }}
+    releaseName: ${{ parameters.releaseName }}
+    namespace: $(aksNamespace)
+    command: 'upgrade'
+    chartType: 'FilePath'
+    chartPath: '$(Pipeline.Workspace)/ncea-enricher-$(Build.BuildNumber).tgz'
+    valueFile: $(Pipeline.Workspace)/chart/ncea-enricher/values/values.${{ parameters.envName }}.yaml
+    overrideValues: |
+        image.repository=$(containerRepositoryFullPath)
+        image.tag=$(imageTag)
+        serviceAccount.name=$(serviceAccountEnricher)
+        env.serviceBusHostName=$(serviceBusHostName)
+        env.keyVaultUri=$(keyVaultUri)
+        env.fileShareClientUri=$(fileShareClientUri)
+        env.blobStorageUri=$(blobStorageUri)
+    install: true
+    force: true
