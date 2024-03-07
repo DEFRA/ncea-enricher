@@ -11,7 +11,7 @@ public class BlobStorageService : IBlobStorageService
     public BlobStorageService(BlobServiceClient blobServiceClient) =>
         (_blobServiceClient) = (blobServiceClient);
 
-    public async Task<string> SaveAsync(SaveBlobRequest request, CancellationToken cancellationToken)
+    public async Task<string> SaveAsync(SaveBlobRequest request, CancellationToken cancellationToken = default)
     {
         var blobContainer = _blobServiceClient.GetBlobContainerClient(request.Container);
         var blobClient = blobContainer.GetBlobClient(request.FileName);
