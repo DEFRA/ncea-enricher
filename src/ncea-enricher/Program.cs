@@ -66,8 +66,7 @@ static async Task ConfigureServiceBusQueue(IConfigurationRoot configuration, Hos
 }
 
 static async Task ConfigureFileShareClient(IConfigurationRoot configuration, HostApplicationBuilder builder)
-{
-    var fileShareEndpoint = new Uri(configuration.GetValue<string>("FileShareClientUri")!);
+{    
     var fileShareName = configuration.GetValue<string>("FileShareName");
 
     var fileShareConnectionString = builder.Configuration.GetValue<string>("FileShare:ConnectionString");
