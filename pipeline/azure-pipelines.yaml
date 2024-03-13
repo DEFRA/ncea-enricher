@@ -10,7 +10,7 @@ trigger:
 variables: 
   - template: templates/variables-global.yml
   - name : acrContainerRegistryServiceConnection
-    value: acr-AZR-NCE-SND1
+    value: acr-AZR-NCE-DEV-TEMP
   - name : deployToDev
     value: false
 
@@ -21,7 +21,7 @@ stages:
   - job: 'Build'
     displayName: 'Build job'
     pool:
-      vmImage: 'ubuntu-latest'
+      name: DEFRA-COMMON-ubuntu2204-SSV3
     variables:
       - template: templates/variables-build.yml      
     steps:
