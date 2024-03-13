@@ -36,12 +36,25 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-volumes: []
 
-volumeMounts: []
+volumes: 
+  - mountPath: /metadata-import
+    name: enrichedmetadata
+
+volumeMounts: 
+  - name: enrichedmetadata
+    persistentVolumeClaim:
+      claimName: ncea-enricher-fileshare-pvc
 
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
+
+pv:
+  storageAccountResourceGroup: $(storageAccountResourceGroup)
+  storageAccountName: $(storageAccountName)
+  storageAccountFilePrivateEndpointFqdn: $(storageAccountFilePrivateEndpointFqdn)
+  enrichedMetadataShareName: metadata-import
+  pvcSize: 10Gi

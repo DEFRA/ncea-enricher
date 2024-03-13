@@ -3,7 +3,7 @@ parameters:
     type: string
   - name: releaseName
     type: string
-  - name: aksServiceConnection
+  - name: armServiceConnection
     type: string
 
 steps:
@@ -22,23 +22,29 @@ steps:
     overwriteExistingFiles: true
     destinationFolder: '$(Pipeline.Workspace)/chart' 
 
-- task: HelmDeploy@0
-  displayName: 'Helm Uninstall'
-  condition: succeeded()
+# - task: HelmDeploy@0
+#   displayName: 'Helm Uninstall'
+#   condition: succeeded()
+#   inputs:
+#     connectionType: 'Kubernetes Service Connection'
+#     kubernetesServiceConnection: ${{ parameters.aksServiceConnection }}
+#     releaseName: ${{ parameters.releaseName }}
+#     namespace: $(aksNamespace)
+#     command: 'uninstall'
+#     arguments: ${{ parameters.releaseName }} 
+
+- task: KubeloginInstaller@0
   inputs:
-    connectionType: 'Kubernetes Service Connection'
-    kubernetesServiceConnection: ${{ parameters.aksServiceConnection }}
-    releaseName: ${{ parameters.releaseName }}
-    namespace: $(aksNamespace)
-    command: 'uninstall'
-    arguments: ${{ parameters.releaseName }}
- 
+    kubeloginVersion: 'latest'
+
 - task: HelmDeploy@0
   displayName: 'Helm Deploy'
-  condition: succeededOrFailed()
+  condition: succeeded()
   inputs:
-    connectionType: 'Kubernetes Service Connection'
-    kubernetesServiceConnection: ${{ parameters.aksServiceConnection }}
+    connectionType: Azure Resource Manager
+    azureSubscriptionEndpoint: ${{ parameters.armServiceConnection }}
+    azureResourceGroup: $(aksResourceGroupName)
+    kubernetesCluster : $(aksClusterName)}}
     releaseName: ${{ parameters.releaseName }}
     namespace: $(aksNamespace)
     command: 'upgrade'
@@ -53,5 +59,8 @@ steps:
         env.keyVaultUri=$(keyVaultUri)
         env.fileShareClientUri=$(fileShareClientUri)
         env.blobStorageUri=$(blobStorageUri)
+        pv.storageAccountResourceGroup=$(storageAccountResourceGroup)
+        pv.storageAccountName=$(storageAccountName)
+        pv.storageAccountFilePrivateEndpointFqdn=$(storageAccountFilePrivateEndpointFqdn)
     install: true
     force: true

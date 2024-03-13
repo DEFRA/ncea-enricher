@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ncea-enricher-fileshare-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ncea-enricher-fileshare-sc
+  resources:
+    requests:
+      storage: {{ .Values.pv.pvcSize }}
