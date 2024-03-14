@@ -65,3 +65,4 @@ steps:
         pv.storageAccountName=$(storageAccountName)
         pv.storageAccountFilePrivateEndpointFqdn=$(storageAccountFilePrivateEndpointFqdn)
     install: true
+    recreate: true
