@@ -38,7 +38,7 @@ autoscaling:
 volumes: 
 - name: enrichedmetadata
   persistentVolumeClaim:
-    claimName: ncea-enricher-fileshare-pvcpvc
+    claimName: ncea-enricher-fileshare-pvc
 
 volumeMounts: 
 - mountPath: /metadata-import
