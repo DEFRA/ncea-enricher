@@ -20,7 +20,11 @@ steps:
     archiveFilePatterns: '$(Pipeline.Workspace)/charts/*.tgz'
     cleanDestinationFolder: true
     overwriteExistingFiles: true
-    destinationFolder: '$(Pipeline.Workspace)/chart' 
+    destinationFolder: '$(Pipeline.Workspace)/chart'
+    
+- task: KubeloginInstaller@0
+  inputs:
+    kubeloginVersion: 'latest'
 
 - task: HelmDeploy@0
   displayName: 'Helm Uninstall'
@@ -34,10 +38,6 @@ steps:
     namespace: $(aksNamespace)
     command: 'uninstall'
     arguments: ${{ parameters.releaseName }}
-
-- task: KubeloginInstaller@0
-  inputs:
-    kubeloginVersion: 'latest'
 
 - task: HelmDeploy@0
   displayName: 'Helm Deploy'
