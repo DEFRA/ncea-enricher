@@ -31,7 +31,7 @@ steps:
 #     releaseName: ${{ parameters.releaseName }}
 #     namespace: $(aksNamespace)
 #     command: 'uninstall'
-#     arguments: ${{ parameters.releaseName }} 
+#     arguments: ${{ parameters.releaseName }}
 
 - task: KubeloginInstaller@0
   inputs:
