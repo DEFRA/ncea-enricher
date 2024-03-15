@@ -106,10 +106,9 @@ public class OrchestrationService : IOrchestrationService
                     fileStream, 
                     new Azure.Storage.Files.Shares.Models.ShareFileUploadRangeOptions { });
 
-                fileStream.Position = 0;
-
-                var requestToSaveAsBlob = new SaveBlobRequest(fileStream, $"{dataSource}/{fileIdentifier}.xml", _fileShareName);
-                await _blobStorageService.SaveAsync(requestToSaveAsBlob);
+                //fileStream.Position = 0;
+                //var requestToSaveAsBlob = new SaveBlobRequest(fileStream, $"{dataSource}/{fileIdentifier}.xml", _fileShareName);
+                //await _blobStorageService.SaveAsync(requestToSaveAsBlob);
             }
         }
         catch(Exception ex) 

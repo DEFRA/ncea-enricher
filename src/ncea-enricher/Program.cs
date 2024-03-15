@@ -98,10 +98,9 @@ static async Task ConfigureBlobStorage(IConfigurationRoot configuration, HostApp
 
     builder.Services.AddSingleton(x => blobServiceClient);
 
-    var blobContainerName = configuration.GetValue<string>("FileShareName");
-
-    BlobContainerClient container = blobServiceClient.GetBlobContainerClient(blobContainerName);
-    await container.CreateIfNotExistsAsync();
+    //var blobContainerName = configuration.GetValue<string>("FileShareName");
+    //BlobContainerClient container = blobServiceClient.GetBlobContainerClient(blobContainerName);
+    //await container.CreateIfNotExistsAsync();
 }
 
 static void ConfigureLogging(HostApplicationBuilder builder)
