@@ -12,8 +12,7 @@ using Ncea.Enricher.Processors.Contracts;
 namespace ncea.enricher.Processor;
 
 public class OrchestrationService : IOrchestrationService
-{
-    #region Initialization
+{    
     private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
     private readonly string _fileShareName;
     private readonly ShareClient _fileShareClient;
@@ -37,10 +36,8 @@ public class OrchestrationService : IOrchestrationService
         _blobStorageService = blobStorageService;
         _serviceProvider = serviceProvider;
         _logger = logger;
-    }
-    #endregion
+    }    
 
-    #region ServiceBusMessage Processor
     public async Task StartProcessorAsync(CancellationToken cancellationToken = default)
     {
         _processor.ProcessMessageAsync += ProcessMessagesAsync;
@@ -72,10 +69,8 @@ public class OrchestrationService : IOrchestrationService
     {
         _logger.LogError(args.Exception, ProcessorErrorMessage);
         return Task.CompletedTask;
-    }
-    #endregion
-
-    #region File share
+    }    
+    
     private async Task UploadToFileShareAsync(string message, string dataSource)
     {
         if (string.IsNullOrWhiteSpace(message))
@@ -95,15 +90,20 @@ public class OrchestrationService : IOrchestrationService
         try
         {
             var fileName = string.Concat(fileIdentifier, ".xml");
+            var filePath = Path.Combine("/metadata-import", dataSource, fileName);
 
-            var directory = _fileShareClient.GetDirectoryClient(dataSource);            
+            var directory = _fileShareClient.GetDirectoryClient(dataSource);
             var file = directory.GetFileClient(fileName);
 
-            using (var fileStream = GenerateStreamFromString(message))
+            using (var uploadStream = GenerateStreamFromString(message))
             {
-                await file.CreateAsync(fileStream.Length);
-                await file.UploadRangeAsync(new HttpRange(0, fileStream.Length), 
-                    fileStream, 
+                using (var fileStream = File.Create(filePath))
+                {
+                    await uploadStream.CopyToAsync(fileStream);
+                }
+                await file.CreateAsync(uploadStream.Length);
+                await file.UploadRangeAsync(new HttpRange(0, uploadStream.Length),
+                    uploadStream,
                     new Azure.Storage.Files.Shares.Models.ShareFileUploadRangeOptions { });
 
                 //fileStream.Position = 0;
@@ -141,6 +141,5 @@ public class OrchestrationService : IOrchestrationService
                                                                   && n.Name.LocalName == "fileIdentifier");
         var fileIdentifier = fileIdentifierXmlElement?.Descendants()?.FirstOrDefault()?.Value;
         return fileIdentifier;
-    }
-    #endregion
+    }    
 }

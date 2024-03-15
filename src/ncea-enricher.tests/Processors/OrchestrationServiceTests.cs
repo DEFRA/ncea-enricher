@@ -312,8 +312,11 @@ public class OrchestrationServiceTests
             mockServiceProvider.Object,
             loggerMock.Object);
 
+        var applicationProperties = new Dictionary<string, object>();
+        applicationProperties.Add("DataSource", "test-datasource");
+
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("UploadToFileShareAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { message, It.IsAny<string>() }));
+        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { message, "test-datasource" }));
         if (task != null) await task;
 
         // Assert
