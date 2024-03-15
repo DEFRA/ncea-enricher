@@ -114,6 +114,7 @@ static void ConfigureLogging(HostApplicationBuilder builder)
                 config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString"),
                 configureApplicationInsightsLoggerOptions: (options) => { }
             );
+        loggingBuilder.AddConsole();
         loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(null, LogLevel.Information);
 
     });
