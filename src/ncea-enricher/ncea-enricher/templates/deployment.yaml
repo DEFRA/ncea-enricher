@@ -59,8 +59,6 @@ spec:
               value: {{ .Values.env.keyVaultUri }}
             - name: FileShareClientUri
               value: {{ .Values.env.fileShareClientUri }}
-            - name: BlobStorageUri
-              value: {{ .Values.env.blobStorageUri }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}

@@ -47,7 +47,6 @@ steps:
         env.serviceBusHostName=$(serviceBusHostName)
         env.keyVaultUri=$(keyVaultUri)
         env.fileShareClientUri=$(fileShareClientUri)
-        env.blobStorageUri=$(blobStorageUri)
         pv.storageAccountResourceGroup=$(storageAccountResourceGroup)
         pv.storageAccountName=$(storageAccountName)
         pv.storageAccountFilePrivateEndpointFqdn=$(storageAccountFilePrivateEndpointFqdn)

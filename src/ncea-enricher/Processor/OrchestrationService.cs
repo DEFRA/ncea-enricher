@@ -17,14 +17,12 @@ public class OrchestrationService : IOrchestrationService
     private readonly string _fileShareName;
     private readonly ShareClient _fileShareClient;
     private readonly ServiceBusProcessor _processor;
-    private readonly IBlobStorageService _blobStorageService;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<OrchestrationService> _logger;
 
     public OrchestrationService(IConfiguration configuration,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
         IAzureClientFactory<ShareClient> fileShareClientFactory,
-        IBlobStorageService blobStorageService,
         IServiceProvider serviceProvider,
         ILogger<OrchestrationService> logger)
     {
@@ -33,7 +31,6 @@ public class OrchestrationService : IOrchestrationService
 
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
         _fileShareClient = fileShareClientFactory.CreateClient(_fileShareName);
-        _blobStorageService = blobStorageService;
         _serviceProvider = serviceProvider;
         _logger = logger;
     }    
@@ -90,7 +87,7 @@ public class OrchestrationService : IOrchestrationService
         try
         {
             var fileName = string.Concat(fileIdentifier, ".xml");
-            var filePath = Path.Combine("/metadata-import", dataSource, fileName);
+            var filePath = Path.Combine(_fileShareName, dataSource, fileName);
 
             var directory = _fileShareClient.GetDirectoryClient(dataSource);
             var file = directory.GetFileClient(fileName);
@@ -101,14 +98,6 @@ public class OrchestrationService : IOrchestrationService
                 {
                     await uploadStream.CopyToAsync(fileStream);
                 }
-                await file.CreateAsync(uploadStream.Length);
-                await file.UploadRangeAsync(new HttpRange(0, uploadStream.Length),
-                    uploadStream,
-                    new Azure.Storage.Files.Shares.Models.ShareFileUploadRangeOptions { });
-
-                //fileStream.Position = 0;
-                //var requestToSaveAsBlob = new SaveBlobRequest(fileStream, $"{dataSource}/{fileIdentifier}.xml", _fileShareName);
-                //await _blobStorageService.SaveAsync(requestToSaveAsBlob);
             }
         }
         catch(Exception ex) 
