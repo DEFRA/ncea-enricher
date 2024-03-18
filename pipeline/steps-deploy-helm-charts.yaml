@@ -57,7 +57,6 @@ steps:
         serviceAccount.name=$(serviceAccountEnricher)
         env.serviceBusHostName=$(serviceBusHostName)
         env.keyVaultUri=$(keyVaultUri)
-        env.fileShareClientUri=$(fileShareClientUri)
         pv.storageAccountResourceGroup=$(storageAccountResourceGroup)
         pv.storageAccountName=$(storageAccountName)
         pv.storageAccountFilePrivateEndpointFqdn=$(storageAccountFilePrivateEndpointFqdn)

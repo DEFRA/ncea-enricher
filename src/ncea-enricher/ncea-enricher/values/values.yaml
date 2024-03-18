@@ -15,7 +15,6 @@ serviceAccount:
 env:
   serviceBusHostName: $(serviceBusHostName)
   keyVaultUri: $(keyVaultUri)
-  fileShareClientUri: $(fileShareClientUri)
 
 podAnnotations: {}
 podLabels: 
