@@ -1,21 +1,21 @@
 replicaCount: 1
 
 image:
-  repository: 
+  repository: $(containerRepositoryFullPath)
   pullPolicy: IfNotPresent
-  tag: 
+  tag: $(imageTag)
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  name: 
+  name: $(serviceAccountEnricher)
 
 env:
-  serviceBusHostName: 
-  keyVaultUri: 
-  fileShareClientUri: 
+  serviceBusHostName: $(serviceBusHostName)
+  keyVaultUri: $(keyVaultUri)
+  fileShareClientUri: $(fileShareClientUri)
 
 podAnnotations: {}
 podLabels: 

@@ -52,7 +52,7 @@ steps:
     command: 'upgrade'
     chartType: 'FilePath'
     chartPath: '$(Pipeline.Workspace)/ncea-enricher-$(Build.BuildNumber).tgz'
-    valueFile: $(Pipeline.Workspace)/chart/ncea-enricher/values/values.${{ parameters.envName }}.yaml
+    valueFile: $(Pipeline.Workspace)/chart/ncea-enricher/values/values.yaml
     overrideValues: |
         image.repository=$(containerRepositoryFullPath)
         image.tag=$(imageTag)
