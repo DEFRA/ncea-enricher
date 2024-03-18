@@ -41,7 +41,7 @@ steps:
 
 - task: HelmDeploy@0
   displayName: 'Helm Deploy'
-  condition: succeeded()
+  condition: succeededOrFailed()
   inputs:
     connectionType: Azure Resource Manager
     azureSubscriptionEndpoint: ${{ parameters.armServiceConnection }}
