@@ -32,8 +32,7 @@ public class OrchestrationServiceTests
         var serviceProvider = new Mock<IServiceProvider>();
 
         var service = new OrchestrationService(configuration, 
-            mockServiceBusProcessorFactory.Object, 
-            mockFileShareClientFactory.Object,
+            mockServiceBusProcessorFactory.Object,
             serviceProvider.Object, 
             loggerMock.Object);
 
@@ -63,7 +62,6 @@ public class OrchestrationServiceTests
 
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockFileShareClientFactory.Object,
             serviceProvider.Object,
             loggerMock.Object);
 
@@ -94,7 +92,6 @@ public class OrchestrationServiceTests
 
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockFileShareClientFactory.Object,
             serviceProvider.Object,
             loggerMock.Object);
 
@@ -155,7 +152,6 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockFileShareClientFactory.Object,
             mockServiceProvider,
             loggerMock.Object);
 
@@ -192,7 +188,6 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockFileShareClientFactory.Object,
             mockServiceProvider.Object,
             loggerMock.Object);
 
@@ -230,7 +225,6 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockFileShareClientFactory.Object,
             mockServiceProvider.Object,
             loggerMock.Object);
 
@@ -311,7 +305,6 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockFileShareClientFactory.Object,
             mockServiceProvider.Object,
             loggerMock.Object);
 
@@ -348,7 +341,6 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockFileShareClientFactory.Object,
             mockServiceProvider.Object,
             loggerMock.Object);
 
@@ -388,7 +380,6 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockFileShareClientFactory.Object,
             mockServiceProvider.Object,
             loggerMock.Object);
         var GenerateStreamFromStringMethod = typeof(OrchestrationService).GetMethod("GenerateStreamFromString", BindingFlags.NonPublic | BindingFlags.Static);
@@ -420,7 +411,6 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockFileShareClientFactory.Object,
             mockServiceProvider.Object,
             loggerMock.Object);
         var GenerateStreamFromStringMethod = typeof(OrchestrationService).GetMethod("GenerateStreamFromString", BindingFlags.NonPublic | BindingFlags.Static);

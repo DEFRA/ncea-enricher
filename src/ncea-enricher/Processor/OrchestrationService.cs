@@ -6,8 +6,6 @@ using Azure.Messaging.ServiceBus;
 using Azure.Storage.Files.Shares;
 using Microsoft.Extensions.Azure;
 using ncea.enricher.Processor.Contracts;
-using Ncea.Enricher.Infrastructure.Contracts;
-using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Processors.Contracts;
 
 namespace ncea.enricher.Processor;
@@ -16,14 +14,12 @@ public class OrchestrationService : IOrchestrationService
 {    
     private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
     private readonly string _fileShareName;
-    private readonly ShareClient _fileShareClient;
     private readonly ServiceBusProcessor _processor;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<OrchestrationService> _logger;
 
     public OrchestrationService(IConfiguration configuration,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
-        IAzureClientFactory<ShareClient> fileShareClientFactory,
         IServiceProvider serviceProvider,
         ILogger<OrchestrationService> logger)
     {
@@ -31,7 +27,6 @@ public class OrchestrationService : IOrchestrationService
         _fileShareName = configuration.GetValue<string>("FileShareName")!;
 
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
-        _fileShareClient = fileShareClientFactory.CreateClient(_fileShareName);
         _serviceProvider = serviceProvider;
         _logger = logger;
     }    
@@ -90,9 +85,6 @@ public class OrchestrationService : IOrchestrationService
         {
             var fileName = string.Concat(fileIdentifier, ".xml");
             var filePath = Path.Combine(_fileShareName, dataSource, fileName);
-
-            var directory = _fileShareClient.GetDirectoryClient(dataSource);
-            var file = directory.GetFileClient(fileName);
 
             using (var uploadStream = GenerateStreamFromString(message))
             {
