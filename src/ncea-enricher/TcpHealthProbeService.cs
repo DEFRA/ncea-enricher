@@ -21,7 +21,7 @@ public sealed class TcpHealthProbeService : BackgroundService
         _logger = logger;
 
         // Attach TCP listener to the port in configuration
-        var port = config.GetValue<int?>("HealthProbe:TcpPort") ?? 5000;
+        var port = config.GetValue<int?>("HealthProbe:TcpPort") ?? 5001;
         _listener = new TcpListener(IPAddress.Any, port);
     }
 

@@ -12,6 +12,8 @@ spec:
   selector:
     matchLabels:
       {{- include "ncea-enricher.selectorLabels" . | nindent 6 }}
+  # strategy:
+  #   type: Recreate
   template:
     metadata:      
       annotations:
@@ -41,8 +43,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: health-check
-              containerPort: 5000
-              hostPort: 5000
+              containerPort: 5001
+              hostPort: 5001
           livenessProbe:
             tcpSocket:
               port: health-check
@@ -55,10 +57,6 @@ spec:
               value: {{ .Values.env.serviceBusHostName }}
             - name: KeyVaultUri
               value: {{ .Values.env.keyVaultUri }}
-            - name: FileShareClientUri
-              value: {{ .Values.env.fileShareClientUri }}
-            - name: BlobStorageUri
-              value: {{ .Values.env.blobStorageUri }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}

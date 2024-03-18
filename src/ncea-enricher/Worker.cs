@@ -25,7 +25,7 @@ public class Worker : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("Ncea Mapping service started at: {time}", DateTimeOffset.Now);
+            _logger.LogInformation("Ncea Enricher service started at: {time}", DateTimeOffset.Now);
 
             using (_telemetryClient.StartOperation<RequestTelemetry>("operation"))
             {

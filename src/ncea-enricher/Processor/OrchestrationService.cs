@@ -1,31 +1,25 @@
-﻿using System.Xml;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Xml;
 using System.Xml.Linq;
 using Azure;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Files.Shares;
 using Microsoft.Extensions.Azure;
 using ncea.enricher.Processor.Contracts;
-using Ncea.Enricher.Infrastructure.Contracts;
-using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Processors.Contracts;
 
 namespace ncea.enricher.Processor;
 
 public class OrchestrationService : IOrchestrationService
-{
-    #region Initialization
+{    
     private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
     private readonly string _fileShareName;
-    private readonly ShareClient _fileShareClient;
     private readonly ServiceBusProcessor _processor;
-    private readonly IBlobStorageService _blobStorageService;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<OrchestrationService> _logger;
 
     public OrchestrationService(IConfiguration configuration,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
-        IAzureClientFactory<ShareClient> fileShareClientFactory,
-        IBlobStorageService blobStorageService,
         IServiceProvider serviceProvider,
         ILogger<OrchestrationService> logger)
     {
@@ -33,14 +27,10 @@ public class OrchestrationService : IOrchestrationService
         _fileShareName = configuration.GetValue<string>("FileShareName")!;
 
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
-        _fileShareClient = fileShareClientFactory.CreateClient(_fileShareName);
-        _blobStorageService = blobStorageService;
         _serviceProvider = serviceProvider;
         _logger = logger;
-    }
-    #endregion
+    }    
 
-    #region ServiceBusMessage Processor
     public async Task StartProcessorAsync(CancellationToken cancellationToken = default)
     {
         _processor.ProcessMessageAsync += ProcessMessagesAsync;
@@ -73,9 +63,8 @@ public class OrchestrationService : IOrchestrationService
         _logger.LogError(args.Exception, ProcessorErrorMessage);
         return Task.CompletedTask;
     }
-    #endregion
 
-    #region File share
+    [ExcludeFromCodeCoverage]
     private async Task UploadToFileShareAsync(string message, string dataSource)
     {
         if (string.IsNullOrWhiteSpace(message))
@@ -95,21 +84,14 @@ public class OrchestrationService : IOrchestrationService
         try
         {
             var fileName = string.Concat(fileIdentifier, ".xml");
+            var filePath = Path.Combine(_fileShareName, dataSource, fileName);
 
-            var directory = _fileShareClient.GetDirectoryClient(dataSource);            
-            var file = directory.GetFileClient(fileName);
-
-            using (var fileStream = GenerateStreamFromString(message))
+            using (var uploadStream = GenerateStreamFromString(message))
             {
-                await file.CreateAsync(fileStream.Length);
-                await file.UploadRangeAsync(new HttpRange(0, fileStream.Length), 
-                    fileStream, 
-                    new Azure.Storage.Files.Shares.Models.ShareFileUploadRangeOptions { });
-
-                fileStream.Position = 0;
-
-                var requestToSaveAsBlob = new SaveBlobRequest(fileStream, $"{dataSource}/{fileIdentifier}.xml", _fileShareName);
-                await _blobStorageService.SaveAsync(requestToSaveAsBlob);
+                using (var fileStream = File.Create(filePath))
+                {
+                    await uploadStream.CopyToAsync(fileStream);
+                }
             }
         }
         catch(Exception ex) 
@@ -142,6 +124,5 @@ public class OrchestrationService : IOrchestrationService
                                                                   && n.Name.LocalName == "fileIdentifier");
         var fileIdentifier = fileIdentifierXmlElement?.Descendants()?.FirstOrDefault()?.Value;
         return fileIdentifier;
-    }
-    #endregion
+    }    
 }

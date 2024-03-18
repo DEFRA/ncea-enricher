@@ -1,23 +1,22 @@
 replicaCount: 1
 
 image:
-  repository: nceapocsbox.azurecr.io/defra/ncea-enricher-service
+  repository: $(containerRepositoryFullPath)
   pullPolicy: IfNotPresent
-  tag: 20240304.19_feature-310857-Enricher-Boilerplate
+  tag: $(imageTag)
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  name: serviceaccount-nceaenricher-sbox
+  name: $(serviceAccountEnricher)
 
 env:
-  serviceBusHostName: nceapocsbox.servicebus.windows.net
-  keyVaultUri: https://nceapocsbox.vault.azure.net/
+  serviceBusHostName: $(serviceBusHostName)
+  keyVaultUri: $(keyVaultUri)
 
 podAnnotations: {}
-
 podLabels: 
   azure.workload.identity/use: "true"
 
@@ -28,21 +27,20 @@ securityContext: {}
 resources: {}
 
 autoscaling:
-  enabled: false
+  enabled: $(autoScalingEnabled)
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: $(autoScalingMaxReplicas)
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-
 volumes: 
-- mountPath: /metadata-import
-  name: enrichedmetadata
-
-volumeMounts: 
 - name: enrichedmetadata
   persistentVolumeClaim:
     claimName: ncea-enricher-fileshare-pvc
+
+volumeMounts: 
+- mountPath: /metadata-import
+  name: enrichedmetadata
 
 nodeSelector: {}
 

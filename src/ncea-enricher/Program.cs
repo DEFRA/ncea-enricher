@@ -15,7 +15,6 @@ using ncea.enricher.Processor.Contracts;
 using Ncea.Enricher.Processors;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Storage.Files.Shares;
-using Azure.Storage.Blobs;
 using Ncea.Enricher.Constants;
 
 var configuration = new ConfigurationBuilder()
@@ -35,8 +34,7 @@ builder.Services.AddHttpClient();
 ConfigureKeyVault(configuration, builder);
 ConfigureLogging(builder);
 await ConfigureServiceBusQueue(configuration, builder);
-await ConfigureFileShareClient(configuration, builder);
-await ConfigureBlobStorage(configuration, builder);
+ConfigureFileShareClient(configuration, builder);
 ConfigureServices(builder);
 
 var host = builder.Build();
@@ -65,21 +63,27 @@ static async Task ConfigureServiceBusQueue(IConfigurationRoot configuration, Hos
     });   
 }
 
-static async Task ConfigureFileShareClient(IConfigurationRoot configuration, HostApplicationBuilder builder)
+static void ConfigureFileShareClient(IConfigurationRoot configuration, HostApplicationBuilder builder)
 {    
-    var fileShareName = configuration.GetValue<string>("FileShareName");
+    var fileSharePath = configuration.GetValue<string>("FileShareName");
+    foreach (string dataSourceName in Enum.GetNames(typeof(DataSourceNames)))
+    {
+        var dirPath = Path.Combine(fileSharePath!, dataSourceName);
+        if (!Directory.Exists(dirPath))
+        {
+            Directory.CreateDirectory(dirPath);
+        }
+    }
 
     var fileShareConnectionString = builder.Configuration.GetValue<string>("FileShare:ConnectionString");
-    await InitializeFileShare(fileShareName, fileShareConnectionString);
-
     builder.Services.AddAzureClients(builder =>
     {
         builder.AddFileServiceClient(fileShareConnectionString);
         builder.UseCredential(new DefaultAzureCredential());
 
         builder.AddClient<ShareClient, ShareClientOptions>(
-            (_, _, provider) => provider.GetService<ShareServiceClient>()!.GetShareClient(fileShareName))
-        .WithName(fileShareName);
+            (_, _, provider) => provider.GetService<ShareServiceClient>()!.GetShareClient(fileSharePath))
+        .WithName(fileSharePath);
     });
 }
 
@@ -89,19 +93,6 @@ static void ConfigureKeyVault(IConfigurationRoot configuration, HostApplicationB
     var secretClient = new SecretClient(keyVaultEndpoint, new DefaultAzureCredential());
     builder.Configuration.AddAzureKeyVault(secretClient, new KeyVaultSecretManager());
     builder.Services.AddSingleton(secretClient);
-}
-
-static async Task ConfigureBlobStorage(IConfigurationRoot configuration, HostApplicationBuilder builder)
-{
-    var blobStorageEndpoint = new Uri(configuration.GetValue<string>("BlobStorageUri")!);
-    var blobServiceClient = new BlobServiceClient(blobStorageEndpoint, new DefaultAzureCredential());
-
-    builder.Services.AddSingleton(x => blobServiceClient);
-
-    var blobContainerName = configuration.GetValue<string>("FileShareName");
-
-    BlobContainerClient container = blobServiceClient.GetBlobContainerClient(blobContainerName);
-    await container.CreateIfNotExistsAsync();
 }
 
 static void ConfigureLogging(HostApplicationBuilder builder)
@@ -114,6 +105,7 @@ static void ConfigureLogging(HostApplicationBuilder builder)
                 config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString"),
                 configureApplicationInsightsLoggerOptions: (options) => { }
             );
+        loggingBuilder.AddConsole();
         loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(null, LogLevel.Information);
 
     });
@@ -130,7 +122,6 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<IApiClient, ApiClient>();
     builder.Services.AddSingleton<IOrchestrationService, OrchestrationService>();
     builder.Services.AddSingleton<IKeyVaultService, KeyVaultService>();
-    builder.Services.AddSingleton<IBlobStorageService, BlobStorageService>();
     builder.Services.AddKeyedSingleton<IEnricherService, JnccEnricher>("Jncc");
     builder.Services.AddKeyedSingleton<IEnricherService, MedinEnricher>("Medin");
 }
@@ -141,17 +132,6 @@ static async Task CreateServiceBusQueueIfNotExist(ServiceBusAdministrationClient
     if (!queueExists)
     {
         await servicebusAdminClient.CreateQueueAsync(queueName);
-    }
-}
-
-static async Task InitializeFileShare(string? fileShareName, string? fileShareConnectionString)
-{
-    var shareClient = new ShareClient(fileShareConnectionString, fileShareName);
-    await shareClient.CreateIfNotExistsAsync();
-    foreach (string dataSourceName in Enum.GetNames(typeof(DataSourceNames)))
-    {
-        var directory = shareClient.GetDirectoryClient(dataSourceName);
-        await directory.CreateIfNotExistsAsync();
     }
 }
 
