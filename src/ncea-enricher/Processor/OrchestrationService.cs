@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Xml;
 using System.Xml.Linq;
 using Azure;
 using Azure.Messaging.ServiceBus;
@@ -66,8 +67,9 @@ public class OrchestrationService : IOrchestrationService
     {
         _logger.LogError(args.Exception, ProcessorErrorMessage);
         return Task.CompletedTask;
-    }    
-    
+    }
+
+    [ExcludeFromCodeCoverage]
     private async Task UploadToFileShareAsync(string message, string dataSource)
     {
         if (string.IsNullOrWhiteSpace(message))
