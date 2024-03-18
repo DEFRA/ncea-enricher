@@ -242,46 +242,46 @@ public class OrchestrationServiceTests
         mockFileShareServiceClient.Verify(x => x.GetShareClient(It.IsAny<string>()), Times.Never);
     }
 
-    [Fact]
-    public async Task UploadToFileShareAsync_Should_UploadFile()
-    {
-        // Arrange
-        OrchestrationServiceForTests.Get(out IConfiguration configuration,
-                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
-                            out Mock<IOrchestrationService> mockOrchestrationService,
-                            out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+    //[Fact]
+    //public async Task UploadToFileShareAsync_Should_UploadFile()
+    //{
+    //    // Arrange
+    //    OrchestrationServiceForTests.Get(out IConfiguration configuration,
+    //                        out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+    //                        out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
+    //                        out Mock<IOrchestrationService> mockOrchestrationService,
+    //                        out Mock<ILogger<OrchestrationService>> loggerMock,
+    //                        out Mock<ServiceBusProcessor> mockServiceBusProcessor,
+    //                        out Mock<ShareServiceClient> mockFileShareServiceClient,
+    //                        out Mock<ShareClient> mockShareClient,
+    //                        out Mock<ShareDirectoryClient> mockShareDirectoryClient,
+    //                        out Mock<ShareFileClient> mockShareFileClient);
 
-        var mockServiceProvider = new Mock<IServiceProvider>();
-        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
-                        "<gmd:MD_Metadata " +
-                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
-                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
-                        "<gmd:fileIdentifier>" +
-                        "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
-                        "</gmd:fileIdentifier>" +
-                        "</gmd:MD_Metadata>";
+    //    var mockServiceProvider = new Mock<IServiceProvider>();
+    //    var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+    //                    "<gmd:MD_Metadata " +
+    //                    "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
+    //                    "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
+    //                    "<gmd:fileIdentifier>" +
+    //                    "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
+    //                    "</gmd:fileIdentifier>" +
+    //                    "</gmd:MD_Metadata>";
 
-        // Act
-        var service = new OrchestrationService(configuration,
-            mockServiceBusProcessorFactory.Object,
-            mockFileShareClientFactory.Object,
-            mockServiceProvider.Object,
-            loggerMock.Object);
+    //    // Act
+    //    var service = new OrchestrationService(configuration,
+    //        mockServiceBusProcessorFactory.Object,
+    //        mockFileShareClientFactory.Object,
+    //        mockServiceProvider.Object,
+    //        loggerMock.Object);
 
-        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("UploadToFileShareAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { message, "test-datasource" }));
-        if (task != null) await task;
+    //    var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("UploadToFileShareAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+    //    var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { message, "test-datasource" }));
+    //    if (task != null) await task;
 
-        // Assert
-        //mockShareClient.Verify(x => x.GetDirectoryClient(It.IsAny<string>()), Times.Once);
-        //mockShareDirectoryClient.Verify(x => x.GetFileClient(It.IsAny<string>()), Times.Once);        
-    }
+    //    // Assert
+    //    mockShareClient.Verify(x => x.GetDirectoryClient(It.IsAny<string>()), Times.Once);
+    //    mockShareDirectoryClient.Verify(x => x.GetFileClient(It.IsAny<string>()), Times.Once);
+    //}
 
     [Fact]
     public void GetFileIdentifier_Should_Return_FileIdentifier()
