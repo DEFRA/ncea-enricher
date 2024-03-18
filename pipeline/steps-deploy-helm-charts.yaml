@@ -62,5 +62,7 @@ steps:
         env.fileShareClientUri=$(fileShareClientUri)
         pv.storageAccountResourceGroup=$(storageAccountResourceGroup)
         pv.storageAccountName=$(storageAccountName)
-        pv.storageAccountFilePrivateEndpointFqdn=$(storageAccountFilePrivateEndpointFqdn)
+        pv.storageAccountFilePrivateEndpointFqdn=$(storageAccountFilePrivateEndpointFqdn)        
+        autoscaling.enabled=$(autoScalingEnabled)
+        autoscaling.maxReplicas=$(autoScalingMaxReplicas)
     install: true
