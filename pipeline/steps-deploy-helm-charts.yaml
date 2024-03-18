@@ -1,6 +1,4 @@
 parameters:
-  - name: envName
-    type: string
   - name: releaseName
     type: string
   - name: armServiceConnection

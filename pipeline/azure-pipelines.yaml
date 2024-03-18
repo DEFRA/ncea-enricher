@@ -50,7 +50,6 @@ stages:
 #           steps:
 #             - template: steps-deploy-helm-charts.yaml
 #               parameters:
-#                 envName: sandbox
 #                 releaseName: ncea-enricher-sandbox
 #                 aksServiceConnection: aksServiceConn-AZR-NCE-SND1
 
@@ -71,7 +70,6 @@ stages:
           steps:
             - template: steps-deploy-helm-charts.yaml
               parameters:
-                envName: dev
                 releaseName: ncea-enricher-dev
                 armServiceConnection: AZR-NCE-DEV1
 
@@ -92,6 +90,5 @@ stages:
           steps:
             - template: steps-deploy-helm-charts.yaml
               parameters:
-                envName: test
                 releaseName: ncea-enricher-test
                 armServiceConnection: AZR-NCE-DEV1
