@@ -10,7 +10,7 @@ trigger:
 variables: 
   - template: templates/variables-global.yml
   - name : azureServiceConnectionForAcr
-    value: acr-AZR-NCE-DEV1
+    value: AZR-NCE-DEV1
   - name : deployToDev
     value: true
   - name : deplyToTest
