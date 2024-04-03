@@ -13,7 +13,9 @@ steps:
       PASSWORD=$(az acr login --name $(acrContainerRegistry) --expose-token --output tsv --query accessToken)
       echo "Logging into ACR"
       docker login $(acrContainerRegistry) -u $(acrUser) -p $PASSWORD
+      echo "Change directory"
+      cd src/ncea-enricher
       echo "Building Container"      
-      docker build -f src/ncea-enricher/Dockerfile -t '$(acrContainerRegistry)/$(acrContainerRepositoryEnricher):$(imageTag)' .
+      docker build -f Dockerfile -t '$(acrContainerRegistry)/$(acrContainerRepositoryEnricher):$(imageTag)' .
       echo "Pushing Container"
       docker push '$(acrContainerRegistry)/$(acrContainerRepositoryEnricher):$(imageTag)'
