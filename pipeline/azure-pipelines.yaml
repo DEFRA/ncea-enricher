@@ -9,12 +9,12 @@ trigger:
 
 variables: 
   - template: templates/variables-global.yml
-  - name : acrContainerRegistryServiceConnection
-    value: acr-AZR-NCE-DEV-TEMP
+  - name : azureServiceConnectionForAcr
+    value: acr-AZR-NCE-DEV
   - name : deployToDev
     value: true
   - name : deplyToTest
-    value: false
+    value: true
 
 stages:
 - stage: 'Build'
@@ -56,7 +56,7 @@ stages:
 - stage: 'dev'
   displayName: 'Deploy to Dev'
   dependsOn: Build
-  condition: and(succeeded(), and(eq(variables.isPullRequest, true), eq(variables.deployToDev, true)))
+  condition: and(succeeded(), and(eq(variables.isMain, true), eq(variables.deployToDev, true)))
   jobs:
   - deployment: Deploy
     pool:
@@ -91,4 +91,4 @@ stages:
             - template: steps-deploy-helm-charts.yaml
               parameters:
                 releaseName: ncea-enricher-test
-                armServiceConnection: AZR-NCE-DEV1
+                armServiceConnection: AZR-NCE-TST
