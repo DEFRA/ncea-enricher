@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ncea.enricher.Processor.Contracts;
+using Ncea.Enricher.Processor;
 using Ncea.Enricher.Processors;
 using Ncea.Enricher.Tests.Clients;
 
@@ -26,13 +27,11 @@ public class MedinEnricherTests
                             out Mock<ShareClient> mockShareClient,
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
-        var medinService = new MedinEnricher(loggerMock.Object);
-
-
+        var synonymProviderMock = new Mock<SynonymsProvider>();
+        var medinService = new MedinEnricher(synonymProviderMock.Object, loggerMock.Object);
 
         // Act
         await medinService.Enrich(It.IsAny<string>(), It.IsAny<CancellationToken>());
-
 
         // Assert
         loggerMock.Verify(x => x.Log(LogLevel.Information,

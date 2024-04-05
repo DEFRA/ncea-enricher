@@ -16,6 +16,8 @@ using Ncea.Enricher.Processors;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Storage.Files.Shares;
 using Ncea.Enricher.Constants;
+using Azure.Storage.Blobs;
+using Ncea.Enricher.Processor;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -32,6 +34,7 @@ builder.Services.AddHostedService<TcpHealthProbeService>();
 builder.Services.AddHttpClient();
 
 ConfigureKeyVault(configuration, builder);
+ConfigureBlobStorage(configuration, builder);
 ConfigureLogging(builder);
 await ConfigureServiceBusQueue(configuration, builder);
 ConfigureFileShareClient(configuration, builder);
@@ -95,6 +98,14 @@ static void ConfigureKeyVault(IConfigurationRoot configuration, HostApplicationB
     builder.Services.AddSingleton(secretClient);
 }
 
+static void ConfigureBlobStorage(IConfigurationRoot configuration, HostApplicationBuilder builder)
+{
+    var blobStorageEndpoint = new Uri(configuration.GetValue<string>("BlobStorageUri")!);
+    var blobServiceClient = new BlobServiceClient(blobStorageEndpoint, new DefaultAzureCredential());
+
+    builder.Services.AddSingleton(x => blobServiceClient);
+}
+
 static void ConfigureLogging(HostApplicationBuilder builder)
 {
     builder.Services.AddLogging(loggingBuilder =>
@@ -122,6 +133,11 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<IApiClient, ApiClient>();
     builder.Services.AddSingleton<IOrchestrationService, OrchestrationService>();
     builder.Services.AddSingleton<IKeyVaultService, KeyVaultService>();
+
+    builder.Services.AddMemoryCache();
+    builder.Services.AddScoped<ISynonymsProvider, SynonymsProvider>();
+    builder.Services.Decorate<ISynonymsProvider, CachedSynonymsProvider>();
+
     builder.Services.AddKeyedSingleton<IEnricherService, JnccEnricher>("Jncc");
     builder.Services.AddKeyedSingleton<IEnricherService, MedinEnricher>("Medin");
 }
