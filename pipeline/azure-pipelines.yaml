@@ -13,7 +13,7 @@ variables:
     value: AZR-NCE-DEV1
   - name : deployToDev
     value: true
-  - name : deplyToTest
+  - name : deployToTest
     value: true
 
 stages:
