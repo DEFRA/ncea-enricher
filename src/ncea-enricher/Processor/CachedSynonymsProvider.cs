@@ -16,13 +16,13 @@ public class CachedSynonymsProvider : ISynonymsProvider
         _synonymsProvider = synonymsProvider;
     }
 
-    public async Task<IList<Classifier>> GetAll(CancellationToken cancellationToken)
+    public async Task<Classifiers> GetAll(CancellationToken cancellationToken)
     {
         var options = new MemoryCacheEntryOptions()
             .SetSlidingExpiration(TimeSpan.FromSeconds(10))
             .SetAbsoluteExpiration(TimeSpan.FromSeconds(30));
 
-        if (_memoryCache.TryGetValue(ClassifierListCacheKey, out IList<Classifier> result)) return result;
+        if (_memoryCache.TryGetValue(ClassifierListCacheKey, out Classifiers result)) return result;
 
         result = await _synonymsProvider.GetAll(cancellationToken);
 

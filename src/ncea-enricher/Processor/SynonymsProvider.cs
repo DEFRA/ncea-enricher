@@ -2,26 +2,28 @@
 using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Processors.Contracts;
-using Newtonsoft.Json;
-using System.Net.Http.Json;
-using System.Text.Json.Serialization;
 
 namespace Ncea.Enricher.Processor;
 
 public class SynonymsProvider : ISynonymsProvider
 {
+    private readonly IConfiguration _configuration;
     private readonly IMemoryCache _memoryCache;
     private readonly IBlobStorageService _blobStorageService;
 
-    public SynonymsProvider(IMemoryCache memoryCache, IBlobStorageService blobStorageService)
+    public SynonymsProvider(IConfiguration configuration, IMemoryCache memoryCache, IBlobStorageService blobStorageService)
     {
+        _configuration = configuration;
         _memoryCache = memoryCache;
         _blobStorageService = blobStorageService;
     }
 
-    public async Task<IList<Classifier>> GetAll(CancellationToken cancellationToken)
+    public async Task<Classifiers> GetAll(CancellationToken cancellationToken)
     {
-        var content = await _blobStorageService.ReadCsvFileAsync("", "", cancellationToken);
-        return JsonConvert.DeserializeObject<IList<Classifier>>(content)!;
+        var synonymsContainerName = _configuration.GetValue<string>("SynonymsContainerName");
+        var synonymsFileName = _configuration.GetValue<string>("SynonymsFileName");
+        var classifiers = await _blobStorageService.ReadCsvFileAsync(synonymsContainerName!, synonymsFileName!, cancellationToken);
+
+        return new Classifiers();
     }
 }

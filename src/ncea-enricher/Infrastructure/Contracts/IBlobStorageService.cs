@@ -1,6 +1,8 @@
-﻿namespace Ncea.Enricher.Infrastructure.Contracts;
+﻿using System.Data;
+
+namespace Ncea.Enricher.Infrastructure.Contracts;
 
 public interface IBlobStorageService
 {
-    Task<string> ReadCsvFileAsync(string containerName, string fileName, CancellationToken cancellationToken = default);
+    Task<DataTable> ReadCsvFileAsync(string containerName, string fileName, CancellationToken cancellationToken = default);
 }

@@ -2,8 +2,10 @@
 
 public class Classifier
 {
-    public string Level1 { get; set; } = null!;
-    public string Level2 { get; set;} = null!;
-    public string Level3 { get; set; } = null!;
-    public string Level4 { get; set; } = null!;
+    public string Id { get; set; } = null!;
+    public string? ParentId { get; set; } = null;
+    public int Level { get; set; }
+    public string Name { get; set; } = null!;
+    public List<string>? Synonyms { get; set;}
+    public List<Classifier>? Children { get; set; }
 }

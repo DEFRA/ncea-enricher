@@ -133,9 +133,10 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<IApiClient, ApiClient>();
     builder.Services.AddSingleton<IOrchestrationService, OrchestrationService>();
     builder.Services.AddSingleton<IKeyVaultService, KeyVaultService>();
+    builder.Services.AddSingleton<IBlobStorageService, BlobStorageService>();
 
     builder.Services.AddMemoryCache();
-    builder.Services.AddScoped<ISynonymsProvider, SynonymsProvider>();
+    builder.Services.AddSingleton<ISynonymsProvider, SynonymsProvider>();
     builder.Services.Decorate<ISynonymsProvider, CachedSynonymsProvider>();
 
     builder.Services.AddKeyedSingleton<IEnricherService, JnccEnricher>("Jncc");

@@ -4,5 +4,5 @@ namespace Ncea.Enricher.Processors.Contracts;
 
 public interface ISynonymsProvider
 {
-    Task<IList<Classifier>> GetAll(CancellationToken cancellationToken);
+    Task<Classifiers> GetAll(CancellationToken cancellationToken);
 }

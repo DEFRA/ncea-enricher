@@ -1,4 +1,5 @@
 ﻿using Ncea.Enricher.Processors.Contracts;
+using System.Xml.Linq;
 
 namespace Ncea.Enricher.Processors;
 
@@ -15,8 +16,17 @@ public class MedinEnricher : IEnricherService
     public async Task<string> Enrich(string mappedData, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Medin enricher");
+
+        var responseXml = XDocument.Parse(mappedData);
+        var rootNode = responseXml.Root;
+
         var classifiers = await _synonymsProvider.GetAll(cancellationToken);
 
-        return await Task.FromResult(mappedData);
+        if (rootNode != null)
+        {
+
+        }        
+
+        return await Task.FromResult(responseXml.ToString());
     }
 }
