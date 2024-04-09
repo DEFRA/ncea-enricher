@@ -134,6 +134,8 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<IOrchestrationService, OrchestrationService>();
     builder.Services.AddSingleton<IKeyVaultService, KeyVaultService>();
     builder.Services.AddSingleton<IBlobStorageService, BlobStorageService>();
+    builder.Services.AddSingleton<IXmlSearchService, XmlSearchService>();
+    builder.Services.AddSingleton<IXmlNodeService, XmlNodeService>();
 
     builder.Services.AddMemoryCache();
     builder.Services.AddSingleton<ISynonymsProvider, SynonymsProvider>();

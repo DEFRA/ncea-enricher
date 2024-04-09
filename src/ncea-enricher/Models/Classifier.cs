@@ -8,4 +8,10 @@ public class Classifier
     public string Name { get; set; } = null!;
     public List<string>? Synonyms { get; set;}
     public List<Classifier>? Children { get; set; }
+
+    public bool Equals(Classifier classifier) =>
+        classifier.Id == Id && classifier.ParentId == ParentId && classifier.Name == Name;
+
+    public override int GetHashCode() =>
+        new { Id, ParentId, Name }.GetHashCode();
 }

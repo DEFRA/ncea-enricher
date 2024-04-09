@@ -14,8 +14,7 @@ public class BlobStorageService : IBlobStorageService
         (_blobServiceClient) = (blobServiceClient);
 
     public async Task<DataTable> ReadCsvFileAsync(string containerName, string fileName, CancellationToken cancellationToken = default)
-    {
-        var items = new List<Classifier>();
+    {        
         var dtData = new DataTable();
         try
         {
@@ -46,36 +45,7 @@ public class BlobStorageService : IBlobStorageService
                 var dr = dtData.NewRow();
                 dr.ItemArray = rowValues;
                 dtData.Rows.Add(dr);
-            }
-
-            var regEx = new Regex(@"L([0-9]+)\ ID");
-
-            var levels = dtData.Columns.Cast<DataColumn>()
-                .Select(c => c.ColumnName)
-                .Where(x => regEx.IsMatch(x))
-                .ToList()
-                .SelectMany(y => Regex.Split(y, @"\D+"))
-                .Select(z => int.Parse(z));
-
-            items.Add(new Classifier { Id = "lvl0 - 000", Level = 0 });
-            foreach (DataRow row in dtData.Rows)
-            {
-                foreach (var level in levels)
-                {
-                    if(row[$"L{level} ID"] != null && row[$"L{level} Term"] != null)
-                    {
-                        var classifier = new Classifier
-                        {
-                            ParentId = level == 1 ? "lvl0 - 000" : row[$"L{level - 1} ID"].ToString()!,
-                            Id = row[$"L{level} ID"].ToString()!,
-                            Level = level,
-                            Name = row[$"L{level} Term"].ToString()!,
-                            Synonyms = (row[$"L{level} Synonyms"] != null) ? row[$"L{level} Synonyms"].ToString()!.Split("").ToList() : null
-                        };
-                        items.Add(classifier);
-                    }                    
-                }
-            }
+            }            
         }
         catch (Exception ex) 
         {

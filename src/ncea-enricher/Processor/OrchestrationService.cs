@@ -1,9 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 using System.Xml.Linq;
-using Azure;
 using Azure.Messaging.ServiceBus;
-using Azure.Storage.Files.Shares;
 using Microsoft.Extensions.Azure;
 using ncea.enricher.Processor.Contracts;
 using Ncea.Enricher.Processors.Contracts;
