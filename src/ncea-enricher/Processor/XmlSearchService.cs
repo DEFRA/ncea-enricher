@@ -17,7 +17,7 @@ namespace ncea.enricher.Processor
 
         public bool IsMatchFound(string value, List<string> synonyms)
         {
-            var rgx = new Regex(@"\b(" + string.Join("|", synonyms.Select(Regex.Escape).ToArray()) + @"\b)");
+            var rgx = new Regex(@"\b" + string.Join("|", synonyms.Select(Regex.Escape).ToArray()) + @"\b");
             var matchCollection = rgx.Matches(value);
             return matchCollection.Count > 0;
         }

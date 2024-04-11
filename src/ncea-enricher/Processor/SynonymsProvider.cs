@@ -58,7 +58,12 @@ public class SynonymsProvider : ISynonymsProvider
                         Level = level,
                         Name = row[$"L{level} Term"].ToString()!.Trim()
                     };
-                    classifier.Synonyms = isSynonymColumnExists ? row[$"L{level} Synonyms"].ToString()!.Trim().Split("##").ToList() : null;
+
+                    if(isSynonymColumnExists) 
+                    {
+                        var synonyms = row[$"L{level} Synonyms"].ToString()!.Trim();
+                        classifier.Synonyms = !string.IsNullOrWhiteSpace(synonyms) ? synonyms.Trim().Split("##").ToList() : null;
+                    }
                     items.Add(classifier);
                 }
             }
