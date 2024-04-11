@@ -4,7 +4,7 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using ncea.enricher.Processor.Contracts;
+using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Processors;
 using Ncea.Enricher.Tests.Clients;
 

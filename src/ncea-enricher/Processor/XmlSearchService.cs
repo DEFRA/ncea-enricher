@@ -1,4 +1,4 @@
-﻿using ncea.enricher.Processor.Contracts;
+﻿using Ncea.Enricher.Processor.Contracts;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -15,6 +15,13 @@ namespace ncea.enricher.Processor
             return matchCollection.Count > 0;
         }
 
+        public bool IsMatchFound(string value, List<string> synonyms)
+        {
+            var rgx = new Regex(@"\b(" + string.Join("|", synonyms.Select(Regex.Escape).ToArray()) + @"\b)");
+            var matchCollection = rgx.Matches(value);
+            return matchCollection.Count > 0;
+        }
+
         private static XElement ElementAtPath(XElement root, string path)
         {
             if (root == null)
@@ -28,6 +35,16 @@ namespace ncea.enricher.Processor
             }
 
             return root.XPathSelectElement(path)!;
+        }
+
+        private static string? GetFileIdentifier(XElement xmlElement)
+        {
+            var gmdNameSpaceString = "http://www.isotc211.org/2005/gmd";
+            var fileIdentifierXmlElement = xmlElement.Descendants()
+                                   .FirstOrDefault(n => n.Name.Namespace.NamespaceName == gmdNameSpaceString
+        && n.Name.LocalName == "fileIdentifier");
+            var fileIdentifier = fileIdentifierXmlElement?.Descendants()?.FirstOrDefault()?.Value;
+            return fileIdentifier;
         }
     }
 }

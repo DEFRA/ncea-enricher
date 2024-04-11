@@ -3,10 +3,9 @@ using System.Xml;
 using System.Xml.Linq;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
-using ncea.enricher.Processor.Contracts;
-using Ncea.Enricher.Processors.Contracts;
+using Ncea.Enricher.Processor.Contracts;
 
-namespace ncea.enricher.Processor;
+namespace Ncea.Enricher.Processor;
 
 public class OrchestrationService : IOrchestrationService
 {    

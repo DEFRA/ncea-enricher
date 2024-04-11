@@ -4,8 +4,9 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using ncea.enricher.Processor.Contracts;
+using ncea.enricher.Processor;
 using Ncea.Enricher.Processor;
+using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Processors;
 using Ncea.Enricher.Tests.Clients;
 
@@ -28,7 +29,14 @@ public class MedinEnricherTests
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
         var synonymProviderMock = new Mock<SynonymsProvider>();
-        var medinService = new MedinEnricher(synonymProviderMock.Object, loggerMock.Object);
+        var searchableFieldConfigMock = new Mock<SearchableFieldConfigurations>();
+        var xmlSearchServiceMock = new Mock<XmlSearchService>();
+        var xmlNodeServiceMock = new Mock<XmlNodeService>();
+        var medinService = new MedinEnricher(synonymProviderMock.Object,
+            searchableFieldConfigMock.Object,
+            xmlSearchServiceMock.Object,
+            xmlNodeServiceMock.Object,
+            loggerMock.Object);
 
         // Act
         await medinService.Enrich(It.IsAny<string>(), It.IsAny<CancellationToken>());

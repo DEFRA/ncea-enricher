@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Ncea.Enricher.Models;
-using Ncea.Enricher.Processors.Contracts;
+using Ncea.Enricher.Processor.Contracts;
 
 namespace Ncea.Enricher.Processor;
 
@@ -16,13 +16,13 @@ public class CachedSynonymsProvider : ISynonymsProvider
         _synonymsProvider = synonymsProvider;
     }
 
-    public async Task<Classifiers> GetAll(CancellationToken cancellationToken)
+    public async Task<List<Classifier>> GetAll(CancellationToken cancellationToken)
     {
         var options = new MemoryCacheEntryOptions()
             .SetSlidingExpiration(TimeSpan.FromSeconds(10))
             .SetAbsoluteExpiration(TimeSpan.FromSeconds(30));
 
-        if (_memoryCache.TryGetValue(ClassifierListCacheKey, out Classifiers result)) return result;
+        if (_memoryCache.TryGetValue(ClassifierListCacheKey, out List<Classifier> result)) return result;
 
         result = await _synonymsProvider.GetAll(cancellationToken);
 

@@ -1,6 +1,9 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Models;
+using OfficeOpenXml;
+using System.ComponentModel;
 using System.Data;
 using System.Text.RegularExpressions;
 
@@ -52,5 +55,37 @@ public class BlobStorageService : IBlobStorageService
             Console.WriteLine("\t" + ex.Message);
         }               
         return dtData;
-    }    
+    }
+
+    public async Task<DataTable> ReadExcelFileAsync(string containerName, string fileName, CancellationToken cancellationToken = default)
+    {
+        var dtData = new DataTable();
+        try
+        {
+            var rows = new List<string>();
+            var blobContainer = _blobServiceClient.GetBlobContainerClient(containerName);
+            var blobClient = blobContainer.GetBlobClient(fileName);
+            if (await blobClient.ExistsAsync())
+            {
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+                using (var stream = await blobClient.OpenReadAsync(new BlobOpenReadOptions(true)))
+                {
+                    using (ExcelPackage package = new ExcelPackage(stream))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets["ncea-classifiers"];
+                        dtData = worksheet.Cells[1, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].ToDataTable(c =>
+                        {
+                            c.FirstRowIsColumnNames = true;
+                        });
+                    }
+                }
+            }            
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("\t" + ex.Message);
+        }
+        return dtData;
+    }
 }

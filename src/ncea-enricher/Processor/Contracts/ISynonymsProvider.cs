@@ -1,8 +1,8 @@
 ﻿using Ncea.Enricher.Models;
 
-namespace Ncea.Enricher.Processors.Contracts;
+namespace Ncea.Enricher.Processor.Contracts;
 
 public interface ISynonymsProvider
 {
-    Task<Classifiers> GetAll(CancellationToken cancellationToken);
+    Task<List<Classifier>> GetAll(CancellationToken cancellationToken);
 }

@@ -1,4 +1,4 @@
-﻿namespace Ncea.Enricher.Processors.Contracts;
+﻿namespace Ncea.Enricher.Processor.Contracts;
 
 public interface IEnricherService
 {

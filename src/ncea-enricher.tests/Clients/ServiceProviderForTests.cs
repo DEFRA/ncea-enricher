@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Ncea.Enricher.Processors.Contracts;
 using Ncea.Enricher.Processors;
+using Ncea.Enricher.Processor.Contracts;
 
 namespace ncea_enricher.tests.Clients
 {

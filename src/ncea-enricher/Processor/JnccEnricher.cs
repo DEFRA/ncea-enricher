@@ -1,4 +1,4 @@
-﻿using Ncea.Enricher.Processors.Contracts;
+﻿using Ncea.Enricher.Processor.Contracts;
 
 namespace Ncea.Enricher.Processors;
 

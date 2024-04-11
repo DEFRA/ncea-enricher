@@ -1,4 +1,4 @@
-﻿namespace ncea.enricher.Processor.Contracts;
+﻿namespace Ncea.Enricher.Processor.Contracts;
 
 public interface IOrchestrationService
 {

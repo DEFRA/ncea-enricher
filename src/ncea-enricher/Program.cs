@@ -3,7 +3,6 @@ using Ncea.Enricher;
 using Ncea.Enricher.Infrastructure;
 using Azure.Messaging.ServiceBus;
 using Ncea.Enricher.Infrastructure.Contracts;
-using Ncea.Enricher.Processors.Contracts;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Messaging.ServiceBus.Administration;
 using System.Diagnostics.CodeAnalysis;
@@ -11,13 +10,13 @@ using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.Extensions.Azure;
 using ncea.enricher.Processor;
-using ncea.enricher.Processor.Contracts;
 using Ncea.Enricher.Processors;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Storage.Files.Shares;
 using Ncea.Enricher.Constants;
 using Azure.Storage.Blobs;
 using Ncea.Enricher.Processor;
+using Ncea.Enricher.Processor.Contracts;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -134,6 +133,7 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<IOrchestrationService, OrchestrationService>();
     builder.Services.AddSingleton<IKeyVaultService, KeyVaultService>();
     builder.Services.AddSingleton<IBlobStorageService, BlobStorageService>();
+    builder.Services.AddSingleton<ISearchableFieldConfigurations, SearchableFieldConfigurations>();
     builder.Services.AddSingleton<IXmlSearchService, XmlSearchService>();
     builder.Services.AddSingleton<IXmlNodeService, XmlNodeService>();
 

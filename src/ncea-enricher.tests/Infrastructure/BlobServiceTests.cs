@@ -2,7 +2,7 @@
 using Moq;
 using Ncea.Enricher.Tests.Clients;
 
-namespace Ncea.Harvester.Tests.Infrastructure;
+namespace Ncea.Enricher.Tests.Infrastructure;
 
 public class BlobServiceTests
 {

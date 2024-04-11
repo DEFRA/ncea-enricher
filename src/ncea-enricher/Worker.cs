@@ -1,6 +1,6 @@
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
-using ncea.enricher.Processor.Contracts;
+using Ncea.Enricher.Processor.Contracts;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Ncea.Enricher;
