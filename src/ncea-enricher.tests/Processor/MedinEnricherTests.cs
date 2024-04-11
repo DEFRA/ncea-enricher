@@ -4,13 +4,14 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Processors;
+using Ncea.Enricher.Services;
+using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
 
-namespace Ncea.Enricher.Tests.Processors;
+namespace Ncea.Enricher.Tests.Processor;
 
-public class JnccEnricherTests
+public class MedinEnricherTests
 {
     [Fact]
     public async Task Process_ShouldLogMessage()
@@ -20,19 +21,24 @@ public class JnccEnricherTests
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
                             out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
-                            out Mock<ILogger<JnccEnricher>> loggerMock,
+                            out Mock<ILogger<MedinEnricher>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor,
                             out Mock<ShareServiceClient> mockFileShareServiceClient,
                             out Mock<ShareClient> mockShareClient,
                             out Mock<ShareDirectoryClient> mockShareDirectoryClient,
                             out Mock<ShareFileClient> mockShareFileClient);
-        var jnccService = new JnccEnricher(loggerMock.Object);
-
-
+        var synonymProviderMock = new Mock<SynonymsProvider>();
+        var searchableFieldConfigMock = new Mock<SearchableFieldConfigurations>();
+        var xmlSearchServiceMock = new Mock<XmlSearchService>();
+        var xmlNodeServiceMock = new Mock<XmlNodeService>();
+        var medinService = new MedinEnricher(synonymProviderMock.Object,
+            searchableFieldConfigMock.Object,
+            xmlSearchServiceMock.Object,
+            xmlNodeServiceMock.Object,
+            loggerMock.Object);
 
         // Act
-        await jnccService.Enrich(It.IsAny<string>(), It.IsAny<CancellationToken>());
-
+        await medinService.Enrich(It.IsAny<string>(), It.IsAny<CancellationToken>());
 
         // Assert
         loggerMock.Verify(x => x.Log(LogLevel.Information,

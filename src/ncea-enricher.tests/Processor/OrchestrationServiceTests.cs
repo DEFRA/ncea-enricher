@@ -4,13 +4,12 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Ncea.Enricher.Processor;
-using Ncea.Enricher.Processor.Contracts;
+using Ncea.Enricher.Services;
+using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
-using ncea_enricher.tests.Clients;
 using System.Reflection;
 
-namespace Ncea.Enricher.Tests.Processors;
+namespace Ncea.Enricher.Tests.Processor;
 
 public class OrchestrationServiceTests
 {

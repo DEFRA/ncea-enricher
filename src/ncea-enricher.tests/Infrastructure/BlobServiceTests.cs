@@ -1,13 +1,16 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using FluentAssertions;
 using Moq;
 using Ncea.Enricher.Tests.Clients;
+using System.Data;
 
 namespace Ncea.Enricher.Tests.Infrastructure;
 
 public class BlobServiceTests
 {
     [Fact]
-    public async Task SaveAsync_ShouldCallRequiredBlobServiceMethods()
+    public async Task ReadExcelFileAsync_ShouldCallRequiredBlobServiceMethods()
     {
         // Arrange
         var service = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
@@ -15,13 +18,11 @@ public class BlobServiceTests
                                               out Mock<BlobClient> mockBlobClient);
 
         // Act
-        await service.ReadCsvFileAsync(It.IsAny<string>(), It.IsAny<string>(), CancellationToken.None);
-        await service.ReadCsvFileAsync(It.IsAny<string>(), It.IsAny<string>(), CancellationToken.None);
-        await service.ReadCsvFileAsync(It.IsAny<string>(), It.IsAny<string>(), CancellationToken.None);
+        var result = await service.ReadExcelFileAsync(It.IsAny<string>(), It.IsAny<string>(), CancellationToken.None);
 
         // Assert
-        mockBlobServiceClient.Verify(x => x.GetBlobContainerClient(It.IsAny<string>()), Times.Exactly(3));
-        mockBlobContainerClient.Verify(x => x.GetBlobClient(It.IsAny<string>()), Times.Exactly(3));
-        mockBlobClient.Verify(x => x.DownloadContentAsync(It.IsAny<CancellationToken>()), Times.Exactly(3));
+        result.Should().NotBeNull();
+        result.Should().BeOfType<DataTable>();
+        result.Rows.Should().HaveCount(117);
     }
 }

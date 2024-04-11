@@ -9,14 +9,14 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.Extensions.Azure;
-using ncea.enricher.Processor;
 using Ncea.Enricher.Processors;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Storage.Files.Shares;
 using Ncea.Enricher.Constants;
 using Azure.Storage.Blobs;
-using Ncea.Enricher.Processor;
 using Ncea.Enricher.Processor.Contracts;
+using Ncea.Enricher.Services.Contracts;
+using Ncea.Enricher.Services;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())

@@ -5,8 +5,7 @@ using Ncea.Enricher.Infrastructure;
 namespace Ncea.Enricher.Tests.Clients;
 
 public static class ApiClientForTests
-{
-    
+{    
     public static ApiClient Get(HttpResponseMessage responseMessage)
     {
         MockRepository _mockRepository;

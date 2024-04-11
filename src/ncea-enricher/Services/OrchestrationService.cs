@@ -4,11 +4,12 @@ using System.Xml.Linq;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
 using Ncea.Enricher.Processor.Contracts;
+using Ncea.Enricher.Services.Contracts;
 
-namespace Ncea.Enricher.Processor;
+namespace Ncea.Enricher.Services;
 
 public class OrchestrationService : IOrchestrationService
-{    
+{
     private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
     private readonly string _fileShareName;
     private readonly ServiceBusProcessor _processor;
@@ -26,14 +27,14 @@ public class OrchestrationService : IOrchestrationService
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
         _serviceProvider = serviceProvider;
         _logger = logger;
-    }    
+    }
 
     public async Task StartProcessorAsync(CancellationToken cancellationToken = default)
     {
         _processor.ProcessMessageAsync += ProcessMessagesAsync;
         _processor.ProcessErrorAsync += ErrorHandlerAsync;
         await _processor.StartProcessingAsync(cancellationToken);
-    }    
+    }
 
     private async Task ProcessMessagesAsync(ProcessMessageEventArgs args)
     {
@@ -43,9 +44,9 @@ public class OrchestrationService : IOrchestrationService
             var body = args.Message.Body.ToString();
             var dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
             var mdcMappedData = await _serviceProvider.GetRequiredKeyedService<IEnricherService>(dataSource).Enrich(body);
-            
+
             await UploadToFileShareAsync(mdcMappedData, dataSource!);
-            
+
             await args.CompleteMessageAsync(args.Message);
         }
         catch (Exception ex)
@@ -91,7 +92,7 @@ public class OrchestrationService : IOrchestrationService
                 }
             }
         }
-        catch(Exception ex) 
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Error occured while uploading enriched files on fileshare");
         }
@@ -121,5 +122,5 @@ public class OrchestrationService : IOrchestrationService
                                                                   && n.Name.LocalName == "fileIdentifier");
         var fileIdentifier = fileIdentifierXmlElement?.Descendants()?.FirstOrDefault()?.Value;
         return fileIdentifier;
-    }    
+    }
 }

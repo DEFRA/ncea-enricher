@@ -1,9 +1,9 @@
-﻿using Ncea.Enricher.Processor.Contracts;
+﻿using Ncea.Enricher.Services.Contracts;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace ncea.enricher.Processor
+namespace Ncea.Enricher.Services
 {
     public class XmlSearchService : IXmlSearchService
     {
@@ -35,16 +35,6 @@ namespace ncea.enricher.Processor
             }
 
             return root.XPathSelectElement(path)!;
-        }
-
-        private static string? GetFileIdentifier(XElement xmlElement)
-        {
-            var gmdNameSpaceString = "http://www.isotc211.org/2005/gmd";
-            var fileIdentifierXmlElement = xmlElement.Descendants()
-                                   .FirstOrDefault(n => n.Name.Namespace.NamespaceName == gmdNameSpaceString
-        && n.Name.LocalName == "fileIdentifier");
-            var fileIdentifier = fileIdentifierXmlElement?.Descendants()?.FirstOrDefault()?.Value;
-            return fileIdentifier;
         }
     }
 }

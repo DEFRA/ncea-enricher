@@ -1,5 +1,6 @@
 ﻿using Ncea.Enricher.Models;
 using Ncea.Enricher.Processor.Contracts;
+using Ncea.Enricher.Services.Contracts;
 using System.Xml;
 using System.Xml.Linq;
 

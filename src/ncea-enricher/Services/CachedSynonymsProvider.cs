@@ -1,14 +1,14 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Ncea.Enricher.Models;
-using Ncea.Enricher.Processor.Contracts;
+using Ncea.Enricher.Services.Contracts;
 
-namespace Ncea.Enricher.Processor;
+namespace Ncea.Enricher.Services;
 
 public class CachedSynonymsProvider : ISynonymsProvider
 {
     private const string ClassifierListCacheKey = "ClassifierList";
     private readonly IMemoryCache _memoryCache;
-    private readonly ISynonymsProvider _synonymsProvider;    
+    private readonly ISynonymsProvider _synonymsProvider;
 
     public CachedSynonymsProvider(IMemoryCache memoryCache, ISynonymsProvider synonymsProvider)
     {

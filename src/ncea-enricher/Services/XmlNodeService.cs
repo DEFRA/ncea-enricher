@@ -1,10 +1,10 @@
 ﻿using Ncea.Enricher.Models;
-using Ncea.Enricher.Processor.Contracts;
+using Ncea.Enricher.Services.Contracts;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace Ncea.Enricher.Processor;
+namespace Ncea.Enricher.Services;
 
 public class XmlNodeService : IXmlNodeService
 {
@@ -21,7 +21,7 @@ public class XmlNodeService : IXmlNodeService
         XNamespace mdcSchemaLocation = _mdcSchemaLocationPath;
 
         var classifier = new XElement(mdcSchemaLocation + "classifier");
-        
+
         //Create classifierType node
         var classifierType = new XElement(mdcSchemaLocation + "classifierType");
         var classifierTypeCharacterString = new XElement(gcoNamespace + "CharacterString", string.Format("Level {0}", level));
@@ -38,13 +38,13 @@ public class XmlNodeService : IXmlNodeService
         {
             //Create child nc_Classifiers node
             var nc_ClassifiersChild = new XElement(mdcSchemaLocation + "NC_Classifiers");
-            foreach( var classifer in classifers)
+            foreach (var classifer in classifers)
             {
                 nc_ClassifiersChild.Add(CreateClassifierNode(classifer.Level, classifer.Name, classifer.Children));
-            }          
-            
+            }
+
             classifier.Add(nc_ClassifiersChild);
-        }        
+        }
 
         return classifier;
     }
@@ -53,10 +53,10 @@ public class XmlNodeService : IXmlNodeService
     {
         var value = string.Empty;
 
-        if(field.Type == "list")
+        if (field.Type == "list")
         {
             var elements = rootNode.XPathSelectElements(field.XPath, nsMgr);
-            if(elements != null && elements.Count() > 0)
+            if (elements != null && elements.Count() > 0)
             {
                 var values = elements.Select(x => x.Value).ToList();
                 return string.Join(", ", values);
@@ -67,7 +67,7 @@ public class XmlNodeService : IXmlNodeService
             var element = rootNode.XPathSelectElement(field.XPath, nsMgr);
             return element != null ? element.Value : string.Empty;
         }
-        
+
         return value;
     }
 

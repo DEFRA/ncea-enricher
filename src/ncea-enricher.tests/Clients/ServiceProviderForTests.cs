@@ -3,35 +3,32 @@ using Moq;
 using Ncea.Enricher.Processors;
 using Ncea.Enricher.Processor.Contracts;
 
-namespace ncea_enricher.tests.Clients
+namespace Ncea.Enricher.Tests.Clients;
+
+internal static class ServiceProviderForTests
 {
-    internal static class ServiceProviderForTests
+    public static IServiceProvider Get()
     {
-        public static IServiceProvider Get()
-        {
-            var serviceCollection = new ServiceCollection();
+        var serviceCollection = new ServiceCollection();
 
-            // Add any DI stuff here:
-            serviceCollection.AddLogging();
-            serviceCollection.AddKeyedSingleton<IEnricherService, JnccEnricher>("Jncc");
-            serviceCollection.AddKeyedSingleton<IEnricherService, MedinEnricher>("Medin");
+        // Add any DI stuff here:
+        serviceCollection.AddLogging();
+        serviceCollection.AddKeyedSingleton<IEnricherService, JnccEnricher>("Jncc");
+        serviceCollection.AddKeyedSingleton<IEnricherService, MedinEnricher>("Medin");        
+        
+        // Create the ServiceProvider
+        var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            
-            
-            // Create the ServiceProvider
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+        // serviceScopeMock will contain ServiceProvider
+        var serviceScopeMock = new Mock<IServiceScope>();
+        serviceScopeMock.SetupGet<IServiceProvider>(s => s.ServiceProvider)
+            .Returns(serviceProvider);
 
-            // serviceScopeMock will contain ServiceProvider
-            var serviceScopeMock = new Mock<IServiceScope>();
-            serviceScopeMock.SetupGet<IServiceProvider>(s => s.ServiceProvider)
-                .Returns(serviceProvider);
-
-            // serviceScopeFactoryMock will contain serviceScopeMock
-            var serviceScopeFactoryMock = new Mock<IServiceScopeFactory>();
-            serviceScopeFactoryMock.Setup(s => s.CreateScope())
-                .Returns(serviceScopeMock.Object);
-            var mockServiceProvider = serviceScopeFactoryMock.Object.CreateScope().ServiceProvider;
-            return mockServiceProvider;
-        }
+        // serviceScopeFactoryMock will contain serviceScopeMock
+        var serviceScopeFactoryMock = new Mock<IServiceScopeFactory>();
+        serviceScopeFactoryMock.Setup(s => s.CreateScope())
+            .Returns(serviceScopeMock.Object);
+        var mockServiceProvider = serviceScopeFactoryMock.Object.CreateScope().ServiceProvider;
+        return mockServiceProvider;
     }
 }

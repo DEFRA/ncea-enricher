@@ -1,6 +1,6 @@
 ﻿using Ncea.Enricher.Models;
 
-namespace Ncea.Enricher.Processor.Contracts;
+namespace Ncea.Enricher.Services.Contracts;
 
 public interface ISearchableFieldConfigurations
 {

@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Models;
-using Ncea.Enricher.Processor.Contracts;
+using Ncea.Enricher.Services.Contracts;
 using System.Data;
 using System.Text.RegularExpressions;
 
-namespace Ncea.Enricher.Processor;
+namespace Ncea.Enricher.Services;
 
 public class SynonymsProvider : ISynonymsProvider
 {
@@ -42,7 +42,7 @@ public class SynonymsProvider : ISynonymsProvider
             .Where(str => !string.IsNullOrEmpty(str))
             .Select(int.Parse)
             .ToList();
-        
+
         foreach (DataRow row in rawData.Rows)
         {
             foreach (var level in levels)
@@ -59,7 +59,7 @@ public class SynonymsProvider : ISynonymsProvider
                         Name = row[$"L{level} Term"].ToString()!.Trim()
                     };
 
-                    if(isSynonymColumnExists) 
+                    if (isSynonymColumnExists)
                     {
                         var synonyms = row[$"L{level} Synonyms"].ToString()!.Trim();
                         classifier.Synonyms = !string.IsNullOrWhiteSpace(synonyms) ? synonyms.Trim().Split("##").ToList() : null;

@@ -2,7 +2,7 @@
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Ncea.Enricher.Processor.Contracts;
+namespace Ncea.Enricher.Services.Contracts;
 
 public interface IXmlNodeService
 {
