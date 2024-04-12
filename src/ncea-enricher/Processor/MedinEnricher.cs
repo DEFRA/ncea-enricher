@@ -4,6 +4,7 @@ using Ncea.Enricher.Services.Contracts;
 using System.Xml;
 using System.Xml.Linq;
 using System.Linq;
+using Microsoft.Azure.Amqp.Framing;
 
 namespace Ncea.Enricher.Processors;
 
@@ -51,10 +52,9 @@ public class MedinEnricher : IEnricherService
         var matchedClassifiers = new HashSet<Classifier>();
         foreach(var classifier in classifiers)
         {
-            foreach (var _ in metadata.Where(data => _xmlSearchService.IsMatchFound(data, classifier.Synonyms!)).Select(data => new { }))
+            if(metadata.Any(x => _xmlSearchService.IsMatchFound(x, classifier.Synonyms!)))
             {
                 CollectRelatedClassifiers(matchedClassifiers, classifierList, classifier);
-                break;
             }
         }        
 
