@@ -1,19 +1,21 @@
 steps:
 
-- task: Docker@2
-  displayName: 'Docker Build'
+- task: AzureCLI@2
+  displayName: 'Docker Build And Push'
   condition: succeeded()
   inputs:
-    command: build
-    containerRegistry: $(acrContainerRegistryServiceConnection)
-    repository: $(acrContainerRepositoryEnricher)
-    tags: '$(imageTag)'
-
-- task: Docker@2
-  displayName: 'Docker Push'
-  condition: and(succeeded(), or(eq(variables['isMain'], 'true'), eq(variables['isPullRequest'], 'true')))
-  inputs:
-    command: push
-    containerRegistry: $(acrContainerRegistryServiceConnection)
-    repository: $(acrContainerRepositoryEnricher)
-    tags: '$(imageTag)'
+    azureSubscription: $(azureServiceConnectionForAcr) 
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      echo "setting Azure Subscription"
+      az account set --subscription $(azureServiceConnectionForAcr)
+      PASSWORD=$(az acr login --name $(acrContainerRegistry) --expose-token --output tsv --query accessToken)
+      echo "Logging into ACR"
+      docker login $(acrContainerRegistry) -u $(acrUser) -p $PASSWORD
+      echo "Change directory"
+      cd src/ncea-enricher
+      echo "Building Container"      
+      docker build -f Dockerfile -t '$(acrContainerRegistry)/$(acrContainerRepositoryEnricher):$(imageTag)' .
+      echo "Pushing Container"
+      docker push '$(acrContainerRegistry)/$(acrContainerRepositoryEnricher):$(imageTag)'
