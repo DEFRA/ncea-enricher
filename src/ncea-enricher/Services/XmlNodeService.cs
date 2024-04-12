@@ -34,7 +34,7 @@ public class XmlNodeService : IXmlNodeService
         classifierValue.Add(classifierValueCharacterString);
         classifier.Add(classifierValue);
 
-        if (classifers != null && classifers.Count != 0)
+        if (classifers != null && classifers.Any())
         {
             //Create child nc_Classifiers node
             var nc_ClassifiersChild = new XElement(mdcSchemaLocation + "NC_Classifiers");
@@ -56,7 +56,7 @@ public class XmlNodeService : IXmlNodeService
         if (field.Type == "list")
         {
             var elements = rootNode.XPathSelectElements(field.XPath, nsMgr);
-            if (elements != null && elements.Count() > 0)
+            if (elements != null && elements.Any())
             {
                 var values = elements.Select(x => x.Value).ToList();
                 return string.Join(", ", values);

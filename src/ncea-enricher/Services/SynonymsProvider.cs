@@ -26,7 +26,7 @@ public class SynonymsProvider : ISynonymsProvider
         return GetClassifiers(rawData);
     }
 
-    private List<Classifier> GetClassifiers(DataTable rawData)
+    private static List<Classifier> GetClassifiers(DataTable rawData)
     {
         var items = new HashSet<Classifier>();
 
@@ -46,21 +46,7 @@ public class SynonymsProvider : ISynonymsProvider
             {
                 if (row[$"L{level} ID"] != null && row[$"L{level} Term"] != null)
                 {
-                    var isSynonymColumnExists = rawData.Columns.Contains($"L{level} Synonyms");
-
-                    var classifier = new Classifier
-                    {
-                        ParentId = level == 1 ? null : row[$"L{level - 1} ID"].ToString()!.Trim(),
-                        Id = row[$"L{level} ID"].ToString()!.Trim(),
-                        Level = level,
-                        Name = row[$"L{level} Term"].ToString()!.Trim()
-                    };
-
-                    if (isSynonymColumnExists)
-                    {
-                        var synonyms = row[$"L{level} Synonyms"].ToString()!.Trim();
-                        classifier.Synonyms = !string.IsNullOrWhiteSpace(synonyms) ? synonyms.Trim().Split("##").ToList() : null;
-                    }
+                    var classifier = CreateClassifier(rawData, row, level);
                     items.Add(classifier);
                 }
             }
@@ -71,5 +57,26 @@ public class SynonymsProvider : ISynonymsProvider
             .ThenBy(x => x.ParentId)
             .ThenBy(x => x.Id)
             .ToList();
+    }
+
+    private static Classifier CreateClassifier(DataTable rawData, DataRow row, int level)
+    {
+        var isSynonymColumnExists = rawData.Columns.Contains($"L{level} Synonyms");
+
+        var classifier = new Classifier
+        {
+            ParentId = level == 1 ? null : row[$"L{level - 1} ID"].ToString()!.Trim(),
+            Id = row[$"L{level} ID"].ToString()!.Trim(),
+            Level = level,
+            Name = row[$"L{level} Term"].ToString()!.Trim()
+        };
+
+        if (isSynonymColumnExists)
+        {
+            var synonyms = row[$"L{level} Synonyms"].ToString()!.Trim();
+            classifier.Synonyms = !string.IsNullOrWhiteSpace(synonyms) ? synonyms.Trim().Split("##").ToList() : null;
+        }
+
+        return classifier;
     }
 }

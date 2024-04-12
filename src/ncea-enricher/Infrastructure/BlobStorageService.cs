@@ -17,10 +17,9 @@ public class BlobStorageService : IBlobStorageService
     {
         var dtData = new DataTable();
 
-        var rows = new List<string>();
         var blobContainer = _blobServiceClient.GetBlobContainerClient(containerName);
         var blobClient = blobContainer.GetBlobClient(fileName);
-        if (await blobClient.ExistsAsync())
+        if (await blobClient.ExistsAsync(cancellationToken))
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 

@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Files.Shares;
+using FluentAssertions;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -273,6 +274,7 @@ public class OrchestrationServiceTests
         if (task != null) await task;
 
         // Assert
+        task.Should().BeNull();
     }
 
     [Fact]
