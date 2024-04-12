@@ -1,6 +1,6 @@
 ﻿namespace Ncea.Enricher.Models;
 
-public class Classifier : IEquatable<Classifier>
+public sealed class Classifier : IEquatable<Classifier>
 {
     public string Id { get; set; } = null!;
     public string? ParentId { get; set; } = null;
