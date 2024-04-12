@@ -9,12 +9,16 @@ public class Classifier : IEquatable<Classifier>
     public List<string>? Synonyms { get; set;}
     public List<Classifier>? Children { get; set; }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
+        if (obj == null)
+        {
+            return false;
+        }
         return Equals(obj as Classifier);
     }
 
-    public bool Equals(Classifier classifier)
+    public bool Equals(Classifier? classifier)
     {
         return classifier != null && Id == classifier.Id && ParentId == classifier.ParentId && Name == classifier.Name;
     }
