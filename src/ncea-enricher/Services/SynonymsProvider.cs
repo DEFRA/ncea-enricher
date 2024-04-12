@@ -30,12 +30,12 @@ public class SynonymsProvider : ISynonymsProvider
     {
         var items = new HashSet<Classifier>();
 
-        var regEx = new Regex(@"L([0-9]+)\ ID");
+        var regEx = new Regex(@"L([0-9]+)\ ID", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(1000));
 
         var levels = rawData.Columns.Cast<DataColumn>()
             .Select(c => c.ColumnName)
             .Where(x => regEx.IsMatch(x))
-            .SelectMany(y => Regex.Split(y, @"\D+"))
+            .SelectMany(y => Regex.Split(y, @"\D+", RegexOptions.None, TimeSpan.FromMilliseconds(1000)))
             .Where(str => !string.IsNullOrEmpty(str))
             .Select(int.Parse)
             .ToList();
