@@ -52,7 +52,7 @@ public class MedinEnricher : IEnricherService
         var matchedClassifiers = new HashSet<Classifier>();
         foreach(var classifier in classifiers)
         {
-            if(metadata.Any(x => _xmlSearchService.IsMatchFound(x, classifier.Synonyms!)))
+            if(metadata.Exists(x => _xmlSearchService.IsMatchFound(x, classifier.Synonyms!)))
             {
                 CollectRelatedClassifiers(matchedClassifiers, classifierList, classifier);
             }

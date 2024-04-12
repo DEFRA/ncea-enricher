@@ -53,6 +53,7 @@ public class SynonymsProvider : ISynonymsProvider
         }
 
         return items
+            .Where(x => !string.IsNullOrWhiteSpace(x.Id) && !string.IsNullOrWhiteSpace(x.Name))
             .OrderBy(x => x.Level)
             .ThenBy(x => x.ParentId)
             .ThenBy(x => x.Id)

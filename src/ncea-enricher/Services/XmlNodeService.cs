@@ -34,7 +34,7 @@ public class XmlNodeService : IXmlNodeService
         classifierValue.Add(classifierValueCharacterString);
         classifier.Add(classifierValue);
 
-        if (classifers != null && classifers.Any())
+        if (classifers != null && classifers.Count != 0)
         {
             //Create child nc_Classifiers node
             var nc_ClassifiersChild = new XElement(mdcSchemaLocation + "NC_Classifiers");
