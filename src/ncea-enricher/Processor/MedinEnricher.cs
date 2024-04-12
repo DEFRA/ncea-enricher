@@ -10,13 +10,13 @@ public class MedinEnricher : IEnricherService
 {
     private readonly ISynonymsProvider _synonymsProvider;
     private readonly ISearchableFieldConfigurations _searchableFieldConfigurations;
-    private readonly IXmlSearchService _xmlSearchService;
+    private readonly ISearchService _xmlSearchService;
     private readonly IXmlNodeService _xmlNodeService;
     private readonly ILogger<MedinEnricher> _logger;
 
     public MedinEnricher(ISynonymsProvider synonymsProvider,
         ISearchableFieldConfigurations searchableFieldConfigurations,
-        IXmlSearchService xmlSearchService,
+        ISearchService xmlSearchService,
         IXmlNodeService xmlNodeService,
         ILogger<MedinEnricher> logger)
     {
@@ -26,7 +26,7 @@ public class MedinEnricher : IEnricherService
         _xmlNodeService = xmlNodeService;
         _logger = logger;
     }
-    public async Task<string> Enrich(string mappedData, CancellationToken cancellationToken = default)
+    public async Task<string> Enrich(string fileIdentifier, string mappedData, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Medin enricher");
         
@@ -36,7 +36,7 @@ public class MedinEnricher : IEnricherService
         var nsMgr = GetXmlNamespaceManager(xDoc);
         var rootNode = xDoc.Root!;
 
-        var searchableFields = _searchableFieldConfigurations.GetSearchableFieldConfigurations();
+        var searchableFields = _searchableFieldConfigurations.GetAll();
         foreach(var searchableField in searchableFields)
         {
             var fieldValue = _xmlNodeService.GetNodeValues(searchableField, rootNode, nsMgr);

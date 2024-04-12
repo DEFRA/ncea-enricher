@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Ncea.Enricher.Infrastructure.Contracts;
+﻿using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Services.Contracts;
 using System.Data;
@@ -10,13 +9,11 @@ namespace Ncea.Enricher.Services;
 public class SynonymsProvider : ISynonymsProvider
 {
     private readonly IConfiguration _configuration;
-    private readonly IMemoryCache _memoryCache;
     private readonly IBlobStorageService _blobStorageService;
 
-    public SynonymsProvider(IConfiguration configuration, IMemoryCache memoryCache, IBlobStorageService blobStorageService)
+    public SynonymsProvider(IConfiguration configuration, IBlobStorageService blobStorageService)
     {
         _configuration = configuration;
-        _memoryCache = memoryCache;
         _blobStorageService = blobStorageService;
     }
 

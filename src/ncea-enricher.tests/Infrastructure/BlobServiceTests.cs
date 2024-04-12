@@ -1,6 +1,4 @@
-﻿using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Moq;
 using Ncea.Enricher.Tests.Clients;
 using System.Data;
@@ -13,9 +11,7 @@ public class BlobServiceTests
     public async Task ReadExcelFileAsync_ShouldCallRequiredBlobServiceMethods()
     {
         // Arrange
-        var service = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
-                                              out Mock<BlobContainerClient> mockBlobContainerClient,
-                                              out Mock<BlobClient> mockBlobClient);
+        var service = BlobServiceForTests.Get();
 
         // Act
         var result = await service.ReadExcelFileAsync(It.IsAny<string>(), It.IsAny<string>(), CancellationToken.None);

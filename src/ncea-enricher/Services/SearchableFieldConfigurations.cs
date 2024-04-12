@@ -11,7 +11,7 @@ public class SearchableFieldConfigurations : ISearchableFieldConfigurations
     {
         _configuration = configuration;
     }
-    public List<SearchableField> GetSearchableFieldConfigurations()
+    public List<SearchableField> GetAll()
     {
         return _configuration.GetSection("SearchableFields").Get<List<SearchableField>>()!;
     }

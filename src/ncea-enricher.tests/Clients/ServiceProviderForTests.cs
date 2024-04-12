@@ -2,6 +2,7 @@
 using Moq;
 using Ncea.Enricher.Processors;
 using Ncea.Enricher.Processor.Contracts;
+using Microsoft.Extensions.Configuration;
 
 namespace Ncea.Enricher.Tests.Clients;
 
@@ -14,8 +15,20 @@ internal static class ServiceProviderForTests
         // Add any DI stuff here:
         serviceCollection.AddLogging();
         serviceCollection.AddKeyedSingleton<IEnricherService, JnccEnricher>("Jncc");
-        serviceCollection.AddKeyedSingleton<IEnricherService, MedinEnricher>("Medin");        
-        
+        serviceCollection.AddKeyedSingleton<IEnricherService, MedinEnricher>("Medin");
+
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile(
+                 path: "appsettings.json",
+                 optional: false,
+                 reloadOnChange: true)
+           .Build();
+        serviceCollection.AddSingleton<IConfiguration>(configuration);
+
+        serviceCollection.AddMemoryCache();
+        serviceCollection.AddLogging();
+
         // Create the ServiceProvider
         var serviceProvider = serviceCollection.BuildServiceProvider();
 

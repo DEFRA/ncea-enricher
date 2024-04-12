@@ -28,10 +28,8 @@ public class JnccEnricherTests
                             out Mock<ShareFileClient> mockShareFileClient);
         var jnccService = new JnccEnricher(loggerMock.Object);
 
-
-
         // Act
-        await jnccService.Enrich(It.IsAny<string>(), It.IsAny<CancellationToken>());
+        await jnccService.Enrich(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>());
 
 
         // Assert

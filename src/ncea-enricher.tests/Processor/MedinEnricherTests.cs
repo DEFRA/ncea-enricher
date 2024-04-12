@@ -1,50 +1,55 @@
-﻿using Azure.Messaging.ServiceBus;
-using Azure.Storage.Files.Shares;
-using Microsoft.Extensions.Azure;
+﻿using FluentAssertions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Processors;
 using Ncea.Enricher.Services;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Ncea.Enricher.Tests.Processor;
 
 public class MedinEnricherTests
 {
+    private IServiceProvider _serviceProvider;
+    private IBlobStorageService _blobStorageService;
+    private ISynonymsProvider _synonymsProvider;
+    private ISearchableFieldConfigurations _searchableFieldConfigurations;
+    private ISearchService _searchService;
+    private IXmlNodeService _nodeService;
+    private ILogger<MedinEnricher> _logger;
+
+    public MedinEnricherTests()
+    {
+        _serviceProvider = ServiceProviderForTests.Get();
+        var configuration = _serviceProvider.GetService<IConfiguration>()!;
+        _blobStorageService = BlobServiceForTests.Get();
+        _synonymsProvider = new SynonymsProvider(configuration, _blobStorageService);
+        _searchableFieldConfigurations = new SearchableFieldConfigurations(configuration);
+        _searchService = new SearchService();
+        _nodeService = new XmlNodeService(configuration);
+        _logger = _serviceProvider.GetService<ILogger<MedinEnricher>>()!;
+    }
     [Fact]
     public async Task Process_ShouldLogMessage()
     {
         //Arrange
-        OrchestrationServiceForTests.Get(out IConfiguration configuration,
-                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
-                            out Mock<IOrchestrationService> mockOrchestrationService,
-                            out Mock<ILogger<MedinEnricher>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
-        var synonymProviderMock = new Mock<SynonymsProvider>();
-        var searchableFieldConfigMock = new Mock<SearchableFieldConfigurations>();
-        var xmlSearchServiceMock = new Mock<XmlSearchService>();
-        var xmlNodeServiceMock = new Mock<XmlNodeService>();
-        var medinService = new MedinEnricher(synonymProviderMock.Object,
-            searchableFieldConfigMock.Object,
-            xmlSearchServiceMock.Object,
-            xmlNodeServiceMock.Object,
-            loggerMock.Object);
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
+        var xDoc = new XmlDocument();
+        xDoc.Load(filePath);
+
+        var medinService = new MedinEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _logger);
+        var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
-        await medinService.Enrich(It.IsAny<string>(), It.IsAny<CancellationToken>());
+        var result = await medinService.Enrich("test-file-id", mappedMetadataXml, It.IsAny<CancellationToken>());
 
         // Assert
-        loggerMock.Verify(x => x.Log(LogLevel.Information,
-            It.IsAny<EventId>(),
-            It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+        result.Should().NotBeNull();
+        result.Should().BeOfType<string>();
     }
 }

@@ -4,5 +4,5 @@ namespace Ncea.Enricher.Services.Contracts;
 
 public interface ISearchableFieldConfigurations
 {
-    List<SearchableField> GetSearchableFieldConfigurations();
+    List<SearchableField> GetAll();
 }

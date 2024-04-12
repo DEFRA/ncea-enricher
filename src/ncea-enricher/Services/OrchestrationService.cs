@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.XPath;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
 using Ncea.Enricher.Processor.Contracts;
@@ -15,6 +16,7 @@ public class OrchestrationService : IOrchestrationService
     private readonly ServiceBusProcessor _processor;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<OrchestrationService> _logger;
+    private string? _fileIdentifier;
 
     public OrchestrationService(IConfiguration configuration,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
@@ -37,15 +39,17 @@ public class OrchestrationService : IOrchestrationService
     }
 
     private async Task ProcessMessagesAsync(ProcessMessageEventArgs args)
-    {
+    {        
         _logger.LogInformation("Received a messaage to enrich metadata");
         try
         {
             var body = args.Message.Body.ToString();
-            var dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
-            var mdcMappedData = await _serviceProvider.GetRequiredKeyedService<IEnricherService>(dataSource).Enrich(body);
+            _fileIdentifier = GetFileIdentifier(body)!;
 
-            await UploadToFileShareAsync(mdcMappedData, dataSource!);
+            var dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
+            var mdcMappedData = await _serviceProvider.GetRequiredKeyedService<IEnricherService>(dataSource).Enrich(_fileIdentifier, body);
+
+            await SaveEnrichedXmlAsync(mdcMappedData, dataSource!);
 
             await args.CompleteMessageAsync(args.Message);
         }
@@ -63,7 +67,7 @@ public class OrchestrationService : IOrchestrationService
     }
 
     [ExcludeFromCodeCoverage]
-    private async Task UploadToFileShareAsync(string message, string dataSource)
+    private async Task SaveEnrichedXmlAsync(string message, string dataSource)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -71,9 +75,7 @@ public class OrchestrationService : IOrchestrationService
             return;
         }
 
-        var fileIdentifier = GetFileIdentifier(message);
-
-        if (string.IsNullOrWhiteSpace(fileIdentifier))
+        if (string.IsNullOrWhiteSpace(_fileIdentifier))
         {
             _logger.LogError("Invalid enriched xml.failed uploading.");
             return;
@@ -81,7 +83,7 @@ public class OrchestrationService : IOrchestrationService
 
         try
         {
-            var fileName = string.Concat(fileIdentifier, ".xml");
+            var fileName = string.Concat(_fileIdentifier, ".xml");
             var filePath = Path.Combine(_fileShareName, dataSource, fileName);
 
             using (var uploadStream = GenerateStreamFromString(message))
@@ -114,13 +116,15 @@ public class OrchestrationService : IOrchestrationService
         var xmlDoc = new XmlDocument();
         xmlDoc.LoadXml(xmlString);
         var xDoc = XDocument.Load(xmlDoc!.CreateNavigator()!.ReadSubtree());
-        var xmlElement = xDoc.Root;
+        var rootNode = xDoc.Root;
 
-        string gmdNameSpaceString = "http://www.isotc211.org/2005/gmd";
-        var fileIdentifierXmlElement = xmlElement!.Descendants()
-                                                  .FirstOrDefault(n => n.Name.Namespace.NamespaceName == gmdNameSpaceString
-                                                                  && n.Name.LocalName == "fileIdentifier");
-        var fileIdentifier = fileIdentifierXmlElement?.Descendants()?.FirstOrDefault()?.Value;
-        return fileIdentifier;
+        var reader = xDoc.CreateReader();
+        XmlNamespaceManager nsMgr = new XmlNamespaceManager(reader.NameTable);
+        nsMgr.AddNamespace("gmd", "http://www.isotc211.org/2005/gmd");
+        nsMgr.AddNamespace("gco", "http://www.isotc211.org/2005/gco");
+        nsMgr.AddNamespace("gmx", "http://www.isotc211.org/2005/gmx");
+
+        var identifierNode = rootNode!.XPathSelectElement("//gmd:fileIdentifier/gco:CharacterString", nsMgr);
+        return identifierNode != null ? identifierNode.Value : null;
     }
 }
