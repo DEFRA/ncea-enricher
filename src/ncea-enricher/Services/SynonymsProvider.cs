@@ -40,11 +40,13 @@ public class SynonymsProvider : ISynonymsProvider
             .Select(int.Parse)
             .ToList();
 
+        CheckTermColumnExistenceAtAlllevels(rawData, levels);
+
         foreach (DataRow row in rawData.Rows)
         {
             foreach (var level in levels)
             {
-                if (row[$"L{level} ID"] != null && row[$"L{level} Term"] != null)
+                if (row[$"L{level} ID"] != null && row[$"L{level} Term"] != DBNull.Value)
                 {
                     var classifier = CreateClassifier(rawData, row, level);
                     items.Add(classifier);
@@ -58,6 +60,17 @@ public class SynonymsProvider : ISynonymsProvider
             .ThenBy(x => x.ParentId)
             .ThenBy(x => x.Id)
             .ToList();
+    }
+
+    private static void CheckTermColumnExistenceAtAlllevels(DataTable rawData, List<int> levels)
+    {
+        foreach (var level in levels)
+        {
+            if (!rawData.Columns.Contains($"L{level} Term"))
+            {
+                throw new ArgumentException($"L{level} Term column not exists");
+            }
+        }
     }
 
     private static Classifier CreateClassifier(DataTable rawData, DataRow row, int level)

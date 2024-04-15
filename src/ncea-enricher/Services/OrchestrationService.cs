@@ -65,26 +65,24 @@ public class OrchestrationService : IOrchestrationService
         return Task.CompletedTask;
     }
         
-    private async Task SaveEnrichedXmlAsync(string message, string dataSource)
+    private async Task SaveEnrichedXmlAsync(string mdcMappedData, string dataSource)
     {
-        if (string.IsNullOrWhiteSpace(message))
-        {
-            _logger.LogError("Empty enriched xml failed uploading.");
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(_fileIdentifier))
-        {
-            _logger.LogError("Invalid enriched xml.failed uploading.");
-            return;
-        }
-
         try
         {
+            if (string.IsNullOrWhiteSpace(mdcMappedData))
+            {
+                throw new ArgumentException("Enriched xml content should not be null or empty");
+            }
+            _fileIdentifier = _fileIdentifier ?? GetFileIdentifier(mdcMappedData);
+            if (string.IsNullOrWhiteSpace(_fileIdentifier))
+            {
+                throw new ArgumentException("Missing FileIdentifier in Enriched xml content");
+            }
+
             var fileName = string.Concat(_fileIdentifier, ".xml");
             var filePath = Path.Combine(_fileShareName, dataSource, fileName);
 
-            using (var uploadStream = GenerateStreamFromString(message))
+            using (var uploadStream = GenerateStreamFromString(mdcMappedData))
             {
                 using (var fileStream = File.Create(filePath))
                 {
@@ -94,7 +92,7 @@ public class OrchestrationService : IOrchestrationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occured while uploading enriched files on fileshare");
+            _logger.LogError(ex, ex.Message);
         }
     }
 
