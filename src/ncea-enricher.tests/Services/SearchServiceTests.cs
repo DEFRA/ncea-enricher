@@ -25,6 +25,31 @@ public class SearchServiceTests
     }
 
     [Fact]
+    public void IsMatchFound_WhenListOfFieldValuesGiven_ShouldReturnTrue()
+    {
+        //Arrange
+        var searchService = new SearchService();
+        var synonyms = new List<string>
+        {
+            "medin",
+            "Examples"
+        };
+        var xmlFieldValue1 = "Demonstration XML resource for series showing examples of good practice for MEDIN metadata creation";
+        var xmlFieldValue2 = "Test, A, B, C";
+
+        var fieldValues = new List<string>
+        {
+            xmlFieldValue1, xmlFieldValue2
+        };
+
+        // Act
+        var result = searchService.IsMatchFound(fieldValues, synonyms);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
     public void IsMatchFound_ShouldReturnFalse()
     {
         //Arrange
@@ -42,4 +67,31 @@ public class SearchServiceTests
         // Assert
         result.Should().BeFalse();
     }
+
+    [Fact]
+    public void IsMatchFound_WhenListOfFieldValuesGiven_ShouldReturnFalse()
+    {
+        //Arrange
+        var searchService = new SearchService();
+        var synonyms = new List<string>
+        {
+            "medin",
+            "Examples"
+        };
+        var xmlFieldValue1 = "Demonstration XML resource for series showing examples of good practice for MEDIN metadata creation";
+        var xmlFieldValue2 = "Tes, A, B, C";
+
+        var fieldValues = new List<string>
+        {
+            xmlFieldValue1, xmlFieldValue2
+        };
+
+        // Act
+        var result = searchService.IsMatchFound(fieldValues, synonyms);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+
 }

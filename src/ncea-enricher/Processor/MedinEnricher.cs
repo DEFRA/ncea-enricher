@@ -29,7 +29,7 @@ public class MedinEnricher : IEnricherService
     public async Task<string> Enrich(string fileIdentifier, string mappedData, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Medin enricher");
-        
+
         var searchableFieldValues = new Dictionary<string, string>();
 
         var xDoc = XDocument.Parse(mappedData);
@@ -37,7 +37,7 @@ public class MedinEnricher : IEnricherService
         var rootNode = xDoc.Root!;
 
         var searchableFields = _searchableFieldConfigurations.GetAll();
-        foreach(var searchableField in searchableFields)
+        foreach (var searchableField in searchableFields)
         {
             var fieldValue = _xmlNodeService.GetNodeValues(searchableField, rootNode, nsMgr);
             searchableFieldValues.Add(searchableField.Name, fieldValue);
@@ -48,14 +48,18 @@ public class MedinEnricher : IEnricherService
         var metadata = searchableFieldValues.Where(x => !string.IsNullOrEmpty(x.Value)).Select(x => x.Value).ToList();
 
         var matchedClassifiers = new HashSet<Classifier>();
-        foreach(var classifier in classifiers)
+        foreach (var classifier in classifiers.Where(x => _xmlSearchService.IsMatchFound(metadata, x.Synonyms!)))
         {
-            if(metadata.Exists(x => _xmlSearchService.IsMatchFound(x, classifier.Synonyms!)))
-            {
-                CollectRelatedClassifiers(matchedClassifiers, classifierList, classifier);
-            }
-        }        
+            CollectRelatedClassifiers(matchedClassifiers, classifierList, classifier);
+        }
 
+        UpdateMetadataXml(nsMgr, rootNode, matchedClassifiers);
+
+        return await Task.FromResult(xDoc.ToString());
+    }
+
+    private void UpdateMetadataXml(XmlNamespaceManager nsMgr, XElement rootNode, HashSet<Classifier> matchedClassifiers)
+    {
         var ncClassifiersParentNode = _xmlNodeService.GetNCClassifiersParentNode(rootNode, nsMgr);
         var nceaClassifiers = BuildClassifierHierarchies(matchedClassifiers.ToList());
         foreach (var nceaClassifier in nceaClassifiers)
@@ -63,8 +67,6 @@ public class MedinEnricher : IEnricherService
             var element = _xmlNodeService.CreateClassifierNode(nceaClassifier.Level, nceaClassifier.Name, nceaClassifier.Children);
             ncClassifiersParentNode.Add(element);
         }
-
-        return await Task.FromResult(xDoc.ToString());
     }
 
     private static List<Classifier> BuildClassifierHierarchies(List<Classifier> flattenedClassifierList)
