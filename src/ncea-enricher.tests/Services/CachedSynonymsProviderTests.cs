@@ -41,4 +41,20 @@ public class CachedSynonymsProviderTests
         result.Where(x => x.Level == 1).Count().Should().Be(4);
     }
 
+    [Fact]
+    public async Task GetAll_WhenToGetCachedItems_ReturnSynonyms()
+    {
+        //Arrange
+        var cache = _serviceProvider.GetService<IMemoryCache>()!;
+        var cachedSynonymsProvider = new CachedSynonymsProvider(cache, _synonymsProvider);
+
+        // Act
+        await cachedSynonymsProvider.GetAll(It.IsAny<CancellationToken>());
+        var result = await cachedSynonymsProvider.GetAll(It.IsAny<CancellationToken>());
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<List<Classifier>>();
+        result.Where(x => x.Level == 1).Count().Should().Be(4);
+    }
 }

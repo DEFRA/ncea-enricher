@@ -46,7 +46,7 @@ public class SynonymsProvider : ISynonymsProvider
         {
             foreach (var level in levels)
             {
-                if (row[$"L{level} ID"] != null && row[$"L{level} Term"] != DBNull.Value)
+                if (row[$"L{level} ID"] != DBNull.Value && row[$"L{level} Term"] != DBNull.Value)
                 {
                     var classifier = CreateClassifier(rawData, row, level);
                     items.Add(classifier);
@@ -55,7 +55,6 @@ public class SynonymsProvider : ISynonymsProvider
         }
 
         return items
-            .Where(x => !string.IsNullOrWhiteSpace(x.Id) && !string.IsNullOrWhiteSpace(x.Name))
             .OrderBy(x => x.Level)
             .ThenBy(x => x.ParentId)
             .ThenBy(x => x.Id)

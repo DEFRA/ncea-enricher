@@ -58,7 +58,33 @@ public class SynonymsProviderTests
     }
 
     [Fact]
-    public async Task GetAll_WhenAllRequiredColumnsExistsWithNullValue_ThenReturnEmptyListOfClassifiers()
+    public async Task GetAll_WhenAllRequiredColumnsExistsWithIdAsNullValue_ThenReturnEmptyListOfClassifiers()
+    {
+        //Arrange
+        var configuration = _serviceProvider.GetService<IConfiguration>()!;
+
+        var dataTable = new DataTable();
+        dataTable.Columns.Add("L1 ID");
+        dataTable.Columns.Add("L1 Term");
+        var dataRow = dataTable.NewRow();
+        dataRow.ItemArray = [null, "test"];
+        dataTable.Rows.Add(dataRow);
+        var blobStorageServiceMock = new Mock<IBlobStorageService>();
+        blobStorageServiceMock.Setup(x => x.ReadExcelFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(dataTable);
+        var synonymsProvider = new SynonymsProvider(configuration, blobStorageServiceMock.Object);
+
+        // Act
+        var result = await synonymsProvider.GetAll(It.IsAny<CancellationToken>());
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<List<Classifier>>();
+        result.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task GetAll_WhenAllRequiredColumnsExistsWithTermAsNullValue_ThenReturnEmptyListOfClassifiers()
     {
         //Arrange
         var configuration = _serviceProvider.GetService<IConfiguration>()!;

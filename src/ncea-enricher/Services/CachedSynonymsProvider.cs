@@ -19,8 +19,7 @@ public class CachedSynonymsProvider : ISynonymsProvider
     public async Task<List<Classifier>> GetAll(CancellationToken cancellationToken)
     {
         var options = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromSeconds(10))
-            .SetAbsoluteExpiration(TimeSpan.FromSeconds(30));
+            .SetSlidingExpiration(TimeSpan.FromMinutes(30));
 
         if (_memoryCache.TryGetValue(ClassifierListCacheKey, out List<Classifier> result)) return result;
 

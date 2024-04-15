@@ -11,6 +11,7 @@ namespace Ncea.Enricher.Services;
 public class OrchestrationService : IOrchestrationService
 {
     private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
+    private const string SaveFileErrorMessage = "Error occured while saving the enriched metadata file";
     private readonly string _fileShareName;
     private readonly ServiceBusProcessor _processor;
     private readonly IServiceProvider _serviceProvider;
@@ -92,7 +93,7 @@ public class OrchestrationService : IOrchestrationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, SaveFileErrorMessage);
         }
     }
 
