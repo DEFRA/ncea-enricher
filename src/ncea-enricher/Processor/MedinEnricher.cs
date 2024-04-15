@@ -3,8 +3,6 @@ using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
 using System.Xml;
 using System.Xml.Linq;
-using System.Linq;
-using Microsoft.Azure.Amqp.Framing;
 
 namespace Ncea.Enricher.Processors;
 

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Azure.Messaging.ServiceBus;
@@ -65,8 +64,7 @@ public class OrchestrationService : IOrchestrationService
         _logger.LogError(args.Exception, ProcessorErrorMessage);
         return Task.CompletedTask;
     }
-
-    [ExcludeFromCodeCoverage]
+        
     private async Task SaveEnrichedXmlAsync(string message, string dataSource)
     {
         if (string.IsNullOrWhiteSpace(message))

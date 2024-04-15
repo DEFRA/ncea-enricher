@@ -9,7 +9,6 @@ using Ncea.Enricher.Services;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
 using System.Xml;
-using System.Xml.Linq;
 
 namespace Ncea.Enricher.Tests.Processor;
 

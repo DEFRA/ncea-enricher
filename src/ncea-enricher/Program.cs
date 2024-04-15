@@ -131,7 +131,6 @@ static void ConfigureServices(HostApplicationBuilder builder)
 {
     builder.Services.AddSingleton<IApiClient, ApiClient>();
     builder.Services.AddSingleton<IOrchestrationService, OrchestrationService>();
-    builder.Services.AddSingleton<IKeyVaultService, KeyVaultService>();
     builder.Services.AddSingleton<IBlobStorageService, BlobStorageService>();
     builder.Services.AddSingleton<ISearchableFieldConfigurations, SearchableFieldConfigurations>();
     builder.Services.AddSingleton<ISearchService, SearchService>();

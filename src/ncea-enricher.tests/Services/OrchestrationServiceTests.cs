@@ -1,5 +1,4 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Azure.Storage.Files.Shares;
 using FluentAssertions;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
@@ -20,14 +19,9 @@ public class OrchestrationServiceTests
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
         var serviceProvider = new Mock<IServiceProvider>();
 
@@ -49,14 +43,9 @@ public class OrchestrationServiceTests
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
         var serviceProvider = new Mock<IServiceProvider>();
 
@@ -65,7 +54,6 @@ public class OrchestrationServiceTests
             serviceProvider.Object,
             loggerMock.Object);
 
-        // Act
         // Act
         await service.StartProcessorAsync(It.IsAny<CancellationToken>());
 
@@ -79,14 +67,9 @@ public class OrchestrationServiceTests
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
         var serviceProvider = new Mock<IServiceProvider>();
 
@@ -121,14 +104,9 @@ public class OrchestrationServiceTests
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
         // Act
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
@@ -171,14 +149,9 @@ public class OrchestrationServiceTests
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
         var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: null, messageId: "messageId");
         var mockReceiver = new Mock<ServiceBusReceiver>();
@@ -207,22 +180,16 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public async Task UploadToFileShareAsync_Should_Not_UploadFile()
+    public async Task SaveEnrichedXmlAsync_Should_Not_SaveFile()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
         var mockServiceProvider = new Mock<IServiceProvider>();
-
 
         // Act
         var service = new OrchestrationService(configuration,
@@ -230,28 +197,27 @@ public class OrchestrationServiceTests
             mockServiceProvider.Object,
             loggerMock.Object);
 
-        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("UploadToFileShareAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("SaveEnrichedXmlAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { string.Empty, It.IsAny<string>() }));
         if (task != null) await task;
 
         // Assert
-        mockFileShareServiceClient.Verify(x => x.GetShareClient(It.IsAny<string>()), Times.Never);
+        loggerMock.Verify(x => x.Log(LogLevel.Error,
+            It.IsAny<EventId>(),
+            It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [Fact]
-    public async Task UploadToFileShareAsync_Should_UploadFile()
+    public async Task SaveEnrichedXmlAsync_Should_UploadFile()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
         var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
@@ -269,12 +235,12 @@ public class OrchestrationServiceTests
             mockServiceProvider.Object,
             loggerMock.Object);
 
-        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("UploadToFileShareAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("SaveEnrichedXmlAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { message, "test-datasource" }));
         if (task != null) await task;
 
         // Assert
-        task.Should().BeNull();
+        Assert.True(task?.IsCompleted);
     }
 
     [Fact]
@@ -283,14 +249,9 @@ public class OrchestrationServiceTests
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
         var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
@@ -322,14 +283,9 @@ public class OrchestrationServiceTests
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
         var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
@@ -358,14 +314,9 @@ public class OrchestrationServiceTests
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
         var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
@@ -396,14 +347,9 @@ public class OrchestrationServiceTests
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
         var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "";

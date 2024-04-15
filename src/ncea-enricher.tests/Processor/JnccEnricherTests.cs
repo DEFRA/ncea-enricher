@@ -18,14 +18,9 @@ public class JnccEnricherTests
         //Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<JnccEnricher>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
         var jnccService = new JnccEnricher(loggerMock.Object);
 
         // Act
