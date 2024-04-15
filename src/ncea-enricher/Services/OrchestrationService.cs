@@ -10,6 +10,9 @@ namespace Ncea.Enricher.Services;
 
 public class OrchestrationService : IOrchestrationService
 {
+    private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
+    private const string GcoNamespace = "http://www.isotc211.org/2005/gco";
+    private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
     private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
     private const string SaveFileErrorMessage = "Error occured while saving the enriched metadata file";
     private readonly string _fileShareName;
@@ -116,9 +119,9 @@ public class OrchestrationService : IOrchestrationService
 
         var reader = xDoc.CreateReader();
         var nsMgr = new XmlNamespaceManager(reader.NameTable);
-        nsMgr.AddNamespace("gmd", "http://www.isotc211.org/2005/gmd");
-        nsMgr.AddNamespace("gco", "http://www.isotc211.org/2005/gco");
-        nsMgr.AddNamespace("gmx", "http://www.isotc211.org/2005/gmx");
+        nsMgr.AddNamespace("gmd", GmdNamespace);
+        nsMgr.AddNamespace("gco", GcoNamespace);
+        nsMgr.AddNamespace("gmx", GmxNamespace);
 
         var identifierNode = rootNode!.XPathSelectElement("//gmd:fileIdentifier/gco:CharacterString", nsMgr);
         return identifierNode != null ? identifierNode.Value : null;
