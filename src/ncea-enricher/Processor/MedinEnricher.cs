@@ -8,9 +8,14 @@ namespace Ncea.Enricher.Processors;
 
 public class MedinEnricher : IEnricherService
 {
+
     private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
     private const string GcoNamespace = "http://www.isotc211.org/2005/gco";
     private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
+
+    private const string InfoLogMessage1 = "Enriching metadata in-progress for DataSource: Medin, FileIdentifier: {fileIdentifier}";
+    private const string InfoLogMessage2 = "Enriching metadata completed for DataSource: Medin, FileIdentifier: {fileIdentifier}";
+    
     private readonly ISynonymsProvider _synonymsProvider;
     private readonly ISearchableFieldConfigurations _searchableFieldConfigurations;
     private readonly ISearchService _xmlSearchService;
@@ -31,7 +36,7 @@ public class MedinEnricher : IEnricherService
     }
     public async Task<string> Enrich(string fileIdentifier, string mappedData, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation($"Enriching metadata in-progress for DataSource: Medin, FileIdentifier: {fileIdentifier}", fileIdentifier);
+        _logger.LogInformation(InfoLogMessage1, fileIdentifier);
 
         var searchableFieldValues = new Dictionary<string, string>();
 
@@ -58,7 +63,7 @@ public class MedinEnricher : IEnricherService
 
         UpdateMetadataXml(nsMgr, rootNode, matchedClassifiers);
 
-        _logger.LogInformation($"Enriching metadata completed for DataSource: Medin, FileIdentifier: {fileIdentifier}", fileIdentifier);
+        _logger.LogInformation(InfoLogMessage2, fileIdentifier);
 
         return await Task.FromResult(xDoc.ToString());
     }

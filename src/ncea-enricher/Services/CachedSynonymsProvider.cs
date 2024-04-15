@@ -7,6 +7,7 @@ namespace Ncea.Enricher.Services;
 public class CachedSynonymsProvider : ISynonymsProvider
 {
     private const string ClassifierListCacheKey = "ClassifierList";
+
     private readonly IMemoryCache _memoryCache;
     private readonly ISynonymsProvider _synonymsProvider;
 

@@ -13,8 +13,10 @@ public class OrchestrationService : IOrchestrationService
     private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
     private const string GcoNamespace = "http://www.isotc211.org/2005/gco";
     private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
+
     private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
     private const string SaveFileErrorMessage = "Error occured while saving the enriched metadata file";
+
     private readonly string _fileShareName;
     private readonly ServiceBusProcessor _processor;
     private readonly IServiceProvider _serviceProvider;
