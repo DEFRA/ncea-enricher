@@ -76,10 +76,9 @@ public class XmlNodeService : IXmlNodeService
         nsMgr.AddNamespace("mdc", _mdcSchemaLocationPath);
 
         var classifierInfo = rootNode.XPathSelectElement("//mdc:nceaClassifierInfo", nsMgr);
-        var classifiers = rootNode.XPathSelectElement("//mdc:nceaClassifierInfo/NC_Classifiers", nsMgr);
-        if (classifierInfo != null && classifiers != null)
+        if (classifierInfo != null)
         {
-            return classifiers;
+            return classifierInfo.Elements().FirstOrDefault()!;
         }
 
         XNamespace mdcSchemaLocation = _mdcSchemaLocationPath;

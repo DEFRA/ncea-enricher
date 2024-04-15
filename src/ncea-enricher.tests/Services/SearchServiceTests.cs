@@ -78,8 +78,8 @@ public class SearchServiceTests
             "medin",
             "Examples"
         };
-        var xmlFieldValue1 = "Demonstration XML resource for series showing examples of good practice for MEDIN metadata creation";
-        var xmlFieldValue2 = "Tes, A, B, C";
+        var xmlFieldValue1 = "Test, 1, 2, 3";
+        var xmlFieldValue2 = "Test, A, B, C";
 
         var fieldValues = new List<string>
         {
@@ -90,7 +90,7 @@ public class SearchServiceTests
         var result = searchService.IsMatchFound(fieldValues, synonyms);
 
         // Assert
-        result.Should().BeTrue();
+        result.Should().BeFalse();
     }
 
 
