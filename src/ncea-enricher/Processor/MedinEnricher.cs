@@ -8,6 +8,9 @@ namespace Ncea.Enricher.Processors;
 
 public class MedinEnricher : IEnricherService
 {
+    private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
+    private const string GcoNamespace = "http://www.isotc211.org/2005/gco";
+    private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
     private readonly ISynonymsProvider _synonymsProvider;
     private readonly ISearchableFieldConfigurations _searchableFieldConfigurations;
     private readonly ISearchService _xmlSearchService;
@@ -99,9 +102,9 @@ public class MedinEnricher : IEnricherService
     {
         var reader = xDoc.CreateReader();
         XmlNamespaceManager nsMgr = new XmlNamespaceManager(reader.NameTable);
-        nsMgr.AddNamespace("gmd", "http://www.isotc211.org/2005/gmd");
-        nsMgr.AddNamespace("gco", "http://www.isotc211.org/2005/gco");
-        nsMgr.AddNamespace("gmx", "http://www.isotc211.org/2005/gmx");
+        nsMgr.AddNamespace("gmd", GmdNamespace);
+        nsMgr.AddNamespace("gco", GcoNamespace);
+        nsMgr.AddNamespace("gmx", GmxNamespace);
 
         return nsMgr;
     }
