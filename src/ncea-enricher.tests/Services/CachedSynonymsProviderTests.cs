@@ -26,7 +26,7 @@ public class CachedSynonymsProviderTests
     }
 
     [Fact]
-    public async Task GetAll()
+    public async Task GetAll_WhenNoItemsExistsInCache_ReturnItemsFromSynonymsProvider()
     {
         //Arrange
         var cache = _serviceProvider.GetService<IMemoryCache>()!;
@@ -42,7 +42,7 @@ public class CachedSynonymsProviderTests
     }
 
     [Fact]
-    public async Task GetAll_WhenToGetCachedItems_ReturnSynonyms()
+    public async Task GetAll_WhenItemsExistsInCache_ReturnItemsFromSynonymsProvider()
     {
         //Arrange
         var cache = _serviceProvider.GetService<IMemoryCache>()!;

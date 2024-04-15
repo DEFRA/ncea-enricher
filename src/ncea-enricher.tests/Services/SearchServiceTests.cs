@@ -6,7 +6,7 @@ namespace Ncea.Enricher.Tests.Services;
 public class SearchServiceTests
 {
     [Fact]
-    public void IsMatchFound_ShouldReturnTrue()
+    public void IsMatchFound_WhenCheckingMatchForFieldValue_ShouldReturnTrue()
     {
         //Arrange
         var searchService = new SearchService();
@@ -25,7 +25,7 @@ public class SearchServiceTests
     }
 
     [Fact]
-    public void IsMatchFound_WhenListOfFieldValuesGiven_ShouldReturnTrue()
+    public void IsMatchFound_WhenCheckingMatchForFieldValues_ShouldReturnTrue()
     {
         //Arrange
         var searchService = new SearchService();
@@ -50,7 +50,7 @@ public class SearchServiceTests
     }
 
     [Fact]
-    public void IsMatchFound_ShouldReturnFalse()
+    public void IsMatchFound_IsMatchFound_WhenCheckingMatchForFieldValue_ShouldReturnFalse()
     {
         //Arrange
         var searchService = new SearchService();
@@ -69,7 +69,7 @@ public class SearchServiceTests
     }
 
     [Fact]
-    public void IsMatchFound_WhenListOfFieldValuesGiven_ShouldReturnFalse()
+    public void IsMatchFound_IsMatchFound_WhenCheckingMatchForFieldValues_ShouldReturnFalse()
     {
         //Arrange
         var searchService = new SearchService();

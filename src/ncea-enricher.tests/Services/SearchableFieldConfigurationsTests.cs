@@ -17,7 +17,7 @@ public class SearchableFieldConfigurationsTests
     }
 
     [Fact]
-    public void GetSearchableFieldConfigurations()
+    public void GetSearchableFieldConfigurations_WhenAppSettinsHasSearchableFieldConfigurations_ReturnSerachableFields()
     {
         //Arrange
         var configuration = _serviceProvider.GetService<IConfiguration>();
