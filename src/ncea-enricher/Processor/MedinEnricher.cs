@@ -31,7 +31,7 @@ public class MedinEnricher : IEnricherService
     }
     public async Task<string> Enrich(string fileIdentifier, string mappedData, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation($"Enriching metadata in-progress for DataSource: Medin, FileIdentifier: {fileIdentifier}");
+        _logger.LogInformation($"Enriching metadata in-progress for DataSource: Medin, FileIdentifier: {fileIdentifier}", fileIdentifier);
 
         var searchableFieldValues = new Dictionary<string, string>();
 
@@ -58,7 +58,7 @@ public class MedinEnricher : IEnricherService
 
         UpdateMetadataXml(nsMgr, rootNode, matchedClassifiers);
 
-        _logger.LogInformation($"Enriching metadata completed for DataSource: Medin, FileIdentifier: {fileIdentifier}");
+        _logger.LogInformation($"Enriching metadata completed for DataSource: Medin, FileIdentifier: {fileIdentifier}", fileIdentifier);
 
         return await Task.FromResult(xDoc.ToString());
     }
