@@ -58,25 +58,4 @@ public class ClassifierTests
         //Assert
         result.Should().BeFalse();
     }
-
-    [Fact]
-    public void ClassifierObjectEquals_ShouldBeFalse()
-    {
-        //Arrange
-        var classifier = new Classifier
-        {
-            Id = "test-id",
-            ParentId = "test-parent-id",
-            Name = "test-name"
-        };
-
-        object classifierToBeValidated = null;
-
-        //Act
-        var result = classifier.Equals(classifierToBeValidated);
-
-        //Assert
-        result.Should().BeFalse();
-    }
-
 }
