@@ -110,6 +110,7 @@ public class OrchestrationService : IOrchestrationService
 
     private static string? GetFileIdentifier(string xmlString)
     {
+        var namespaceBaseUri = new Uri("http://www.isotc211.org/2005");
         //Xml string to XElement Conversion
         var xmlDoc = new XmlDocument();
         xmlDoc.LoadXml(xmlString);
@@ -117,10 +118,10 @@ public class OrchestrationService : IOrchestrationService
         var rootNode = xDoc.Root;
 
         var reader = xDoc.CreateReader();
-        XmlNamespaceManager nsMgr = new XmlNamespaceManager(reader.NameTable);
-        nsMgr.AddNamespace("gmd", "http://www.isotc211.org/2005/gmd");
-        nsMgr.AddNamespace("gco", "http://www.isotc211.org/2005/gco");
-        nsMgr.AddNamespace("gmx", "http://www.isotc211.org/2005/gmx");
+        var nsMgr = new XmlNamespaceManager(reader.NameTable);
+        nsMgr.AddNamespace("gmd", Path.Combine(namespaceBaseUri.AbsolutePath, "gmd"));
+        nsMgr.AddNamespace("gco", Path.Combine(namespaceBaseUri.AbsolutePath, "gco"));
+        nsMgr.AddNamespace("gmx", Path.Combine(namespaceBaseUri.AbsolutePath, "gmx"));
 
         var identifierNode = rootNode!.XPathSelectElement("//gmd:fileIdentifier/gco:CharacterString", nsMgr);
         return identifierNode != null ? identifierNode.Value : null;
