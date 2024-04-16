@@ -34,7 +34,7 @@ public class MedinEnricherTests
         _logger = _serviceProvider.GetService<ILogger<MedinEnricher>>()!;
     }
     [Fact]
-    public async Task Process_ShouldLogMessage()
+    public async Task Enrich_ReturnEnrichedMetadataXmlWithNceaClassifiers()
     {
         //Arrange
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
