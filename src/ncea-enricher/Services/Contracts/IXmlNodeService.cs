@@ -6,7 +6,9 @@ namespace Ncea.Enricher.Services.Contracts;
 
 public interface IXmlNodeService
 {
+    XmlNamespaceManager GetXmlNamespaceManager(XDocument xDoc);    
+    string GetNodeValues(SearchableField field, XElement rootNode, XmlNamespaceManager nsMgr);    
+    void EnrichMetadataXmlWithNceaClassifiers(XmlNamespaceManager nsMgr, XElement rootNode, HashSet<Classifier> matchedClassifiers);
     XElement CreateClassifierNode(int level, string value, List<Classifier>? classifers);
-    string GetNodeValues(SearchableField field, XElement rootNode, XmlNamespaceManager nsMgr);
     XElement GetNCClassifiersParentNode(XElement rootNode, XmlNamespaceManager nsMgr);
 }

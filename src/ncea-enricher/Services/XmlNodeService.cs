@@ -8,6 +8,10 @@ namespace Ncea.Enricher.Services;
 
 public class XmlNodeService : IXmlNodeService
 {
+    private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
+    private const string GcoNamespace = "http://www.isotc211.org/2005/gco";
+    private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
+
     private readonly string _mdcSchemaLocationPath;
 
     public XmlNodeService(IConfiguration configuration)
@@ -70,6 +74,56 @@ public class XmlNodeService : IXmlNodeService
 
         return value;
     }
+
+    public void EnrichMetadataXmlWithNceaClassifiers(XmlNamespaceManager nsMgr, XElement rootNode, HashSet<Classifier> matchedClassifiers)
+    {
+        var ncClassifiersParentNode = GetNCClassifiersParentNode(rootNode, nsMgr);
+        var nceaClassifiers = BuildClassifierHierarchies(matchedClassifiers.ToList());
+        foreach (var nceaClassifier in nceaClassifiers)
+        {
+            var element = CreateClassifierNode(nceaClassifier.Level, nceaClassifier.Name, nceaClassifier.Children);
+            ncClassifiersParentNode.Add(element);
+        }
+    }
+
+    private static List<Classifier> BuildClassifierHierarchies(List<Classifier> flattenedClassifierList)
+    {
+        Action<Classifier> SetChildren = null!;
+
+        SetChildren = parent =>
+        {
+            parent.Children = flattenedClassifierList
+                .Where(childItem => childItem.ParentId == parent.Id)
+                .ToList();
+
+            //Recursively call the SetChildren method for each child.
+            parent.Children
+                .ForEach(SetChildren);
+        };
+
+        //Initialize the hierarchical list to root level items
+        var hierarchicalItems = flattenedClassifierList
+            .Where(rootItem => rootItem.ParentId == null)
+            .ToList();
+
+        //Call the SetChildren method to set the children on each root level item.
+        hierarchicalItems.ForEach(SetChildren);
+
+        return hierarchicalItems;
+    }
+
+    public XmlNamespaceManager GetXmlNamespaceManager(XDocument xDoc)
+    {
+        var reader = xDoc.CreateReader();
+        XmlNamespaceManager nsMgr = new XmlNamespaceManager(reader.NameTable);
+        nsMgr.AddNamespace("gmd", GmdNamespace);
+        nsMgr.AddNamespace("gco", GcoNamespace);
+        nsMgr.AddNamespace("gmx", GmxNamespace);
+        nsMgr.AddNamespace("mdc", _mdcSchemaLocationPath);
+
+        return nsMgr;
+    }
+
 
     public XElement GetNCClassifiersParentNode(XElement rootNode, XmlNamespaceManager nsMgr)
     {

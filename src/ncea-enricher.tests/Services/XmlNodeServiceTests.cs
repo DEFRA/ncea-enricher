@@ -268,6 +268,81 @@ public class XmlNodeServiceTests
         result.Should().NotBeNull();
         result.Should().BeOfType<XElement>();
     }
+
+    [Fact]
+    public void EnrichMetadataXmlWithNceaClassifiers_WhenNoMatchedClassifierExists_UpdateNCClassiferNodeWithoutClassifiers()
+    {
+        // Arrange
+        var configuration = _serviceProvider.GetService<IConfiguration>();
+        var xmlNodeService = new XmlNodeService(configuration!);
+        var matchedClassifier = new HashSet<Classifier>();
+
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
+        var xDoc = XDocument.Load(filePath);
+
+        // Act
+        xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(_xmlNamespaceManager!, xDoc.Root!, matchedClassifier);
+
+        // Assert
+        var nceaClassifierInfo = xDoc.XPathSelectElement("//mdc:nceaClassifierInfo", _xmlNamespaceManager);
+        nceaClassifierInfo.Should().NotBeNull();
+
+        var ncClassifiers = xDoc.XPathSelectElement("//mdc:NC_Classifiers", _xmlNamespaceManager);
+        ncClassifiers.Should().NotBeNull();
+
+        ncClassifiers!.Elements().Count().Should().Be(0);
+    }
+
+    [Fact]
+    public void EnrichMetadataXmlWithNceaClassifiers_WhenMatchedClassifierExists_UpdateNCClassiferNodeWithClassifiers()
+    {
+        // Arrange
+        var configuration = _serviceProvider.GetService<IConfiguration>();
+        var xmlNodeService = new XmlNodeService(configuration!);
+        var matchedClassifier = new HashSet<Classifier>
+        {
+            new Classifier { ParentId = null, Id = "test-id-1", Level = 1, Name = "test-value-1" },
+            new Classifier { ParentId = "test-id-1", Id = "test-id-2", Level = 2, Name = "test-value-2" },
+            new Classifier { ParentId = "test-id-2", Id = "test-id-3", Level = 3, Name = "test-value-3" },
+            new Classifier { ParentId = null, Id = "test-id-4", Level = 1, Name = "test-value-4" },
+        };
+
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
+        var xDoc = XDocument.Load(filePath);
+
+        // Act
+        xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(_xmlNamespaceManager!, xDoc.Root!, matchedClassifier);
+
+        // Assert
+        var nceaClassifierInfo = xDoc.XPathSelectElement("//mdc:nceaClassifierInfo", _xmlNamespaceManager);
+        nceaClassifierInfo.Should().NotBeNull();
+
+        var ncClassifiers = xDoc.XPathSelectElement("//mdc:NC_Classifiers", _xmlNamespaceManager);
+        ncClassifiers.Should().NotBeNull();
+
+        ncClassifiers!.Elements().Count().Should().Be(2);
+    }
+
+    [Fact]
+    public void GetXmlNamespaceManager_ReturnsNamespaceManager()
+    {
+        // Arrange
+        var configuration = _serviceProvider.GetService<IConfiguration>();
+        var xmlNodeService = new XmlNodeService(configuration!);        
+
+        // Act
+        var result = xmlNodeService.GetXmlNamespaceManager(_xDoc);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<XmlNamespaceManager>();
+        result.HasNamespace("gmd").Should().BeTrue();
+        result.HasNamespace("gco").Should().BeTrue();
+        result.HasNamespace("gmx").Should().BeTrue();
+        result.HasNamespace("mdc").Should().BeTrue();
+    }
+
+
     private XmlNamespaceManager GetXmlNamespaceManager()
     {
         var reader = _xDoc.CreateReader();
