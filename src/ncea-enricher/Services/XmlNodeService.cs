@@ -60,10 +60,13 @@ public class XmlNodeService : IXmlNodeService
         if (field.Type == "list")
         {
             var elements = rootNode.XPathSelectElements(field.XPath, nsMgr);
-            if (elements != null && elements.Any())
+            if (elements != null)
             {
-                var values = elements.Select(x => x.Value).ToList();
-                return string.Join(", ", values);
+                if (elements.Any())
+                {
+                    var values = elements.Select(x => x.Value).ToList();
+                    return string.Join(", ", values);
+                }
             }
         }
         else
