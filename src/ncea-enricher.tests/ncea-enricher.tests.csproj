@@ -11,6 +11,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="TestData\MEDIN_Metadata_series_v3_1_2_example 1.xml" />
+    <None Remove="TestData\NCEA T&amp;F Vocab v1.1 2024-04-02.xlsx" />
+  </ItemGroup>
+
+  <ItemGroup>    
+    <EmbeddedResource Include="TestData\MEDIN_Metadata_series_v3_1_2_example 1.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>    
+    <EmbeddedResource Include="TestData\NCEA T&amp;F Vocab v1.1 2024-04-02.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="xunit" Version="2.6.6" />

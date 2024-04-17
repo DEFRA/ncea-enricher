@@ -1,37 +1,47 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Ncea.Enricher.Processors.Contracts;
 using Ncea.Enricher.Processors;
+using Ncea.Enricher.Processor.Contracts;
+using Microsoft.Extensions.Configuration;
 
-namespace ncea_enricher.tests.Clients
+namespace Ncea.Enricher.Tests.Clients;
+
+internal static class ServiceProviderForTests
 {
-    internal static class ServiceProviderForTests
+    public static IServiceProvider Get()
     {
-        public static IServiceProvider Get()
-        {
-            var serviceCollection = new ServiceCollection();
+        var serviceCollection = new ServiceCollection();
 
-            // Add any DI stuff here:
-            serviceCollection.AddLogging();
-            serviceCollection.AddKeyedSingleton<IEnricherService, JnccEnricher>("Jncc");
-            serviceCollection.AddKeyedSingleton<IEnricherService, MedinEnricher>("Medin");
+        // Add any DI stuff here:
+        serviceCollection.AddLogging();
+        serviceCollection.AddKeyedSingleton<IEnricherService, JnccEnricher>("Jncc");
+        serviceCollection.AddKeyedSingleton<IEnricherService, MedinEnricher>("Medin");
 
-            
-            
-            // Create the ServiceProvider
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile(
+                 path: "appsettings.json",
+                 optional: false,
+                 reloadOnChange: true)
+           .Build();
+        serviceCollection.AddSingleton<IConfiguration>(configuration);
 
-            // serviceScopeMock will contain ServiceProvider
-            var serviceScopeMock = new Mock<IServiceScope>();
-            serviceScopeMock.SetupGet<IServiceProvider>(s => s.ServiceProvider)
-                .Returns(serviceProvider);
+        serviceCollection.AddMemoryCache();
+        serviceCollection.AddLogging();
 
-            // serviceScopeFactoryMock will contain serviceScopeMock
-            var serviceScopeFactoryMock = new Mock<IServiceScopeFactory>();
-            serviceScopeFactoryMock.Setup(s => s.CreateScope())
-                .Returns(serviceScopeMock.Object);
-            var mockServiceProvider = serviceScopeFactoryMock.Object.CreateScope().ServiceProvider;
-            return mockServiceProvider;
-        }
+        // Create the ServiceProvider
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        // serviceScopeMock will contain ServiceProvider
+        var serviceScopeMock = new Mock<IServiceScope>();
+        serviceScopeMock.SetupGet<IServiceProvider>(s => s.ServiceProvider)
+            .Returns(serviceProvider);
+
+        // serviceScopeFactoryMock will contain serviceScopeMock
+        var serviceScopeFactoryMock = new Mock<IServiceScopeFactory>();
+        serviceScopeFactoryMock.Setup(s => s.CreateScope())
+            .Returns(serviceScopeMock.Object);
+        var mockServiceProvider = serviceScopeFactoryMock.Object.CreateScope().ServiceProvider;
+        return mockServiceProvider;
     }
 }

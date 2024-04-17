@@ -4,13 +4,13 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using ncea.enricher.Processor.Contracts;
 using Ncea.Enricher.Processors;
+using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
 
-namespace Ncea.Enricher.Tests.Processors;
+namespace Ncea.Enricher.Tests.Processor;
 
-public class MedinEnricherTests
+public class JnccEnricherTests
 {
     [Fact]
     public async Task Process_ShouldLogMessage()
@@ -18,20 +18,13 @@ public class MedinEnricherTests
         //Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IAzureClientFactory<ShareClient>> mockFileShareClientFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
-                            out Mock<ILogger<MedinEnricher>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor,
-                            out Mock<ShareServiceClient> mockFileShareServiceClient,
-                            out Mock<ShareClient> mockShareClient,
-                            out Mock<ShareDirectoryClient> mockShareDirectoryClient,
-                            out Mock<ShareFileClient> mockShareFileClient);
-        var medinService = new MedinEnricher(loggerMock.Object);
-
-
+                            out Mock<ILogger<JnccEnricher>> loggerMock,
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var jnccService = new JnccEnricher(loggerMock.Object);
 
         // Act
-        await medinService.Enrich(It.IsAny<string>(), It.IsAny<CancellationToken>());
+        await jnccService.Enrich(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>());
 
 
         // Assert

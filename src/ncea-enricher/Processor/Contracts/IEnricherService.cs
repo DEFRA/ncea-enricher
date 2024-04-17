@@ -1,6 +1,6 @@
-﻿namespace Ncea.Enricher.Processors.Contracts;
+﻿namespace Ncea.Enricher.Processor.Contracts;
 
 public interface IEnricherService
 {
-    Task<string> Enrich(string mappedData, CancellationToken cancellationToken = default);
+    Task<string> Enrich(string fileIdentifier, string mappedData, CancellationToken cancellationToken = default);
 }

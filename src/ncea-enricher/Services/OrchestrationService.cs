@@ -1,22 +1,27 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Linq;
-using Azure;
+using System.Xml.XPath;
 using Azure.Messaging.ServiceBus;
-using Azure.Storage.Files.Shares;
 using Microsoft.Extensions.Azure;
-using ncea.enricher.Processor.Contracts;
-using Ncea.Enricher.Processors.Contracts;
+using Ncea.Enricher.Processor.Contracts;
+using Ncea.Enricher.Services.Contracts;
 
-namespace ncea.enricher.Processor;
+namespace Ncea.Enricher.Services;
 
 public class OrchestrationService : IOrchestrationService
-{    
+{
+    private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
+    private const string GcoNamespace = "http://www.isotc211.org/2005/gco";
+    private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
+
     private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
+    private const string SaveFileErrorMessage = "Error occured while saving the enriched metadata file";
+
     private readonly string _fileShareName;
     private readonly ServiceBusProcessor _processor;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<OrchestrationService> _logger;
+    private string? _fileIdentifier;
 
     public OrchestrationService(IConfiguration configuration,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
@@ -29,26 +34,28 @@ public class OrchestrationService : IOrchestrationService
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
         _serviceProvider = serviceProvider;
         _logger = logger;
-    }    
+    }
 
     public async Task StartProcessorAsync(CancellationToken cancellationToken = default)
     {
         _processor.ProcessMessageAsync += ProcessMessagesAsync;
         _processor.ProcessErrorAsync += ErrorHandlerAsync;
         await _processor.StartProcessingAsync(cancellationToken);
-    }    
+    }
 
     private async Task ProcessMessagesAsync(ProcessMessageEventArgs args)
-    {
+    {        
         _logger.LogInformation("Received a messaage to enrich metadata");
         try
         {
             var body = args.Message.Body.ToString();
+            _fileIdentifier = GetFileIdentifier(body)!;
+
             var dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
-            var mdcMappedData = await _serviceProvider.GetRequiredKeyedService<IEnricherService>(dataSource).Enrich(body);
-            
-            await UploadToFileShareAsync(mdcMappedData, dataSource!);
-            
+            var mdcMappedData = await _serviceProvider.GetRequiredKeyedService<IEnricherService>(dataSource).Enrich(_fileIdentifier, body);
+
+            await SaveEnrichedXmlAsync(mdcMappedData, dataSource!);
+
             await args.CompleteMessageAsync(args.Message);
         }
         catch (Exception ex)
@@ -63,30 +70,25 @@ public class OrchestrationService : IOrchestrationService
         _logger.LogError(args.Exception, ProcessorErrorMessage);
         return Task.CompletedTask;
     }
-
-    [ExcludeFromCodeCoverage]
-    private async Task UploadToFileShareAsync(string message, string dataSource)
+        
+    private async Task SaveEnrichedXmlAsync(string mdcMappedData, string dataSource)
     {
-        if (string.IsNullOrWhiteSpace(message))
-        {
-            _logger.LogError("Empty enriched xml failed uploading.");
-            return;
-        }
-
-        var fileIdentifier = GetFileIdentifier(message);
-
-        if (string.IsNullOrWhiteSpace(fileIdentifier))
-        {
-            _logger.LogError("Invalid enriched xml.failed uploading.");
-            return;
-        }
-
         try
         {
-            var fileName = string.Concat(fileIdentifier, ".xml");
+            if (string.IsNullOrWhiteSpace(mdcMappedData))
+            {
+                throw new ArgumentException("Enriched xml content should not be null or empty");
+            }
+            _fileIdentifier = _fileIdentifier ?? GetFileIdentifier(mdcMappedData);
+            if (string.IsNullOrWhiteSpace(_fileIdentifier))
+            {
+                throw new ArgumentException("Missing FileIdentifier in Enriched xml content");
+            }
+
+            var fileName = string.Concat(_fileIdentifier, ".xml");
             var filePath = Path.Combine(_fileShareName, dataSource, fileName);
 
-            using (var uploadStream = GenerateStreamFromString(message))
+            using (var uploadStream = GenerateStreamFromString(mdcMappedData))
             {
                 using (var fileStream = File.Create(filePath))
                 {
@@ -94,9 +96,9 @@ public class OrchestrationService : IOrchestrationService
                 }
             }
         }
-        catch(Exception ex) 
+        catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occured while uploading enriched files on fileshare");
+            _logger.LogError(ex, SaveFileErrorMessage);
         }
     }
 
@@ -112,17 +114,18 @@ public class OrchestrationService : IOrchestrationService
 
     private static string? GetFileIdentifier(string xmlString)
     {
-        //Xml string to XElement Conversion
         var xmlDoc = new XmlDocument();
         xmlDoc.LoadXml(xmlString);
         var xDoc = XDocument.Load(xmlDoc!.CreateNavigator()!.ReadSubtree());
-        var xmlElement = xDoc.Root;
+        var rootNode = xDoc.Root;
 
-        string gmdNameSpaceString = "http://www.isotc211.org/2005/gmd";
-        var fileIdentifierXmlElement = xmlElement!.Descendants()
-                                                  .FirstOrDefault(n => n.Name.Namespace.NamespaceName == gmdNameSpaceString
-                                                                  && n.Name.LocalName == "fileIdentifier");
-        var fileIdentifier = fileIdentifierXmlElement?.Descendants()?.FirstOrDefault()?.Value;
-        return fileIdentifier;
-    }    
+        var reader = xDoc.CreateReader();
+        var nsMgr = new XmlNamespaceManager(reader.NameTable);
+        nsMgr.AddNamespace("gmd", GmdNamespace);
+        nsMgr.AddNamespace("gco", GcoNamespace);
+        nsMgr.AddNamespace("gmx", GmxNamespace);
+
+        var identifierNode = rootNode!.XPathSelectElement("//gmd:fileIdentifier/gco:CharacterString", nsMgr);
+        return identifierNode != null ? identifierNode.Value : null;
+    }
 }
