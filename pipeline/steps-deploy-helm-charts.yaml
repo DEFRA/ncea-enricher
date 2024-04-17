@@ -29,7 +29,7 @@ steps:
     azureResourceGroup: $(aksResourceGroupName)
     kubernetesCluster : $(aksClusterName)
     command: lint
-    arguments: '$(Pipeline.Workspace)/chart/ncea-enricher'
+    arguments: '$(Pipeline.Workspace)/chart/ncea-enricher -f $(Pipeline.Workspace)/chart/ncea-enricher/values/values.yaml'
 
 - task: KubeloginInstaller@0
   inputs:
