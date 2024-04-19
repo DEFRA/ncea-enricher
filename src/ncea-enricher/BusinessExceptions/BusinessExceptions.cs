@@ -1,5 +1,8 @@
-﻿namespace Ncea.Enricher.BusinessExceptions;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace Ncea.Enricher.BusinessExceptions;
+
+[ExcludeFromCodeCoverageAttribute]
 public abstract class BusinessException : Exception
 {
     protected BusinessException()
