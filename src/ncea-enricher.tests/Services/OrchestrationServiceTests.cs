@@ -4,6 +4,8 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Ncea.Enricher.BusinessExceptions;
+using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
@@ -13,6 +15,12 @@ namespace Ncea.Enricher.Tests.Services;
 
 public class OrchestrationServiceTests
 {
+    private Mock<IEnricherService> _enricherServiceMock;
+    public OrchestrationServiceTests()
+    {
+        _enricherServiceMock = new Mock<IEnricherService>();
+    }
+
     [Fact]
     public async Task StartProcessorAsync_ShouldStartProcessorAsyncOnServiceBusProcessor()
     {
@@ -23,11 +31,9 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        var serviceProvider = new Mock<IServiceProvider>();
-
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            serviceProvider.Object,
+            _enricherServiceMock.Object,
             loggerMock.Object);
 
         // Act
@@ -47,11 +53,9 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        var serviceProvider = new Mock<IServiceProvider>();
-
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            serviceProvider.Object,
+            _enricherServiceMock.Object,
             loggerMock.Object);
 
         // Act
@@ -71,11 +75,9 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        var serviceProvider = new Mock<IServiceProvider>();
-
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            serviceProvider.Object,
+            _enricherServiceMock.Object,
             loggerMock.Object);
 
         var args = new ProcessErrorEventArgs(new Exception("test-exception"), It.IsAny<ServiceBusErrorSource>(),
@@ -84,10 +86,8 @@ public class OrchestrationServiceTests
         var errorHandlerMethod = typeof(OrchestrationService).GetMethod("ErrorHandlerAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)errorHandlerMethod?.Invoke(service, new object[] { args });
 
-
         // Act        
         if (task != null) await task;
-
 
         // Assert
         loggerMock.Verify(x => x.Log(LogLevel.Error,
@@ -127,20 +127,20 @@ public class OrchestrationServiceTests
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
         mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        var mockServiceProvider = ServiceProviderForTests.Get();
-
+        
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockServiceProvider,
+            _enricherServiceMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
-        if (task != null) await task;
 
         // Assert
         mockProcessMessageEventArgs.Verify(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>()), Times.Once);
+        await Assert.ThrowsAsync<EnricherArgumentException>(() => task!);
+
     }
 
     [Fact]
@@ -153,30 +153,29 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: null, messageId: "messageId");
+        var serviceBusMessageProps = new Dictionary<string, object>
+        {
+            { "DataSource", "Medin" }
+        };
+
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: null, messageId: "messageId", properties: serviceBusMessageProps);
         var mockReceiver = new Mock<ServiceBusReceiver>();
         var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
         mockProcessMessageEventArgs.Setup(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        var mockServiceProvider = new Mock<IServiceProvider>();
 
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockServiceProvider.Object,
+            _enricherServiceMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
-        if (task != null) await task;
 
         // Assert
-        loggerMock.Verify(x => x.Log(LogLevel.Error,
-            It.IsAny<EventId>(),
-            It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
         mockProcessMessageEventArgs.Verify(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<CancellationToken>()), Times.Once);
+        await Assert.ThrowsAsync<EnricherArgumentException>(() => task!);
     }
 
     [Fact]
@@ -189,24 +188,26 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        var mockServiceProvider = new Mock<IServiceProvider>();
-
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockServiceProvider.Object,
+            _enricherServiceMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("SaveEnrichedXmlAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { string.Empty, It.IsAny<string>() }));
-        if (task != null) await task;
+        //if (task != null) await task;
 
         // Assert
-        loggerMock.Verify(x => x.Log(LogLevel.Error,
-            It.IsAny<EventId>(),
-            It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+        await Assert.ThrowsAsync<ArgumentException>(() => task!);
+
+
+        // Assert
+        //loggerMock.Verify(x => x.Log(LogLevel.Error,
+        //    It.IsAny<EventId>(),
+        //    It.IsAny<It.IsAnyType>(),
+        //    It.IsAny<Exception>(),
+        //    It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [Fact]
@@ -219,7 +220,6 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
                         "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
@@ -232,7 +232,7 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockServiceProvider.Object,
+            _enricherServiceMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("SaveEnrichedXmlAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -253,7 +253,6 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
                         "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
@@ -266,12 +265,11 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockServiceProvider.Object,
+            _enricherServiceMock.Object,
             loggerMock.Object);
 
         var GetFileIdentifierMethod = typeof(OrchestrationService).GetMethod("GetFileIdentifier", BindingFlags.NonPublic | BindingFlags.Static);
         var fileIdentifier = (string?)(GetFileIdentifierMethod?.Invoke(service, new object[] { message }));
-
 
         // Assert
         Assert.Equal("test-file-identifier", fileIdentifier!);
@@ -287,7 +285,6 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
                         "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
@@ -297,12 +294,11 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockServiceProvider.Object,
+            _enricherServiceMock.Object,
             loggerMock.Object);
 
         var GetFileIdentifierMethod = typeof(OrchestrationService).GetMethod("GetFileIdentifier", BindingFlags.NonPublic | BindingFlags.Static);
         var fileIdentifier = (string?)(GetFileIdentifierMethod?.Invoke(service, new object[] { message }));
-
 
         // Assert
         Assert.Null(fileIdentifier!);
@@ -318,7 +314,6 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
                         "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
@@ -331,11 +326,10 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockServiceProvider.Object,
+            _enricherServiceMock.Object,
             loggerMock.Object);
         var GenerateStreamFromStringMethod = typeof(OrchestrationService).GetMethod("GenerateStreamFromString", BindingFlags.NonPublic | BindingFlags.Static);
         var fileStream = (Stream?)(GenerateStreamFromStringMethod?.Invoke(service, new object[] { message }));
-
 
         // Assert
         Assert.NotNull(fileStream);
@@ -350,14 +344,12 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
-
-        var mockServiceProvider = new Mock<IServiceProvider>();
         var message = "";
 
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
-            mockServiceProvider.Object,
+            _enricherServiceMock.Object,
             loggerMock.Object);
         var GenerateStreamFromStringMethod = typeof(OrchestrationService).GetMethod("GenerateStreamFromString", BindingFlags.NonPublic | BindingFlags.Static);
         var fileStream = (Stream?)(GenerateStreamFromStringMethod?.Invoke(service, new object[] { message }));
