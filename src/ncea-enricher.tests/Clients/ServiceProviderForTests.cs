@@ -13,9 +13,8 @@ internal static class ServiceProviderForTests
         var serviceCollection = new ServiceCollection();
 
         // Add any DI stuff here:
-        serviceCollection.AddLogging();
-        serviceCollection.AddKeyedSingleton<IEnricherService, JnccEnricher>("Jncc");
-        serviceCollection.AddKeyedSingleton<IEnricherService, MedinEnricher>("Medin");
+        serviceCollection.AddLogging();        
+        serviceCollection.AddSingleton<IEnricherService, MdcEnricher>();
 
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())

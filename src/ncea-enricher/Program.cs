@@ -139,9 +139,8 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddMemoryCache();
     builder.Services.AddSingleton<ISynonymsProvider, SynonymsProvider>();
     builder.Services.Decorate<ISynonymsProvider, CachedSynonymsProvider>();
-
-    builder.Services.AddKeyedSingleton<IEnricherService, JnccEnricher>("Jncc");
-    builder.Services.AddKeyedSingleton<IEnricherService, MedinEnricher>("Medin");
+    
+    builder.Services.AddSingleton<IEnricherService, MdcEnricher>();
 }
 
 static async Task CreateServiceBusQueueIfNotExist(ServiceBusAdministrationClient servicebusAdminClient, string queueName)

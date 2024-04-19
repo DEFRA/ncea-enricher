@@ -52,7 +52,7 @@ public class OrchestrationService : IOrchestrationService
             _fileIdentifier = GetFileIdentifier(body)!;
 
             var dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
-            var mdcMappedData = await _serviceProvider.GetRequiredKeyedService<IEnricherService>(dataSource).Enrich(_fileIdentifier, body);
+            var mdcMappedData = await _serviceProvider.GetRequiredService<IEnricherService>().Enrich(_fileIdentifier, body);
 
             await SaveEnrichedXmlAsync(mdcMappedData, dataSource!);
 
