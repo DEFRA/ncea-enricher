@@ -1,4 +1,5 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using Azure;
+using Azure.Messaging.ServiceBus;
 using FluentAssertions;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
@@ -108,7 +109,6 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        // Act
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
                         "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
@@ -144,7 +144,7 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public async Task ProcessMessagesAsync_WithError_Should_AbandonMessageAsync()
+    public async Task ProcessMessagesAsync_WhenMessageBodyIsEmpty_ThenThrowExceptionAndAbandonMessageAsync()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
@@ -179,6 +179,179 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
+    public async Task ProcessMessagesAsync_WhenFileShareNotExists_ThenThrowExceptionAndAbandonMessageAsync()
+    {
+        // Arrange
+        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IOrchestrationService> mockOrchestrationService,
+                            out Mock<ILogger<OrchestrationService>> loggerMock,
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        
+        List<KeyValuePair<string, string?>> lstProps =
+        [
+            new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
+            new KeyValuePair<string, string?>("FileShareName", Directory.GetCurrentDirectory()),
+        ];
+
+        var config = new ConfigurationBuilder()
+                            .AddInMemoryCollection(lstProps)
+                            .Build();
+
+        var serviceBusMessageProps = new Dictionary<string, object>
+        {
+            { "DataSource", "Medin" }
+        };
+
+        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                        "<gmd:MD_Metadata " +
+                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
+                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
+                        "<gmd:fileIdentifier>" +
+                        "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
+                        "</gmd:fileIdentifier>" +
+                        "</gmd:MD_Metadata>";
+
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(message), messageId: "messageId", properties: serviceBusMessageProps);
+        var mockReceiver = new Mock<ServiceBusReceiver>();
+        var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
+        var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
+        mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        _enricherServiceMock.Setup(x => x.Enrich(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(message);
+        // Act
+        var service = new OrchestrationService(config,
+            mockServiceBusProcessorFactory.Object,
+            _enricherServiceMock.Object,
+            loggerMock.Object);
+
+        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
+
+        // Assert
+        mockProcessMessageEventArgs.Verify(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<CancellationToken>()), Times.Once);
+        await Assert.ThrowsAsync<FileShareNotFoundException>(() => task!);
+    }
+
+    [Fact]
+    public async Task ProcessMessagesAsync_WhenSynonymFileNotAccessible_ThenThrowExceptionAndAbandonMessageAsync()
+    {
+        // Arrange
+        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IOrchestrationService> mockOrchestrationService,
+                            out Mock<ILogger<OrchestrationService>> loggerMock,
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+
+        List<KeyValuePair<string, string?>> lstProps =
+        [
+            new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
+            new KeyValuePair<string, string?>("FileShareName", Directory.GetCurrentDirectory()),
+        ];
+
+        var config = new ConfigurationBuilder()
+                            .AddInMemoryCollection(lstProps)
+                            .Build();
+
+        var serviceBusMessageProps = new Dictionary<string, object>
+        {
+            { "DataSource", "Medin" }
+        };
+
+        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                        "<gmd:MD_Metadata " +
+                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
+                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
+                        "<gmd:fileIdentifier>" +
+                        "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
+                        "</gmd:fileIdentifier>" +
+                        "</gmd:MD_Metadata>";
+
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(message), messageId: "messageId", properties: serviceBusMessageProps);
+        var mockReceiver = new Mock<ServiceBusReceiver>();
+        var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
+        var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
+        mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        _enricherServiceMock.Setup(x => x.Enrich(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new RequestFailedException(404, "Status: 404 (The specified blob does not exist.)"));
+
+        // Act
+        var service = new OrchestrationService(config,
+            mockServiceBusProcessorFactory.Object,
+            _enricherServiceMock.Object,
+            loggerMock.Object);
+
+        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
+
+        // Assert
+        mockProcessMessageEventArgs.Verify(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<CancellationToken>()), Times.Once);
+        await Assert.ThrowsAsync<SynonymsNotAccessibleException>(() => task!);
+    }
+
+    [Fact]
+    public async Task ProcessMessagesAsync_WhenUnexpectedExceptionOccurs_ThenThrowExceptionAndAbandonMessageAsync()
+    {
+        // Arrange
+        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IOrchestrationService> mockOrchestrationService,
+                            out Mock<ILogger<OrchestrationService>> loggerMock,
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+
+        List<KeyValuePair<string, string?>> lstProps =
+        [
+            new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
+            new KeyValuePair<string, string?>("FileShareName", Directory.GetCurrentDirectory()),
+        ];
+
+        var config = new ConfigurationBuilder()
+                            .AddInMemoryCollection(lstProps)
+                            .Build();
+
+        var serviceBusMessageProps = new Dictionary<string, object>
+        {
+            { "DataSource", "Medin" }
+        };
+
+        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                        "<gmd:MD_Metadata " +
+                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
+                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
+                        "<gmd:fileIdentifier>" +
+                        "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
+                        "</gmd:fileIdentifier>" +
+                        "</gmd:MD_Metadata>";
+
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(message), messageId: "messageId", properties: serviceBusMessageProps);
+        var mockReceiver = new Mock<ServiceBusReceiver>();
+        var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
+        var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
+        mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        _enricherServiceMock.Setup(x => x.Enrich(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("test-error-message"));
+
+        // Act
+        var service = new OrchestrationService(config,
+            mockServiceBusProcessorFactory.Object,
+            _enricherServiceMock.Object,
+            loggerMock.Object);
+
+        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
+
+        // Assert
+        mockProcessMessageEventArgs.Verify(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<CancellationToken>()), Times.Once);
+        await Assert.ThrowsAsync<EnricherException>(() => task!);
+    }
+
+    [Fact]
     public async Task SaveEnrichedXmlAsync_Should_Not_SaveFile()
     {
         // Arrange
@@ -196,18 +369,9 @@ public class OrchestrationServiceTests
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("SaveEnrichedXmlAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { string.Empty, It.IsAny<string>() }));
-        //if (task != null) await task;
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(() => task!);
-
-
-        // Assert
-        //loggerMock.Verify(x => x.Log(LogLevel.Error,
-        //    It.IsAny<EventId>(),
-        //    It.IsAny<It.IsAnyType>(),
-        //    It.IsAny<Exception>(),
-        //    It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [Fact]
