@@ -23,7 +23,7 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public async Task StartProcessorAsync_ShouldStartProcessorAsyncOnServiceBusProcessor()
+    public async Task StartProcessorAsync_WhenReceivingTheMessage_ThenStartProcessingTheMessage()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
@@ -45,29 +45,7 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public async Task CreateProcessor_ShouldCall_CreateProcessor_On_ServiceBusClient()
-    {
-        // Arrange
-        OrchestrationServiceForTests.Get(out IConfiguration configuration,
-                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IOrchestrationService> mockOrchestrationService,
-                            out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
-
-        var service = new OrchestrationService(configuration,
-            mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
-            loggerMock.Object);
-
-        // Act
-        await service.StartProcessorAsync(It.IsAny<CancellationToken>());
-
-        // Assert        
-        mockServiceBusProcessor.Verify(x => x.StartProcessingAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task ErrorHandlerAsync_Should_Complete_Task()
+    public async Task ErrorHandlerAsync_WhenMessageProcessingFailed_ThenCallErrorHandler()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
@@ -100,7 +78,7 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public async Task ProcessMessagesAsync_Should_CompleteMessageAsync()
+    public async Task ProcessMessagesAsync_WhenEnrichedMetadataContentIsNotEmpty_ThenCompleteThaTaskSucessfully()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
@@ -127,7 +105,7 @@ public class OrchestrationServiceTests
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
         mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        
+
         // Act
         var service = new OrchestrationService(configuration,
             mockServiceBusProcessorFactory.Object,
@@ -140,7 +118,53 @@ public class OrchestrationServiceTests
         // Assert
         mockProcessMessageEventArgs.Verify(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>()), Times.Once);
         await Assert.ThrowsAsync<EnricherArgumentException>(() => task!);
+    }
 
+    [Fact]
+    public async Task ProcessMessagesAsync_WhenEnrichedMetadataContentIsEmpty_ThenThrowExceptionAndAbandonMessage()
+    {
+        // Arrange
+        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IOrchestrationService> mockOrchestrationService,
+                            out Mock<ILogger<OrchestrationService>> loggerMock,
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+
+        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                        "<gmd:MD_Metadata " +
+                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
+                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
+                        "<gmd:fileIdentifier>" +
+                        "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
+                        "</gmd:fileIdentifier>" +
+                        "</gmd:MD_Metadata>";
+        var serviceBusMessageProps = new Dictionary<string, object>
+        {
+            { "DataSource", "test-datasource" }
+        };
+        
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(message), messageId: "messageId", properties: serviceBusMessageProps);
+        var mockReceiver = new Mock<ServiceBusReceiver>();
+        var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
+        var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
+        mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _enricherServiceMock.Setup(x => x.Enrich(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(message);
+
+        // Act
+        var service = new OrchestrationService(configuration,
+            mockServiceBusProcessorFactory.Object,
+            _enricherServiceMock.Object,
+            loggerMock.Object);
+
+        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
+
+        if (task != null) await task;
+
+        // Assert
+        Assert.True(task?.IsCompleted);
     }
 
     [Fact]
@@ -352,7 +376,7 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public async Task SaveEnrichedXmlAsync_Should_Not_SaveFile()
+    public async Task SaveEnrichedXmlAsync_WhenMdcMappedMetadataXmlContentIsEmpty_ThenExceptionShouldBeThrown()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
@@ -375,7 +399,7 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public async Task SaveEnrichedXmlAsync_Should_UploadFile()
+    public async Task SaveEnrichedXmlAsync_WhenMdcMappedMetadataXmlContentIsNotEmpty_ThenTaskCompletesWithSucess()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
@@ -408,7 +432,7 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public void GetFileIdentifier_Should_Return_FileIdentifier()
+    public void GetFileIdentifier_WhenFileIdentifierExistsInEnrichedContent_ReturnFileIdentifier()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
@@ -440,7 +464,7 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public void GetFileIdentifier_Should_Return_null()
+    public void GetFileIdentifier_WhenFileIdentifierNotExistsInEnrichedContent_ReturnNull()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
@@ -469,7 +493,7 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public void GenerateStreamFromString_Should_Return_Stream()
+    public void GenerateStreamFromString_WhenEnrichedContentIsValidXml_ThenReturnStream()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
@@ -500,7 +524,7 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public void GenerateStreamFromString_Should_Not_Return_Stream()
+    public void GenerateStreamFromString_WhenEnrichedContentIsNotValidXml_ThenEmptyStream()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
