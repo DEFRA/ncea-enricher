@@ -20,7 +20,7 @@ public class MedinEnricherTests
     private ISearchableFieldConfigurations _searchableFieldConfigurations;
     private ISearchService _searchService;
     private IXmlNodeService _nodeService;
-    private ILogger<MedinEnricher> _logger;
+    private ILogger<MdcEnricher> _logger;
 
     public MedinEnricherTests()
     {
@@ -31,7 +31,7 @@ public class MedinEnricherTests
         _searchableFieldConfigurations = new SearchableFieldConfigurations(configuration);
         _searchService = new SearchService();
         _nodeService = new XmlNodeService(configuration);
-        _logger = _serviceProvider.GetService<ILogger<MedinEnricher>>()!;
+        _logger = _serviceProvider.GetService<ILogger<MdcEnricher>>()!;
     }
     [Fact]
     public async Task Enrich_ReturnEnrichedMetadataXmlWithNceaClassifiers()
@@ -41,7 +41,7 @@ public class MedinEnricherTests
         var xDoc = new XmlDocument();
         xDoc.Load(filePath);
 
-        var medinService = new MedinEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _logger);
+        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _logger);
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
