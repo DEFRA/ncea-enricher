@@ -12,7 +12,7 @@ using System.Xml;
 
 namespace Ncea.Enricher.Tests.Processor;
 
-public class MedinEnricherTests
+public class MdcEnricherTests
 {
     private IServiceProvider _serviceProvider;
     private IBlobStorageService _blobStorageService;
@@ -22,7 +22,7 @@ public class MedinEnricherTests
     private IXmlNodeService _nodeService;
     private ILogger<MdcEnricher> _logger;
 
-    public MedinEnricherTests()
+    public MdcEnricherTests()
     {
         _serviceProvider = ServiceProviderForTests.Get();
         var configuration = _serviceProvider.GetService<IConfiguration>()!;
