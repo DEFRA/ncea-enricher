@@ -1,6 +1,5 @@
 ﻿using Azure;
 using Azure.Messaging.ServiceBus;
-using FluentAssertions;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -140,7 +139,7 @@ public class OrchestrationServiceTests
                         "</gmd:MD_Metadata>";
         var serviceBusMessageProps = new Dictionary<string, object>
         {
-            { "DataSource", "test-datasource" }
+            { "DataSource", "medin" }
         };
         
         var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(message), messageId: "messageId", properties: serviceBusMessageProps);
@@ -224,7 +223,7 @@ public class OrchestrationServiceTests
 
         var serviceBusMessageProps = new Dictionary<string, object>
         {
-            { "DataSource", "Medin" }
+            { "DataSource", "Medin1" }
         };
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
@@ -256,7 +255,7 @@ public class OrchestrationServiceTests
 
         // Assert
         mockProcessMessageEventArgs.Verify(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<CancellationToken>()), Times.Once);
-        await Assert.ThrowsAsync<FileShareNotFoundException>(() => task!);
+        await Assert.ThrowsAsync<EnricherArgumentException>(() => task!);
     }
 
     [Fact]
@@ -424,7 +423,7 @@ public class OrchestrationServiceTests
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("SaveEnrichedXmlAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { message, "test-datasource" }));
+        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { message, "medin" }));
         if (task != null) await task;
 
         // Assert

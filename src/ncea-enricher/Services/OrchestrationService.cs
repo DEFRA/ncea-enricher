@@ -5,6 +5,7 @@ using Azure;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
 using Ncea.Enricher.BusinessExceptions;
+using Ncea.Enricher.Constants;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Utils;
@@ -49,11 +50,14 @@ public class OrchestrationService : IOrchestrationService
     {        
         _logger.LogInformation("Received a messaage to enrich metadata");
 
-        var body = args.Message.Body.ToString();
-        var dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
-        
+        var dataSource = string.Empty;
+        var body = args.Message.Body.ToString();        
+
         try
         {
+            dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
+            var dataSourceName = Enum.Parse(typeof(DataSourceNames), dataSource!, true).ToString()!.ToLowerInvariant();
+
             if (string.IsNullOrWhiteSpace(body))
             {
                 throw new ArgumentException("Mappeed-queue message body should not be empty");
@@ -62,7 +66,7 @@ public class OrchestrationService : IOrchestrationService
             _fileIdentifier = GetFileIdentifier(body)!;
             var mdcMappedData = await _mdcEnricherSerivice.Enrich(_fileIdentifier, body);
 
-            await SaveEnrichedXmlAsync(mdcMappedData, dataSource!);
+            await SaveEnrichedXmlAsync(mdcMappedData, dataSourceName!);
 
             await args.CompleteMessageAsync(args.Message);
         }

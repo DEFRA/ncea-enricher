@@ -16,7 +16,7 @@ public static class OrchestrationServiceForTests
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor)
     {
         var dirPath = Directory.GetCurrentDirectory();
-        Directory.CreateDirectory(Path.Combine(dirPath, "test-datasource"));
+        Directory.CreateDirectory(Path.Combine(dirPath, "medin"));
         List<KeyValuePair<string, string?>> lstProps =
         [
             new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
