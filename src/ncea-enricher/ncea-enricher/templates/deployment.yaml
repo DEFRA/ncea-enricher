@@ -12,8 +12,8 @@ spec:
   selector:
     matchLabels:
       {{- include "ncea-enricher.selectorLabels" . | nindent 6 }}
-  # strategy:
-  #   type: Recreate
+  strategy:
+    type: Recreate
   template:
     metadata:      
       annotations:
@@ -41,10 +41,10 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: health-check
-              containerPort: 5001
-              hostPort: 5001
+          #ports:
+          #  - name: health-check
+          #    containerPort: 5001
+          #    hostPort: 5001
           # livenessProbe:
           #   tcpSocket:
           #     port: health-check
