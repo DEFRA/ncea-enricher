@@ -45,13 +45,13 @@ spec:
             - name: health-check
               containerPort: 5001
               hostPort: 5001
-          livenessProbe:
-            tcpSocket:
-              port: health-check
-            initialDelaySeconds: 15
-            failureThreshold: 2
-            timeoutSeconds: 3
-            periodSeconds: 60          
+          # livenessProbe:
+          #   tcpSocket:
+          #     port: health-check
+          #   initialDelaySeconds: 15
+          #   failureThreshold: 2
+          #   timeoutSeconds: 3
+          #   periodSeconds: 60          
           env:
             - name: ServiceBusHostName
               value: {{ .Values.env.serviceBusHostName }}
