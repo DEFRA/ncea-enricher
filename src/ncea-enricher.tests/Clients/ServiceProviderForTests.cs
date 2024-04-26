@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Ncea.Enricher.Processors;
 using Ncea.Enricher.Processor.Contracts;
 using Microsoft.Extensions.Configuration;
+using Ncea.Enricher.Processors;
 
 namespace Ncea.Enricher.Tests.Clients;
 
@@ -14,8 +14,7 @@ internal static class ServiceProviderForTests
 
         // Add any DI stuff here:
         serviceCollection.AddLogging();
-        serviceCollection.AddKeyedSingleton<IEnricherService, JnccEnricher>("Jncc");
-        serviceCollection.AddKeyedSingleton<IEnricherService, MedinEnricher>("Medin");
+        serviceCollection.AddSingleton<IEnricherService, MdcEnricher>();
 
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())

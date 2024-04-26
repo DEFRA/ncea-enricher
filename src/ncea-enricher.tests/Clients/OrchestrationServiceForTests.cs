@@ -15,10 +15,12 @@ public static class OrchestrationServiceForTests
                             out Mock<ILogger<T>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor)
     {
+        var dirPath = Directory.GetCurrentDirectory();
+        Directory.CreateDirectory(Path.Combine(dirPath, "medin"));
         List<KeyValuePair<string, string?>> lstProps =
         [
-            new KeyValuePair<string, string?>("HarvesterQueueName", "test-HarvesterQueueName"),
             new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
+            new KeyValuePair<string, string?>("FileShareName", dirPath),
         ];
 
         configuration = new ConfigurationBuilder()

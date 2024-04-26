@@ -70,7 +70,7 @@ static void ConfigureFileShareClient(IConfigurationRoot configuration, HostAppli
     var fileSharePath = configuration.GetValue<string>("FileShareName");
     foreach (string dataSourceName in Enum.GetNames(typeof(DataSourceNames)))
     {
-        var dirPath = Path.Combine(fileSharePath!, dataSourceName);
+        var dirPath = Path.Combine(fileSharePath!, dataSourceName.ToLowerInvariant());
         if (!Directory.Exists(dirPath))
         {
             Directory.CreateDirectory(dirPath);
@@ -139,9 +139,8 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddMemoryCache();
     builder.Services.AddSingleton<ISynonymsProvider, SynonymsProvider>();
     builder.Services.Decorate<ISynonymsProvider, CachedSynonymsProvider>();
-
-    builder.Services.AddKeyedSingleton<IEnricherService, JnccEnricher>("Jncc");
-    builder.Services.AddKeyedSingleton<IEnricherService, MedinEnricher>("Medin");
+    
+    builder.Services.AddSingleton<IEnricherService, MdcEnricher>();
 }
 
 static async Task CreateServiceBusQueueIfNotExist(ServiceBusAdministrationClient servicebusAdminClient, string queueName)

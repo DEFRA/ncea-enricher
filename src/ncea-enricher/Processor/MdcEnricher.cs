@@ -6,7 +6,7 @@ using System.Xml.Linq;
 
 namespace Ncea.Enricher.Processors;
 
-public class MedinEnricher : IEnricherService
+public class MdcEnricher : IEnricherService
 {
     private const string InfoLogMessage1 = "Enriching metadata in-progress for DataSource: Medin, FileIdentifier: {fileIdentifier}";
     private const string InfoLogMessage2 = "Enriching metadata completed for DataSource: Medin, FileIdentifier: {fileIdentifier}";
@@ -15,13 +15,13 @@ public class MedinEnricher : IEnricherService
     private readonly ISearchableFieldConfigurations _searchableFieldConfigurations;
     private readonly ISearchService _xmlSearchService;
     private readonly IXmlNodeService _xmlNodeService;
-    private readonly ILogger<MedinEnricher> _logger;
+    private readonly ILogger<MdcEnricher> _logger;
 
-    public MedinEnricher(ISynonymsProvider synonymsProvider,
+    public MdcEnricher(ISynonymsProvider synonymsProvider,
         ISearchableFieldConfigurations searchableFieldConfigurations,
         ISearchService xmlSearchService,
         IXmlNodeService xmlNodeService,
-        ILogger<MedinEnricher> logger)
+        ILogger<MdcEnricher> logger)
     {
         _synonymsProvider = synonymsProvider;
         _searchableFieldConfigurations = searchableFieldConfigurations;
