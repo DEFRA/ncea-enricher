@@ -15,6 +15,7 @@ serviceAccount:
 env:
   serviceBusHostName: $(serviceBusHostName)
   keyVaultUri: $(keyVaultUri)
+  blobStorageUri: $(blobStorageUri)
 
 podAnnotations: {}
 podLabels: 

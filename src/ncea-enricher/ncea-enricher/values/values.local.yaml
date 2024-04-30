@@ -13,8 +13,9 @@ serviceAccount:
   name: serviceaccount-nceaenricher-sbox
 
 env:
-  serviceBusHostName: nceapocsbox.servicebus.windows.net
-  keyVaultUri: https://nceapocsbox.vault.azure.net/
+  serviceBusHostName: DEVNCESBINF1401.servicebus.windows.net
+  keyVaultUri: https://devnceinfkvt1401.vault.azure.net/
+  blobStorageUri: https://devnceinfst1401.blob.core.windows.net
 
 podAnnotations: {}
 
