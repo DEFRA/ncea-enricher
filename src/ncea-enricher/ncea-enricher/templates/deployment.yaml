@@ -57,6 +57,8 @@ spec:
               value: {{ .Values.env.serviceBusHostName }}
             - name: KeyVaultUri
               value: {{ .Values.env.keyVaultUri }}
+            - name: BlobStorageUri
+              value: {{ .Values.env.blobStorageUri }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}
