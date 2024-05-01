@@ -72,8 +72,7 @@ steps:
     connectionType: Azure Resource Manager
     azureSubscriptionEndpoint: ${{ parameters.armServiceConnection }}
     azureResourceGroup: $(aksResourceGroupName)
-    kubernetesCluster : $(aksClusterName)
-    releaseName: ${{ parameters.releaseName }}
+    kubernetesCluster : $(aksClusterName) 
     namespace: $(aksNamespace)
     command: 'rollback'
-    arguments: --timeout=30m --debug
+    arguments: ${{ parameters.releaseName }} --timeout=30m --debug
