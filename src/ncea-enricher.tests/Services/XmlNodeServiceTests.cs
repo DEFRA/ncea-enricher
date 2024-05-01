@@ -33,7 +33,7 @@ public class XmlNodeServiceTests
         var xmlNodeService = new XmlNodeService(configuration!);
 
         // Act
-        var result = xmlNodeService.CreateClassifierNode(1, "test-value", null);
+        var result = xmlNodeService.CreateClassifierNode(new Classifier { Level = 1, Name = "test-value" }, null);
 
         // Assert
         result.Should().NotBeNull();
@@ -41,7 +41,7 @@ public class XmlNodeServiceTests
 
         var classifierLevel = result.XPathSelectElement("//mdc:classifierType/gco:CharacterString", _xmlNamespaceManager);
         classifierLevel.Should().NotBeNull();
-        classifierLevel!.Value.Should().Be("Level 1");
+        classifierLevel!.Value.Should().Be("Theme");
 
         var classifierValue = result.XPathSelectElement("//mdc:classifierValue/gco:CharacterString", _xmlNamespaceManager);
         classifierValue.Should().NotBeNull();
@@ -63,7 +63,7 @@ public class XmlNodeServiceTests
         };
 
         // Act
-        var result = xmlNodeService.CreateClassifierNode(1, "test-value", level2Classifiers);
+        var result = xmlNodeService.CreateClassifierNode(new Classifier { Level = 1, Name = "test-value" }, level2Classifiers);
 
         // Assert
         result.Should().NotBeNull();
@@ -71,7 +71,7 @@ public class XmlNodeServiceTests
 
         var classifierLevel = result.XPathSelectElement("//mdc:classifierType/gco:CharacterString", _xmlNamespaceManager);
         classifierLevel.Should().NotBeNull();
-        classifierLevel!.Value.Should().Be("Level 1");
+        classifierLevel!.Value.Should().Be("Theme");
 
         var classifierValue = result.XPathSelectElement("//mdc:classifierValue/gco:CharacterString", _xmlNamespaceManager);
         classifierValue.Should().NotBeNull();
@@ -82,7 +82,7 @@ public class XmlNodeServiceTests
 
         var classifierLevel2 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:classifierType/gco:CharacterString", _xmlNamespaceManager);
         classifierLevel2.Should().NotBeNull();
-        classifierLevel2!.Value.Should().Be("Level 2");
+        classifierLevel2!.Value.Should().Be("Category");
 
         var classifierValue2 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:classifierValue/gco:CharacterString", _xmlNamespaceManager);
         classifierValue2.Should().NotBeNull();
@@ -112,7 +112,7 @@ public class XmlNodeServiceTests
         };
 
         // Act
-        var result = xmlNodeService.CreateClassifierNode(1, "test-value", level2AndLevel3Classifiers);
+        var result = xmlNodeService.CreateClassifierNode(new Classifier { Level = 1, Name = "test-value" }, level2AndLevel3Classifiers);
 
         // Assert
         result.Should().NotBeNull();
@@ -120,7 +120,7 @@ public class XmlNodeServiceTests
 
         var classifierLevel = result.XPathSelectElement("//mdc:classifierType/gco:CharacterString", _xmlNamespaceManager);
         classifierLevel.Should().NotBeNull();
-        classifierLevel!.Value.Should().Be("Level 1");
+        classifierLevel!.Value.Should().Be("Theme");
 
         var classifierValue = result.XPathSelectElement("//mdc:classifierValue/gco:CharacterString", _xmlNamespaceManager);
         classifierValue.Should().NotBeNull();
@@ -131,7 +131,7 @@ public class XmlNodeServiceTests
 
         var classifierLevel2 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:classifierType/gco:CharacterString", _xmlNamespaceManager);
         classifierLevel2.Should().NotBeNull();
-        classifierLevel2!.Value.Should().Be("Level 2");
+        classifierLevel2!.Value.Should().Be("Category");
 
         var classifierValue2 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:classifierValue/gco:CharacterString", _xmlNamespaceManager);
         classifierValue2.Should().NotBeNull();
@@ -142,7 +142,7 @@ public class XmlNodeServiceTests
 
         var classifierLevel3 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:NC_Classifiers/mdc:classifier/mdc:classifierType/gco:CharacterString", _xmlNamespaceManager);
         classifierLevel3.Should().NotBeNull();
-        classifierLevel3!.Value.Should().Be("Level 3");
+        classifierLevel3!.Value.Should().Be("Subcategory");
 
         var classifierValue3 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:NC_Classifiers/mdc:classifier/mdc:classifierValue/gco:CharacterString", _xmlNamespaceManager);
         classifierValue3.Should().NotBeNull();

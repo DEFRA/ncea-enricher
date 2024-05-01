@@ -9,6 +9,6 @@ public interface IXmlNodeService
     XmlNamespaceManager GetXmlNamespaceManager(XDocument xDoc);    
     string GetNodeValues(SearchableField field, XElement rootNode, XmlNamespaceManager nsMgr);    
     void EnrichMetadataXmlWithNceaClassifiers(XmlNamespaceManager nsMgr, XElement rootNode, HashSet<Classifier> matchedClassifiers);
-    XElement CreateClassifierNode(int level, string value, List<Classifier>? classifers);
+    XElement CreateClassifierNode(Classifier parentClassifier, List<Classifier>? childClassifers);
     XElement GetNCClassifiersParentNode(XElement rootNode, XmlNamespaceManager nsMgr);
 }

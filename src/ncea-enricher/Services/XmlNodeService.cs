@@ -1,4 +1,5 @@
-﻿using Ncea.Enricher.Models;
+﻿using ncea.enricher.Constants;
+using Ncea.Enricher.Models;
 using Ncea.Enricher.Services.Contracts;
 using System.Xml;
 using System.Xml.Linq;
@@ -19,32 +20,33 @@ public class XmlNodeService : IXmlNodeService
         _mdcSchemaLocationPath = configuration.GetValue<string>("MdcSchemaLocation")!;
     }
 
-    public XElement CreateClassifierNode(int level, string value, List<Classifier>? classifers)
+    public XElement CreateClassifierNode(Classifier parentClassifier, List<Classifier>? childClassifers)
     {
         XNamespace gcoNamespace = "http://www.isotc211.org/2005/gco";
         XNamespace mdcSchemaLocation = _mdcSchemaLocationPath;
 
         var classifier = new XElement(mdcSchemaLocation + "classifier");
+        var classifierTypeValue = (ClassifierTypes)parentClassifier.Level;
 
         //Create classifierType node
         var classifierType = new XElement(mdcSchemaLocation + "classifierType");
-        var classifierTypeCharacterString = new XElement(gcoNamespace + "CharacterString", string.Format("Level {0}", level));
+        var classifierTypeCharacterString = new XElement(gcoNamespace + "CharacterString", classifierTypeValue.ToString());
         classifierType.Add(classifierTypeCharacterString);
         classifier.Add(classifierType);
 
         //Create classifierValue node
         var classifierValue = new XElement(mdcSchemaLocation + "classifierValue");
-        var classifierValueCharacterString = new XElement(gcoNamespace + "CharacterString", value);
+        var classifierValueCharacterString = new XElement(gcoNamespace + "CharacterString", parentClassifier.Name);
         classifierValue.Add(classifierValueCharacterString);
         classifier.Add(classifierValue);
 
-        if (classifers != null && classifers.Count != 0)
+        if (childClassifers != null && childClassifers.Count != 0)
         {
             //Create child nc_Classifiers node
             var nc_ClassifiersChild = new XElement(mdcSchemaLocation + "NC_Classifiers");
-            foreach (var classifer in classifers)
+            foreach (var classifer in childClassifers)
             {
-                nc_ClassifiersChild.Add(CreateClassifierNode(classifer.Level, classifer.Name, classifer.Children));
+                nc_ClassifiersChild.Add(CreateClassifierNode(classifer, classifer.Children));
             }
 
             classifier.Add(nc_ClassifiersChild);
@@ -81,7 +83,7 @@ public class XmlNodeService : IXmlNodeService
         var nceaClassifiers = BuildClassifierHierarchies(matchedClassifiers.ToList());
         foreach (var nceaClassifier in nceaClassifiers)
         {
-            var element = CreateClassifierNode(nceaClassifier.Level, nceaClassifier.Name, nceaClassifier.Children);
+            var element = CreateClassifierNode(nceaClassifier, nceaClassifier.Children);
             ncClassifiersParentNode.Add(element);
         }
     }
