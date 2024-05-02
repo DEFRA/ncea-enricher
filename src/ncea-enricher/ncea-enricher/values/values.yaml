@@ -31,8 +31,8 @@ resources:
     memory: "50Mi"
     cpu: "10m"
   limits:
-    memory: "200Mi"
-    cpu: "100m"
+    memory: "250Mi"
+    cpu: "75m"
 
 autoscaling:
   enabled: $(autoScalingEnabled)
