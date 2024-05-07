@@ -3,16 +3,25 @@ using Ncea.Enricher.Constants;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Schema;
+using YamlDotNet.Serialization;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Ncea.Enricher.Processors;
 
 public class MdcEnricher : IEnricherService
 {
+    private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
+    private const string GcoNamespace = "http://www.isotc211.org/2005/gco";
+    private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
+
     private const string InfoLogMessage1 = "Enriching metadata in-progress for DataSource: Medin, FileIdentifier: {fileIdentifier}";
     private const string InfoLogMessage2 = "Enriching metadata completed for DataSource: Medin, FileIdentifier: {fileIdentifier}";
     
+    private readonly string _mdcSchemaLocationPath;
     private readonly ISynonymsProvider _synonymsProvider;
     private readonly ISearchableFieldConfigurations _searchableFieldConfigurations;
     private readonly ISearchService _xmlSearchService;
@@ -25,8 +34,11 @@ public class MdcEnricher : IEnricherService
         ISearchService xmlSearchService,
         IXmlNodeService xmlNodeService,
         IFeatureManager featureManager,
+        IConfiguration configuration,
         ILogger<MdcEnricher> logger)
     {
+        _mdcSchemaLocationPath = configuration.GetValue<string>("MdcSchemaLocation")!;
+
         _synonymsProvider = synonymsProvider;
         _searchableFieldConfigurations = searchableFieldConfigurations;
         _xmlSearchService = xmlSearchService;
@@ -50,6 +62,8 @@ public class MdcEnricher : IEnricherService
         }
 
         _xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(nsMgr, rootNode, matchedClassifiers);
+        //ValidateEnrichedXml(xDoc);
+        
         _logger.LogInformation(InfoLogMessage2, fileIdentifier);
 
         return await Task.FromResult(xDoc.ToString());
@@ -89,6 +103,42 @@ public class MdcEnricher : IEnricherService
         {
             classifier = classifierList.Single(x => x.Id == classifier.ParentId);
             matchedClassifiers.Add(classifier);
+        }
+    }
+
+    //private void ValidateEnrichedXml(XDocument xDoc)
+    //{
+    //    var xmlReaderSettings = new XmlReaderSettings();
+    //    xmlReaderSettings.Schemas.Add("gmd", GmdNamespace);
+    //    xmlReaderSettings.Schemas.Add("gco", GcoNamespace);
+    //    xmlReaderSettings.Schemas.Add("gmx", GmxNamespace);
+    //    xmlReaderSettings.Schemas.Add("mdc", _mdcSchemaLocationPath);
+
+    //    xmlReaderSettings.DtdProcessing = DtdProcessing.Ignore;
+    //    xmlReaderSettings.ValidationType = ValidationType.Schema;
+    //    xmlReaderSettings.ValidationEventHandler += ValidationEventHandler!;
+
+    //    var byteArray = Encoding.UTF8.GetBytes(xDoc.ToString());
+    //    var memoryStream = new MemoryStream(byteArray);
+
+    //    var xmlReader = XmlReader.Create(memoryStream, xmlReaderSettings);
+    //    while (xmlReader.Read()) { }
+
+    //    var schemas = new XmlSchemaSet();
+    //    schemas.Add("gmd", GmdNamespace);
+    //    schemas.Add("gco", GcoNamespace);
+    //    schemas.Add("gmx", GmxNamespace);
+    //    schemas.Add("mdc", _mdcSchemaLocationPath);
+
+    //    xDoc.Validate(schemas, ValidationEventHandler!);
+    //}
+
+    private static void ValidationEventHandler(object sender, ValidationEventArgs e)
+    {
+        var type = XmlSeverityType.Warning;
+        if (Enum.TryParse<XmlSeverityType>("Error", out type))
+        {
+            if (type == XmlSeverityType.Error) throw new Exception(e.Message);
         }
     }
 }

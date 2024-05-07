@@ -22,17 +22,18 @@ public class MdcEnricherTests
     private ISearchableFieldConfigurations _searchableFieldConfigurations;
     private ISearchService _searchService;
     private IXmlNodeService _nodeService;
+    private IConfiguration _configuration;
     private ILogger<MdcEnricher> _logger;
 
     public MdcEnricherTests()
     {
         _serviceProvider = ServiceProviderForTests.Get();
-        var configuration = _serviceProvider.GetService<IConfiguration>()!;
+        _configuration = _serviceProvider.GetService<IConfiguration>()!;
         _blobStorageService = BlobServiceForTests.Get();
-        _synonymsProvider = new SynonymsProvider(configuration, _blobStorageService);
-        _searchableFieldConfigurations = new SearchableFieldConfigurations(configuration);
+        _synonymsProvider = new SynonymsProvider(_configuration, _blobStorageService);
+        _searchableFieldConfigurations = new SearchableFieldConfigurations(_configuration);
         _searchService = new SearchService();
-        _nodeService = new XmlNodeService(configuration);
+        _nodeService = new XmlNodeService(_configuration);
         _logger = _serviceProvider.GetService<ILogger<MdcEnricher>>()!;
     }
 
@@ -47,7 +48,7 @@ public class MdcEnricherTests
         var xDoc = new XmlDocument();
         xDoc.Load(filePath);
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, featureManagerMock.Object, _logger);
+        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, featureManagerMock.Object, _configuration, _logger);
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
@@ -69,7 +70,7 @@ public class MdcEnricherTests
         var xDoc = new XmlDocument();
         xDoc.Load(filePath);
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, featureManagerMock.Object, _logger);
+        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, featureManagerMock.Object, _configuration, _logger);
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
