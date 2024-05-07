@@ -1,4 +1,4 @@
-﻿namespace ncea.enricher.Constants
+﻿namespace Ncea.Enricher.Constants
 {
     public enum ClassifierTypes
     {

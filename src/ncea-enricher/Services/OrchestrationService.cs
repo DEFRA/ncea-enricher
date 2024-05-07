@@ -51,22 +51,22 @@ public class OrchestrationService : IOrchestrationService
         _logger.LogInformation("Received a messaage to enrich metadata");
 
         var dataSource = string.Empty;
-        var body = args.Message.Body.ToString();        
+        var mdcMappedData = args.Message.Body.ToString();        
 
         try
         {
             dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
             var dataSourceName = Enum.Parse(typeof(DataSourceNames), dataSource!, true).ToString()!.ToLowerInvariant();
 
-            if (string.IsNullOrWhiteSpace(body))
+            if (string.IsNullOrWhiteSpace(mdcMappedData))
             {
                 throw new ArgumentException("Mappeed-queue message body should not be empty");
             }
 
-            _fileIdentifier = GetFileIdentifier(body)!;
-            var mdcMappedData = await _mdcEnricherSerivice.Enrich(_fileIdentifier, body);
+            _fileIdentifier = GetFileIdentifier(mdcMappedData)!;
+            var enrichedMetadata = await _mdcEnricherSerivice.Enrich(_fileIdentifier, mdcMappedData);
 
-            await SaveEnrichedXmlAsync(mdcMappedData, dataSourceName!);
+            await SaveEnrichedXmlAsync(enrichedMetadata, dataSourceName!);
 
             await args.CompleteMessageAsync(args.Message);
         }

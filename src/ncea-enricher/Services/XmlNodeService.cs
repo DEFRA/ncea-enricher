@@ -1,4 +1,4 @@
-﻿using ncea.enricher.Constants;
+﻿using Ncea.Enricher.Constants;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Services.Contracts;
 using System.Xml;
@@ -26,19 +26,18 @@ public class XmlNodeService : IXmlNodeService
         XNamespace mdcSchemaLocation = _mdcSchemaLocationPath;
 
         var classifier = new XElement(mdcSchemaLocation + "classifier");
-        var classifierTypeValue = (ClassifierTypes)parentClassifier.Level;
-
-        //Create classifierType node
-        var classifierType = new XElement(mdcSchemaLocation + "classifierType");
-        var classifierTypeCharacterString = new XElement(gcoNamespace + "CharacterString", classifierTypeValue.ToString());
-        classifierType.Add(classifierTypeCharacterString);
-        classifier.Add(classifierType);
 
         //Create classifierValue node
-        var classifierValue = new XElement(mdcSchemaLocation + "classifierValue");
+        var classifierValue = new XElement(mdcSchemaLocation + "name");
         var classifierValueCharacterString = new XElement(gcoNamespace + "CharacterString", parentClassifier.Name);
         classifierValue.Add(classifierValueCharacterString);
         classifier.Add(classifierValue);
+
+        //Create classifierCode node
+        var classifierCode = new XElement(mdcSchemaLocation + "code");
+        var classifierCodeCharacterString = new XElement(gcoNamespace + "CharacterString", parentClassifier.Id);
+        classifierCode.Add(classifierCodeCharacterString);
+        classifier.Add(classifierCode);
 
         if (childClassifers != null && childClassifers.Count != 0)
         {

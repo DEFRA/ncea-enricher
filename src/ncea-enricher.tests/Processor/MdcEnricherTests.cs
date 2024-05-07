@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
 using Moq;
+using Ncea.Enricher.Constants;
 using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Processors;
 using Ncea.Enricher.Services;
@@ -33,15 +35,41 @@ public class MdcEnricherTests
         _nodeService = new XmlNodeService(configuration);
         _logger = _serviceProvider.GetService<ILogger<MdcEnricher>>()!;
     }
+
     [Fact]
-    public async Task Enrich_ReturnEnrichedMetadataXmlWithNceaClassifiers()
+    public async Task Enrich_WhenFeatureFlagEnabled_ReturnEnrichedMetadataXmlWithNceaClassifiers()
     {
         //Arrange
+        var featureManagerMock = new Mock<IFeatureManager>();
+        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature)).ReturnsAsync(true);
+
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
         var xDoc = new XmlDocument();
         xDoc.Load(filePath);
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _logger);
+        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, featureManagerMock.Object, _logger);
+        var mappedMetadataXml = xDoc.OuterXml;
+
+        // Act
+        var result = await medinService.Enrich("test-file-id", mappedMetadataXml, It.IsAny<CancellationToken>());
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<string>();
+    }
+
+    [Fact]
+    public async Task Enrich_WhenFeatureFlagDisabled_ReturnEnrichedMetadataXmlWithNceaClassifiers()
+    {
+        //Arrange
+        var featureManagerMock = new Mock<IFeatureManager>();
+        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature)).ReturnsAsync(false);
+
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
+        var xDoc = new XmlDocument();
+        xDoc.Load(filePath);
+
+        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, featureManagerMock.Object, _logger);
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act

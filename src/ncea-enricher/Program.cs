@@ -17,6 +17,7 @@ using Azure.Storage.Blobs;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Services;
+using Microsoft.FeatureManagement;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -31,6 +32,7 @@ builder.Services.AddHealthChecks().AddCheck<HealthCheck>("custom_hc");
 builder.Services.AddHostedService<TcpHealthProbeService>();
 
 builder.Services.AddHttpClient();
+builder.Services.AddFeatureManagement(configuration.GetSection("MyFeatureFlags"));
 
 ConfigureKeyVault(configuration, builder);
 ConfigureBlobStorage(configuration, builder);
