@@ -2,5 +2,5 @@
 
 public class FeatureFlags
 {
-    public const string MetadataEnrichmentFeature = "EnableMetadaEnrichment";
+    public const string MetadataEnrichmentFeature = "EnableMetadataEnrichment";
 }
