@@ -41,26 +41,7 @@ public class XmlValidationService : IXmlValidationService
         catch(Exception ex)
         {
             throw new XmlValidationException("Xml Validation failed", ex);
-        }       
-
-        //var xmlReaderSettings = new XmlReaderSettings();
-        //xmlReaderSettings.Async= true;
-        //xmlReaderSettings.XmlResolver= new XmlUrlResolver();
-        //xmlReaderSettings.Schemas.Add(schemas);
-        //xmlReaderSettings.ValidationType = ValidationType.Schema;
-        //xmlReaderSettings.ValidationEventHandler += ValidationEventHandler!;
-
-        //var xmlString = string.Concat("<?xml version=\"1.0\" encoding=\"utf-8\"?>", xDoc.ToString());        
-
-        //try
-        //{
-        //    var xmlReader = XmlReader.Create(new StringReader(xmlString), xmlReaderSettings);
-        //    while (xmlReader.Read()) { }
-        //}
-        //catch (Exception ex)
-        //{
-        //    CustomLogger.LogErrorMessage(_logger, "", ex);
-        //}
+        }
     }
 
     private void ValidationEventHandler(object sender, ValidationEventArgs e)
@@ -77,7 +58,7 @@ public class XmlValidationService : IXmlValidationService
     private void XmlSchemaSetValidationEventHandler(object sender, ValidationEventArgs e)
     {
         if (!e.Exception.Message.Contains("has already been declared") 
-            && e.Exception.SourceUri!.Contains("http://www.isotc211.org/2005/gml/coverage.xsd"))
+            && e.Exception.SourceUri!.Contains("www.isotc211.org/2005/gml/coverage.xsd"))
         {
             CustomLogger.LogErrorMessage(_logger, "XML Schema Already exists", e.Exception);
         }
