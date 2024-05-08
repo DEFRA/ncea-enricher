@@ -34,14 +34,7 @@ public class XmlValidationService : IXmlValidationService
 
     public void Validate(XDocument xDoc)
     {
-        try
-        {
-            xDoc.Validate(_schemas, ValidationEventHandler!);
-        }
-        catch(Exception ex)
-        {
-            throw new XmlValidationException("Xml Validation failed", ex);
-        }
+        xDoc.Validate(_schemas, ValidationEventHandler!);
     }
 
     private void ValidationEventHandler(object sender, ValidationEventArgs e)

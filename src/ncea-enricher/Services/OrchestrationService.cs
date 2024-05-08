@@ -1,5 +1,6 @@
 ﻿using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Schema;
 using System.Xml.XPath;
 using Azure;
 using Azure.Messaging.ServiceBus;
@@ -84,10 +85,10 @@ public class OrchestrationService : IOrchestrationService
             var errorMessage = $"Error occured while saving the xml file during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
             await HandleException(args, ex, new FileShareNotFoundException(errorMessage, ex));
         }
-        catch (XmlValidationException ex)
+        catch (XmlSchemaValidationException ex)
         {
             var errorMessage = $"Error occured while validating enriched xml file during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
-            await HandleException(args, ex.InnerException!, new XmlValidationException(errorMessage, ex));
+            await HandleException(args, ex, new XmlValidationException(errorMessage, ex));
         }
         catch (Exception ex)
         {
