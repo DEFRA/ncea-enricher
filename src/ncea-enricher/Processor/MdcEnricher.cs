@@ -11,9 +11,8 @@ namespace Ncea.Enricher.Processors;
 public class MdcEnricher : IEnricherService
 {
     private const string InfoLogMessage1 = "Enriching metadata in-progress for DataSource: Medin, FileIdentifier: {fileIdentifier}";
-    private const string InfoLogMessage2 = "Enriching metadata completed for DataSource: Medin, FileIdentifier: {fileIdentifier}";
+    private const string InfoLogMessage2 = "Enriching metadata completed for DataSource: Medin, FileIdentifier: {fileIdentifier}";    
     
-    private readonly string _mdcSchemaLocationPath;
     private readonly ISynonymsProvider _synonymsProvider;
     private readonly ISearchableFieldConfigurations _searchableFieldConfigurations;
     private readonly ISearchService _xmlSearchService;
@@ -27,12 +26,9 @@ public class MdcEnricher : IEnricherService
         ISearchService xmlSearchService,
         IXmlNodeService xmlNodeService,
         IXmlValidationService xmlValidationService,
-        IFeatureManager featureManager,        
-        IConfiguration configuration,
+        IFeatureManager featureManager,
         ILogger<MdcEnricher> logger)
     {
-        _mdcSchemaLocationPath = configuration.GetValue<string>("MdcSchemaLocation")!;
-
         _synonymsProvider = synonymsProvider;
         _searchableFieldConfigurations = searchableFieldConfigurations;
         _xmlSearchService = xmlSearchService;

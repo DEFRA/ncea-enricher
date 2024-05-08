@@ -87,7 +87,7 @@ public class OrchestrationService : IOrchestrationService
         catch (XmlValidationException ex)
         {
             var errorMessage = $"Error occured while validating enriched xml file during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
-            await HandleException(args, ex.InnerException!, ex);
+            await HandleException(args, ex.InnerException!, new XmlValidationException(errorMessage, ex));
         }
         catch (Exception ex)
         {

@@ -18,10 +18,6 @@ namespace Ncea.Enricher.Tests.Processor;
 
 public class MdcEnricherTests
 {
-    private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
-    private const string GcoNamespace = "http://www.isotc211.org/2005/gco";
-    private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
-
     private IServiceProvider _serviceProvider;
     private IBlobStorageService _blobStorageService;
     private ISynonymsProvider _synonymsProvider;
@@ -56,7 +52,7 @@ public class MdcEnricherTests
         var xDoc = new XmlDocument();
         xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object, _configuration, _logger);
+        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object, _logger);
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
@@ -78,7 +74,7 @@ public class MdcEnricherTests
         var xDoc = new XmlDocument();
         xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object, _configuration, _logger);
+        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object, _logger);
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
