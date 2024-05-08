@@ -51,7 +51,7 @@ public class OrchestrationService : IOrchestrationService
         _logger.LogInformation("Received a messaage to enrich metadata");
 
         var dataSource = string.Empty;
-        var mdcMappedData = args.Message.Body.ToString();        
+        var mdcMappedData = args.Message.Body.ToString();
 
         try
         {
@@ -79,10 +79,15 @@ public class OrchestrationService : IOrchestrationService
             var errorMessage = $"Error occured while reading the synonyms file during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
             await HandleException(args, ex, new SynonymsNotAccessibleException(errorMessage, ex));
         }
-        catch(DirectoryNotFoundException ex)
+        catch (DirectoryNotFoundException ex)
         {
             var errorMessage = $"Error occured while saving the xml file during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
             await HandleException(args, ex, new FileShareNotFoundException(errorMessage, ex));
+        }
+        catch (XmlValidationException ex)
+        {
+            var errorMessage = $"Error occured while validating enriched xml file during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
+            await HandleException(args, ex.InnerException!, ex);
         }
         catch (Exception ex)
         {

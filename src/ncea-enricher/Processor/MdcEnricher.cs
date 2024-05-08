@@ -5,16 +5,11 @@ using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
 using System.Xml;
 using System.Xml.Linq;
-using System.Xml.Schema;
 
 namespace Ncea.Enricher.Processors;
 
 public class MdcEnricher : IEnricherService
 {
-    private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
-    private const string GcoNamespace = "http://www.isotc211.org/2005/gco";
-    private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
-
     private const string InfoLogMessage1 = "Enriching metadata in-progress for DataSource: Medin, FileIdentifier: {fileIdentifier}";
     private const string InfoLogMessage2 = "Enriching metadata completed for DataSource: Medin, FileIdentifier: {fileIdentifier}";
     
@@ -23,6 +18,7 @@ public class MdcEnricher : IEnricherService
     private readonly ISearchableFieldConfigurations _searchableFieldConfigurations;
     private readonly ISearchService _xmlSearchService;
     private readonly IXmlNodeService _xmlNodeService;
+    private readonly IXmlValidationService _xmlValidationService;
     private readonly IFeatureManager _featureManager;
     private readonly ILogger<MdcEnricher> _logger;
 
@@ -30,7 +26,8 @@ public class MdcEnricher : IEnricherService
         ISearchableFieldConfigurations searchableFieldConfigurations,
         ISearchService xmlSearchService,
         IXmlNodeService xmlNodeService,
-        IFeatureManager featureManager,
+        IXmlValidationService xmlValidationService,
+        IFeatureManager featureManager,        
         IConfiguration configuration,
         ILogger<MdcEnricher> logger)
     {
@@ -40,6 +37,7 @@ public class MdcEnricher : IEnricherService
         _searchableFieldConfigurations = searchableFieldConfigurations;
         _xmlSearchService = xmlSearchService;
         _xmlNodeService = xmlNodeService;
+        _xmlValidationService = xmlValidationService;
         _featureManager = featureManager;
         _logger = logger;
     }
@@ -59,7 +57,8 @@ public class MdcEnricher : IEnricherService
         }
 
         _xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(nsMgr, rootNode, matchedClassifiers);
-        ValidateEnrichedXml(xDoc);
+
+        _xmlValidationService.Validate(xDoc);
         
         _logger.LogInformation(InfoLogMessage2, fileIdentifier);
 
@@ -100,36 +99,6 @@ public class MdcEnricher : IEnricherService
         {
             classifier = classifierList.Single(x => x.Id == classifier.ParentId);
             matchedClassifiers.Add(classifier);
-        }
-    }
-
-    private void ValidateEnrichedXml(XDocument xDoc)
-    {
-        //var xmlReaderSettings = new XmlReaderSettings();
-        //xmlReaderSettings.Schemas.Add(GmdNamespace, Path.Combine(GmdNamespace, "gmd.xsd"));
-        //xmlReaderSettings.Schemas.Add(GcoNamespace, Path.Combine(GcoNamespace, "gco.xsd"));
-        //xmlReaderSettings.Schemas.Add(GmxNamespace, Path.Combine(GmxNamespace, "gmx.xsd"));
-        
-        //xmlReaderSettings.DtdProcessing = DtdProcessing.Parse;
-        //xmlReaderSettings.ValidationType = ValidationType.Schema;
-        //xmlReaderSettings.ValidationEventHandler += ValidationEventHandler!;
-
-        //var xmlReader = XmlReader.Create(new StringReader(xDoc.Root.ToString()), xmlReaderSettings);
-        //while (xmlReader.Read()) { }
-
-        var schemas = new XmlSchemaSet();
-        //schemas.Add(GmdNamespace, Path.Combine(GmdNamespace, "gmd.xsd"));
-        //schemas.Add(GcoNamespace, Path.Combine(GcoNamespace, "gco.xsd"));
-        schemas.Add(GmxNamespace, Path.Combine(GmxNamespace, "gmx.xsd"));
-        xDoc.Validate(schemas, ValidationEventHandler!);
-    }
-
-    private static void ValidationEventHandler(object sender, ValidationEventArgs e)
-    {
-        var type = XmlSeverityType.Warning;
-        if (Enum.TryParse<XmlSeverityType>("Error", out type))
-        {
-            if (type == XmlSeverityType.Error) throw new Exception(e.Message);
         }
     }
 }

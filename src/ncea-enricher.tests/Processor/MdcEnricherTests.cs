@@ -4,24 +4,31 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 using Moq;
+using ncea.enricher.Services;
 using Ncea.Enricher.Constants;
 using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Processors;
 using Ncea.Enricher.Services;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
+using System.Text;
 using System.Xml;
 
 namespace Ncea.Enricher.Tests.Processor;
 
 public class MdcEnricherTests
 {
+    private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
+    private const string GcoNamespace = "http://www.isotc211.org/2005/gco";
+    private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
+
     private IServiceProvider _serviceProvider;
     private IBlobStorageService _blobStorageService;
     private ISynonymsProvider _synonymsProvider;
     private ISearchableFieldConfigurations _searchableFieldConfigurations;
     private ISearchService _searchService;
     private IXmlNodeService _nodeService;
+    private IXmlValidationService _xmlValidationService;
     private IConfiguration _configuration;
     private ILogger<MdcEnricher> _logger;
 
@@ -34,6 +41,7 @@ public class MdcEnricherTests
         _searchableFieldConfigurations = new SearchableFieldConfigurations(_configuration);
         _searchService = new SearchService();
         _nodeService = new XmlNodeService(_configuration);
+        _xmlValidationService = new XmlValidationService(_serviceProvider.GetService<ILogger<XmlValidationService>>()!);
         _logger = _serviceProvider.GetService<ILogger<MdcEnricher>>()!;
     }
 
@@ -44,11 +52,11 @@ public class MdcEnricherTests
         var featureManagerMock = new Mock<IFeatureManager>();
         featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature)).ReturnsAsync(true);
 
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "fff8010e6a805ba79102d35dbdda4d93.xml");
         var xDoc = new XmlDocument();
-        xDoc.Load(filePath);
+        xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, featureManagerMock.Object, _configuration, _logger);
+        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object, _configuration, _logger);
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
@@ -66,11 +74,11 @@ public class MdcEnricherTests
         var featureManagerMock = new Mock<IFeatureManager>();
         featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature)).ReturnsAsync(false);
 
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "fff8010e6a805ba79102d35dbdda4d93.xml");
         var xDoc = new XmlDocument();
-        xDoc.Load(filePath);
+        xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, featureManagerMock.Object, _configuration, _logger);
+        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object, _configuration, _logger);
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act

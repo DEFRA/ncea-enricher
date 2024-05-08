@@ -18,6 +18,7 @@ using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Services;
 using Microsoft.FeatureManagement;
+using ncea.enricher.Services;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -137,6 +138,7 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<ISearchableFieldConfigurations, SearchableFieldConfigurations>();
     builder.Services.AddSingleton<ISearchService, SearchService>();
     builder.Services.AddSingleton<IXmlNodeService, XmlNodeService>();
+    builder.Services.AddSingleton<IXmlValidationService, XmlValidationService>();
 
     builder.Services.AddMemoryCache();
     builder.Services.AddSingleton<ISynonymsProvider, SynonymsProvider>();
