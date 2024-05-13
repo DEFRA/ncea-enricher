@@ -157,10 +157,10 @@ public class XmlNodeServiceTests
         // Arrange
         var configuration = _serviceProvider.GetService<IConfiguration>();
         var xmlNodeService = new XmlNodeService(configuration!);
-        var field = new SearchableField
+        var field = new Field
         {
-            Name = "Title",
-            Type = "text",
+            Name = Constants.FieldName.Title,
+            Type =  Constants.FieldType.Text,
             XPath = "//gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString"
         };
 
@@ -179,10 +179,10 @@ public class XmlNodeServiceTests
         // Arrange
         var configuration = _serviceProvider.GetService<IConfiguration>();
         var xmlNodeService = new XmlNodeService(configuration!);
-        var field = new SearchableField
+        var field = new Field
         {
-            Name = "Title",
-            Type = "text",
+            Name = Constants.FieldName.Title,
+            Type = Constants.FieldType.Text,
             XPath = "//gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString1"
         };
 
@@ -201,10 +201,10 @@ public class XmlNodeServiceTests
         // Arrange
         var configuration = _serviceProvider.GetService<IConfiguration>();
         var xmlNodeService = new XmlNodeService(configuration!);
-        var field = new SearchableField
+        var field = new Field
         {
-            Name = "Title",
-            Type = "list",
+            Name = Constants.FieldName.Title,
+            Type = Constants.FieldType.List,
             XPath = "//gmd:identificationInfo/gmd:MD_DataIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gmx:Anchor"
         };
 
@@ -224,10 +224,10 @@ public class XmlNodeServiceTests
         // Arrange
         var configuration = _serviceProvider.GetService<IConfiguration>();
         var xmlNodeService = new XmlNodeService(configuration!);
-        var field = new SearchableField
+        var field = new Field
         {
-            Name = "Title",
-            Type = "list",
+            Name = Constants.FieldName.Title,
+            Type = Constants.FieldType.List,
             XPath = "//gmd:identificationInfo/gmd:MD_DataIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gmx:Anchor1"
         };
 

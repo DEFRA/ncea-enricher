@@ -82,7 +82,7 @@ public class MdcEnricher : IEnricherService
         foreach (var searchableField in searchableFields)
         {
             var fieldValue = _xmlNodeService.GetNodeValues(searchableField, rootNode, nsMgr);
-            searchableFieldValues.Add(searchableField.Name, fieldValue);
+            searchableFieldValues.Add(searchableField.Name.ToString(), fieldValue);
         }
         var metadata = searchableFieldValues.Where(x => !string.IsNullOrEmpty(x.Value)).Select(x => x.Value).ToList();
         return metadata;

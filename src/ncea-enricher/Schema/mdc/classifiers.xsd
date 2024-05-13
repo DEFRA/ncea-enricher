@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="https://github.com/DEFRA/ncea-geonetwork/tree/feature/core-geonetwork/schemas/iso19139/src/main/plugin/iso19139/schema2007/mdc" elementFormDefault="qualified" version="0.1" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:mdc="https://github.com/DEFRA/ncea-geonetwork/tree/feature/core-geonetwork/schemas/iso19139/src/main/plugin/iso19139/schema2007/mdc">
+    <!-- ================================= Annotation ================================ -->
+    <xs:annotation>
+        <xs:documentation>This file was generated from ISO TC/211 UML class diagrams == 01-26-2005 12:40:01 ====== </xs:documentation>
+    </xs:annotation>
+    <!-- ================================== Imports ================================== -->
+    <xs:import namespace="http://www.isotc211.org/2005/gco" schemaLocation="../gco/gco.xsd"/>
+    <xs:include schemaLocation="../mdc/mdc.xsd"/>
+    <!-- ########################################################################### -->
+    <!-- ########################################################################### -->
+    <!-- ================================== Classes ================================= -->
+
+
+	<!-- =========================================================================== -->
+	<xs:complexType name="NC_Classifiers_PropertyType">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="NC_Classifiers" type="mdc:NC_Classifiers_Type"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- ........................................................................ -->
+	<xs:element name="nceaClassifierInfo" type="mdc:NC_Classifiers_PropertyType"/>
+	<!-- ........................................................................ -->
+
+	<!-- =========================================================================== -->
+	<xs:complexType name="NC_Classifiers_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+				    <xs:element name="classifier" type="mdc:classifier_Type"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- ........................................................................ -->
+	<xs:element name="NC_Classifiers" type="mdc:NC_Classifiers_Type"/>
+	<!-- ........................................................................ -->
+
+	<!-- =========================================================================== -->
+    	<xs:complexType name="classifier_Type">
+    		<xs:complexContent>
+    			<xs:extension base="gco:AbstractObject_Type">
+    				<xs:sequence>
+                        <xs:element name="name" type="gco:CharacterString_PropertyType" minOccurs="0"/>
+                        <xs:element name="code" type="gco:CharacterString_PropertyType" minOccurs="0"/>
+                        <xs:element name="NC_Classifiers" type="mdc:NC_Classifiers_Type" minOccurs="1"/>
+    				</xs:sequence>
+    			</xs:extension>
+    		</xs:complexContent>
+    	</xs:complexType>
+    	<!-- ........................................................................ -->
+</xs:schema>

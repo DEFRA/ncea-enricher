@@ -53,11 +53,11 @@ public class XmlNodeService : IXmlNodeService
         return classifier;
     }
 
-    public string GetNodeValues(SearchableField field, XElement rootNode, XmlNamespaceManager nsMgr)
+    public string GetNodeValues(Field field, XElement rootNode, XmlNamespaceManager nsMgr)
     {
         var value = string.Empty;
 
-        if (field.Type == "list")
+        if (field.Type == Constants.FieldType.List)
         {
             var elements = rootNode.XPathSelectElements(field.XPath, nsMgr);
             if (elements != null && elements.Any())

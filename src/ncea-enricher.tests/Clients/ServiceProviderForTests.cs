@@ -22,6 +22,10 @@ internal static class ServiceProviderForTests
                  path: "appsettings.json",
                  optional: false,
                  reloadOnChange: true)
+            .AddJsonFile(
+                 path: "appsettings-fieldconfigurations.json",
+                 optional: false,
+                 reloadOnChange: true)
            .Build();
         serviceCollection.AddSingleton<IConfiguration>(configuration);
 

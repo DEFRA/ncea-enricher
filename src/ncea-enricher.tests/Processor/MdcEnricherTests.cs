@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 using Moq;
-using ncea.enricher.Services;
 using Ncea.Enricher.Constants;
 using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Processors;
@@ -37,7 +36,7 @@ public class MdcEnricherTests
         _searchableFieldConfigurations = new SearchableFieldConfigurations(_configuration);
         _searchService = new SearchService();
         _nodeService = new XmlNodeService(_configuration);
-        _xmlValidationService = new XmlValidationService(_serviceProvider.GetService<ILogger<XmlValidationService>>()!);
+        _xmlValidationService = new XsdValidationService(_serviceProvider.GetService<ILogger<XsdValidationService>>()!);
         _logger = _serviceProvider.GetService<ILogger<MdcEnricher>>()!;
     }
 

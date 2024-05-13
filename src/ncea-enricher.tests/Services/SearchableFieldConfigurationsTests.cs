@@ -28,7 +28,7 @@ public class SearchableFieldConfigurationsTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeOfType<List<SearchableField>>();
+        result.Should().BeOfType<List<Field>>();
         result.Should().HaveCount(9);
     }
 }
