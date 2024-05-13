@@ -1,6 +1,7 @@
 ﻿using Ncea.Enricher.Constants;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Services.Contracts;
+using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -42,7 +43,7 @@ public class XPathValidationService : IXmlValidationService
         {
             throw new XmlSchemaValidationException();
         }
-        var fieldsToBeValidated = _mandatoryFields.Where(x => x.RelevantFor.Any(y => y == resourceType)).ToList();
+        var fieldsToBeValidated = _mandatoryFields.Where(x => x.RelevantFor.Contains((ResourceType)resourceType!)).ToList();
 
         var errorList = new List<string>();
         foreach(var field in fieldsToBeValidated)
