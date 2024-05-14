@@ -84,8 +84,11 @@
       <gmd:citation>
         <gmd:CI_Citation>
           <!-- 1 Resource title (M) -->
-          <gmd:title>
+          <!--<gmd:title>
             <gco:CharacterString>Demonstration XML resource for series showing examples of good practice for MEDIN metadata creation</gco:CharacterString>
+          </gmd:title>-->
+          <gmd:title>
+            <gco:CharacterString></gco:CharacterString>
           </gmd:title>
           <gmd:alternateTitle>
             <gco:CharacterString>Demonstration series XML for metadata standard version v3.1.2</gco:CharacterString>
@@ -378,8 +381,11 @@
             <gmd:MD_RestrictionCode codeList="https://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_RestrictionCode" codeListValue="otherRestrictions">otherRestrictions</gmd:MD_RestrictionCode>
           </gmd:useConstraints>
           <!-- Element 21.2 Other Constraints (M) -->
-          <gmd:otherConstraints>
+          <!--<gmd:otherConstraints>
             <gco:CharacterString>Access may be available upon request.</gco:CharacterString>
+          </gmd:otherConstraints>-->
+          <gmd:otherConstraints>
+            <gco:CharacterString></gco:CharacterString>
           </gmd:otherConstraints>
         </gmd:MD_LegalConstraints>
       </gmd:resourceConstraints>
