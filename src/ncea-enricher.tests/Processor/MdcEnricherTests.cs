@@ -36,7 +36,9 @@ public class MdcEnricherTests
         _searchableFieldConfigurations = new SearchableFieldConfigurations(_configuration);
         _searchService = new SearchService();
         _nodeService = new XmlNodeService(_configuration);
-        _xmlValidationService = new XPathValidationService(_configuration);
+
+        LoggerForTests.Get(out Mock<ILogger<XPathValidationService>> loggerMock);
+        _xmlValidationService = new XPathValidationService(_configuration, loggerMock.Object);
         _logger = _serviceProvider.GetService<ILogger<MdcEnricher>>()!;
     }
 

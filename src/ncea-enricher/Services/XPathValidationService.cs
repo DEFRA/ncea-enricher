@@ -1,15 +1,12 @@
 ﻿using Ncea.Enricher.Enums;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Services.Contracts;
-using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 using System.Xml.Linq;
-using System.Xml.Schema;
 using System.Xml.XPath;
 
 namespace Ncea.Enricher.Services;
 
-[ExcludeFromCodeCoverage]
 public class XPathValidationService : IXmlValidationService
 {
     private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
@@ -19,9 +16,11 @@ public class XPathValidationService : IXmlValidationService
     private const string MdcNamespace = "https://github.com/DEFRA/ncea-geonetwork/tree/main/core-geonetwork/schemas/iso19139/src/main/plugin/iso19139/schema2007/mdc";
 
     private readonly List<Field> _mdcFields;
+    private readonly ILogger<XPathValidationService> _logger;
 
-    public XPathValidationService(IConfiguration configuration)
+    public XPathValidationService(IConfiguration configuration, ILogger<XPathValidationService> logger)
     {
+        _logger = logger;        
         _mdcFields = configuration.GetSection("MdcFields").Get<List<Field>>()!;
     }
 
@@ -39,12 +38,17 @@ public class XPathValidationService : IXmlValidationService
         nsMgr.AddNamespace("mdc", MdcNamespace);
 
         var resourceType = GetResourceType(rootNode!, nsMgr);
-        if (resourceType == null)
+        if (resourceType != null)
         {
-            throw new XmlSchemaValidationException();
+            ValidateMandatoryFields(errorList, rootNode!, nsMgr, resourceType.Value);
         }
 
-        ValidateMandatoryFields(errorList, rootNode!, nsMgr, resourceType.Value);
+        if(errorList.Any())
+        {
+            var dataMismatchFieldNames = string.Join(",", errorList.ToArray());
+            var errorMessage = $"MDC Schema/Data mismatch detected on the mandatory fields : {dataMismatchFieldNames}";
+            _logger.LogWarning(errorMessage);
+        }
     }
 
     private void ValidateMandatoryFields(List<string> errorList, XElement rootNode, XmlNamespaceManager nsMgr, ResourceType resourceType)
@@ -77,14 +81,13 @@ public class XPathValidationService : IXmlValidationService
         if (parentElement != null)
         {
             var conditionalElement = parentElement.XPathSelectElement(field.ConditionalChild, nsMgr);
-            var relatedElement = parentElement.XPathSelectElement(field.RelatedChild, nsMgr);
+            var relatedElement = parentElement.Parent!.XPathSelectElement(field.RelatedChild, nsMgr);
             if (conditionalElement != null && relatedElement != null)
             {
                 if (string.IsNullOrWhiteSpace(conditionalElement.Value) || string.IsNullOrWhiteSpace(relatedElement.Value))
                 {
                     errorList.Add(fieldNameText);
                 }
-                errorList.Add(fieldNameText);
             }
             else
             {
@@ -118,7 +121,7 @@ public class XPathValidationService : IXmlValidationService
         var elements = rootNode.XPathSelectElements(field.XPath, nsMgr);
         if (elements != null)
         {
-            if (elements.Any())
+            if (!elements.Any())
             {
                 errorList.Add(fieldNameText);
             }
