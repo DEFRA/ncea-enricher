@@ -12,25 +12,29 @@ using Microsoft.Extensions.Azure;
 using Ncea.Enricher.Processors;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Storage.Files.Shares;
-using Ncea.Enricher.Constants;
 using Azure.Storage.Blobs;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Services;
+using Microsoft.FeatureManagement;
+using Ncea.Enricher.Enums;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
                                 .AddJsonFile("appsettings.json")
+                                .AddJsonFile("appsettings-fieldconfigurations.json")
                                 .AddEnvironmentVariables()
                                 .Build();
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<Worker>();
+builder.Configuration.AddJsonFile("appsettings-fieldconfigurations.json");
 
 builder.Services.AddHealthChecks().AddCheck<HealthCheck>("custom_hc");
 builder.Services.AddHostedService<TcpHealthProbeService>();
 
 builder.Services.AddHttpClient();
+builder.Services.AddFeatureManagement(configuration.GetSection("FeatureManagement"));
 
 ConfigureKeyVault(configuration, builder);
 ConfigureBlobStorage(configuration, builder);
@@ -40,7 +44,7 @@ ConfigureFileShareClient(configuration, builder);
 ConfigureServices(builder);
 
 var host = builder.Build();
-host.Run();
+await host.RunAsync();
 
 static async Task ConfigureServiceBusQueue(IConfigurationRoot configuration, HostApplicationBuilder builder)
 {
@@ -135,6 +139,7 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<ISearchableFieldConfigurations, SearchableFieldConfigurations>();
     builder.Services.AddSingleton<ISearchService, SearchService>();
     builder.Services.AddSingleton<IXmlNodeService, XmlNodeService>();
+    builder.Services.AddSingleton<IXmlValidationService, XPathValidationService>();
 
     builder.Services.AddMemoryCache();
     builder.Services.AddSingleton<ISynonymsProvider, SynonymsProvider>();

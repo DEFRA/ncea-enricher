@@ -23,5 +23,13 @@ public static class LoggerForTests
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()
             )
         );
+        mockLogger.Setup(x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            )
+        );
     }
 }

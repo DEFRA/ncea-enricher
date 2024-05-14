@@ -1,11 +1,12 @@
 ﻿using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Schema;
 using System.Xml.XPath;
 using Azure;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
+using Ncea.Enricher.Enums;
 using Ncea.Enricher.BusinessExceptions;
-using Ncea.Enricher.Constants;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Utils;
@@ -51,22 +52,22 @@ public class OrchestrationService : IOrchestrationService
         _logger.LogInformation("Received a messaage to enrich metadata");
 
         var dataSource = string.Empty;
-        var body = args.Message.Body.ToString();        
+        var mdcMappedData = args.Message.Body.ToString();
 
         try
         {
             dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
             var dataSourceName = Enum.Parse(typeof(DataSourceNames), dataSource!, true).ToString()!.ToLowerInvariant();
 
-            if (string.IsNullOrWhiteSpace(body))
+            if (string.IsNullOrWhiteSpace(mdcMappedData))
             {
                 throw new ArgumentException("Mappeed-queue message body should not be empty");
             }
 
-            _fileIdentifier = GetFileIdentifier(body)!;
-            var mdcMappedData = await _mdcEnricherSerivice.Enrich(_fileIdentifier, body);
+            _fileIdentifier = GetFileIdentifier(mdcMappedData)!;
+            var enrichedMetadata = await _mdcEnricherSerivice.Enrich(_fileIdentifier, mdcMappedData);
 
-            await SaveEnrichedXmlAsync(mdcMappedData, dataSourceName!);
+            await SaveEnrichedXmlAsync(enrichedMetadata, dataSourceName!);
 
             await args.CompleteMessageAsync(args.Message);
         }
@@ -79,10 +80,15 @@ public class OrchestrationService : IOrchestrationService
             var errorMessage = $"Error occured while reading the synonyms file during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
             await HandleException(args, ex, new SynonymsNotAccessibleException(errorMessage, ex));
         }
-        catch(DirectoryNotFoundException ex)
+        catch (DirectoryNotFoundException ex)
         {
             var errorMessage = $"Error occured while saving the xml file during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
             await HandleException(args, ex, new FileShareNotFoundException(errorMessage, ex));
+        }
+        catch (XmlSchemaValidationException ex)
+        {
+            var errorMessage = $"Error occured while validating enriched xml file during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
+            await HandleException(args, ex, new XmlValidationException(errorMessage, ex));
         }
         catch (Exception ex)
         {
