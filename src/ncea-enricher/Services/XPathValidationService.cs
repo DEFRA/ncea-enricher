@@ -129,7 +129,7 @@ public class XPathValidationService : IXmlValidationService
         }
     }
 
-    private ResourceType? GetResourceType(XElement rootNode, XmlNamespaceManager nsManager)
+    private static ResourceType? GetResourceType(XElement rootNode, XmlNamespaceManager nsManager)
     {
         var xpathResourceType = "//gmd:hierarchyLevel/gmd:MD_ScopeCode";
         var resourceTypeNode = rootNode.XPathSelectElement(xpathResourceType, nsManager);
