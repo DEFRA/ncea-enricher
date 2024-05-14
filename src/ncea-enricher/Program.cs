@@ -34,7 +34,7 @@ builder.Services.AddHealthChecks().AddCheck<HealthCheck>("custom_hc");
 builder.Services.AddHostedService<TcpHealthProbeService>();
 
 builder.Services.AddHttpClient();
-builder.Services.AddFeatureManagement(configuration.GetSection("MyFeatureFlags"));
+builder.Services.AddFeatureManagement(configuration.GetSection("FeatureManagement"));
 
 ConfigureKeyVault(configuration, builder);
 ConfigureBlobStorage(configuration, builder);
@@ -44,7 +44,7 @@ ConfigureFileShareClient(configuration, builder);
 ConfigureServices(builder);
 
 var host = builder.Build();
-host.Run();
+await host.RunAsync();
 
 static async Task ConfigureServiceBusQueue(IConfigurationRoot configuration, HostApplicationBuilder builder)
 {

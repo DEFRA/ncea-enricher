@@ -9,7 +9,7 @@ namespace Ncea.Enricher.Tests.Services;
 
 public class XPathValidationServiceTests
 {
-    private readonly IXmlValidationService _xpathValidationService;
+    private readonly XPathValidationService _xpathValidationService;
     
     public XPathValidationServiceTests()
     {

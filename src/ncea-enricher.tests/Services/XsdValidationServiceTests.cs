@@ -9,7 +9,7 @@ namespace Ncea.Enricher.Tests.Services;
 
 public class XsdValidationServiceTests
 {
-    private readonly IXmlValidationService _xmlValidationService;
+    private readonly XsdValidationService _xmlValidationService;
     private readonly Mock<ILogger<XsdValidationService>> _loggerMock;
     
     public XsdValidationServiceTests()

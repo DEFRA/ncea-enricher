@@ -16,15 +16,16 @@ public class XPathValidationService : IXmlValidationService
     private const string GmlNamespace = "http://www.opengis.net/gml/3.2";
     private const string MdcNamespace = "https://github.com/DEFRA/ncea-geonetwork/tree/main/core-geonetwork/schemas/iso19139/src/main/plugin/iso19139/schema2007/mdc";
 
-    private readonly List<Field> _mandatoryFields;
+    private readonly List<Field> _mdcFields;
 
     public XPathValidationService(IConfiguration configuration)
     {
-        _mandatoryFields = configuration.GetSection("MandatoryFields").Get<List<Field>>()!;
+        _mdcFields = configuration.GetSection("MdcFields").Get<List<Field>>()!;
     }
 
     public void Validate(XDocument xDoc)
     {
+        var errorList = new List<string>();
         var rootNode = xDoc.Root;
 
         var reader = xDoc.CreateReader();
@@ -36,14 +37,21 @@ public class XPathValidationService : IXmlValidationService
         nsMgr.AddNamespace("mdc", MdcNamespace);
 
         var resourceType = GetResourceType(rootNode!, nsMgr);
-        if(resourceType == null)
+        if (resourceType == null)
         {
             throw new XmlSchemaValidationException();
         }
-        var fieldsToBeValidated = _mandatoryFields.Where(x => x.RelevantFor.Contains((ResourceType)resourceType!)).ToList();
 
-        var errorList = new List<string>();
-        foreach(var field in fieldsToBeValidated)
+        ValidateMandatoryFields(errorList, rootNode!, nsMgr, resourceType.Value);
+    }
+
+    private void ValidateMandatoryFields(List<string> errorList, XElement rootNode, XmlNamespaceManager nsMgr, ResourceType resourceType)
+    {
+        var fieldsToBeValidated = _mdcFields
+            .Where(x  => x.Obligation == MdcObligation.Mandatory && x.RelevantFor.Contains(resourceType))
+            .ToList();
+
+        foreach (var field in fieldsToBeValidated)
         {
             var fieldNameText = field.Name.ToString();
             if (field.Type == FieldType.List)
@@ -59,11 +67,6 @@ public class XPathValidationService : IXmlValidationService
                 CheckTextField(rootNode!, nsMgr, errorList, field, fieldNameText);
             }
         }
-
-        //if(errorList.Count() > 0)
-        //{
-        //    throw new XmlSchemaValidationException("");
-        //}
     }
 
     private static void CheckConditionalTextField(XElement rootNode, XmlNamespaceManager nsMgr, List<string> errorList, Field field, string fieldNameText)
@@ -113,7 +116,7 @@ public class XPathValidationService : IXmlValidationService
         var elements = rootNode.XPathSelectElements(field.XPath, nsMgr);
         if (elements != null)
         {
-            if (elements.Count() == 0)
+            if (elements.Any())
             {
                 errorList.Add(fieldNameText);
             }
