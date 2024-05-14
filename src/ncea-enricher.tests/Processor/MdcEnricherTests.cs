@@ -46,6 +46,7 @@ public class MdcEnricherTests
         //Arrange
         var featureManagerMock = new Mock<IFeatureManager>();
         featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature)).ReturnsAsync(true);
+        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MdcValidationFeature)).ReturnsAsync(true);
 
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "fff8010e6a805ba79102d35dbdda4d93.xml");
         var xDoc = new XmlDocument();
@@ -68,6 +69,7 @@ public class MdcEnricherTests
         //Arrange
         var featureManagerMock = new Mock<IFeatureManager>();
         featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature)).ReturnsAsync(false);
+        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MdcValidationFeature)).ReturnsAsync(false);
 
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "fff8010e6a805ba79102d35dbdda4d93.xml");
         var xDoc = new XmlDocument();

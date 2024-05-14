@@ -54,7 +54,10 @@ public class MdcEnricher : IEnricherService
 
         _xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(nsMgr, rootNode, matchedClassifiers);
 
-        _xmlValidationService.Validate(xDoc);
+        if (await _featureManager.IsEnabledAsync(FeatureFlags.MdcValidationFeature))
+        {
+            _xmlValidationService.Validate(xDoc);
+        }
         
         _logger.LogInformation(InfoLogMessage2, fileIdentifier);
 

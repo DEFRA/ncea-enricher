@@ -13,6 +13,10 @@ public class SearchableFieldConfigurations : ISearchableFieldConfigurations
     }
     public List<Field> GetAll()
     {
-        return _configuration.GetSection("SearchableFields").Get<List<Field>>()!;
+        var mdcFields = _configuration.GetSection("MdcFields").Get<List<Field>>()!;
+        
+        return mdcFields
+            .Where(x => x.UsedForNceaProfiling == true)
+            .ToList();
     }
 }

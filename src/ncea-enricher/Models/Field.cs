@@ -11,4 +11,5 @@ public class Field
     public string RelatedChild { get; set; } = null!;
     public List<ResourceType> RelevantFor { get; set; } = null!;
     public MdcObligation Obligation { get; set; }
+    public bool UsedForNceaProfiling { get; set; }
 }

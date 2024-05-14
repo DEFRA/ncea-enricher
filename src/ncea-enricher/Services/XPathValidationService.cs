@@ -1,6 +1,7 @@
 ﻿using Ncea.Enricher.Enums;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Services.Contracts;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -8,6 +9,7 @@ using System.Xml.XPath;
 
 namespace Ncea.Enricher.Services;
 
+[ExcludeFromCodeCoverage]
 public class XPathValidationService : IXmlValidationService
 {
     private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";

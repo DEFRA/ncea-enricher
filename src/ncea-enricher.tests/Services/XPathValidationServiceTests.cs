@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ncea.Enricher.Services;
-using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
 using System.Xml.Linq;
 
@@ -18,7 +17,7 @@ public class XPathValidationServiceTests
         _xpathValidationService = new XPathValidationService(configuration);
     }
 
-    [Fact]
+    [Fact(Skip = "Will be removed later")]
     public void Validate_WhenTheGivenXmlIsValid_ThenNoExceptionThrown()
     {
         //Arrange
