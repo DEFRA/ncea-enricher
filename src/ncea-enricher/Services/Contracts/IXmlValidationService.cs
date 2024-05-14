@@ -4,5 +4,5 @@ namespace Ncea.Enricher.Services.Contracts;
 
 public interface IXmlValidationService
 {
-    void Validate(XDocument xDoc);
+    void Validate(XDocument xDoc, string fileIdentifier);
 }

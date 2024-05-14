@@ -17,11 +17,12 @@ public class XsdValidationService : IXmlValidationService
     private const string GmlSchema = "https://schemas.opengis.net/gml/3.2.1/gml.xsd";
     private const string MdcSchema = "https://github.com/DEFRA/ncea-geonetwork/tree/main/core-geonetwork/schemas/iso19139/src/main/plugin/iso19139/schema2007/mdc";
 
+    private List<string>? _errorList;
     private readonly XmlSchemaSet _schemas;
     private readonly ILogger<XsdValidationService> _logger;
 
     public XsdValidationService(ILogger<XsdValidationService> logger)
-    {
+    {        
         _logger = logger;
 
         _schemas = new XmlSchemaSet();
@@ -35,16 +36,23 @@ public class XsdValidationService : IXmlValidationService
         _schemas.Compile();
     }
 
-    public void Validate(XDocument xDoc)
+    public void Validate(XDocument xDoc, string fileIdentifier)
     {
+        _errorList = [];
         xDoc.Validate(_schemas, ValidationEventHandler!);
+
+        if (_errorList.Count != 0)
+        {           
+            var errorMessage = $"MDC Schema/Data mismatch detected on xml with FileIdentifier : {fileIdentifier}";
+            CustomLogger.LogWarningMessage(_logger, errorMessage, null);
+        }
     }
 
     private void ValidationEventHandler(object sender, ValidationEventArgs e)
     {
         if (Enum.TryParse<XmlSeverityType>("Error", out XmlSeverityType type) && type == XmlSeverityType.Error)
         {
-            throw new XmlSchemaValidationException(e.Message, e.Exception);
+            _errorList!.Add(e.Message);
         }
     }
 

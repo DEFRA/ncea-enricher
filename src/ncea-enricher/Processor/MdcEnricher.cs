@@ -10,8 +10,8 @@ namespace Ncea.Enricher.Processors;
 
 public class MdcEnricher : IEnricherService
 {
-    private const string InfoLogMessage1 = "Enriching metadata in-progress for DataSource: Medin, FileIdentifier: {fileIdentifier}";
-    private const string InfoLogMessage2 = "Enriching metadata completed for DataSource: Medin, FileIdentifier: {fileIdentifier}";    
+    private const string InfoLogMessage1 = "Enriching metadata in-progress for FileIdentifier: {fileIdentifier}";
+    private const string InfoLogMessage2 = "Enriching metadata completed for FileIdentifier: {fileIdentifier}";    
     
     private readonly ISynonymsProvider _synonymsProvider;
     private readonly ISearchableFieldConfigurations _searchableFieldConfigurations;
@@ -56,7 +56,7 @@ public class MdcEnricher : IEnricherService
 
         if (await _featureManager.IsEnabledAsync(FeatureFlags.MdcValidationFeature))
         {
-            _xmlValidationService.Validate(xDoc);
+            _xmlValidationService.Validate(xDoc, fileIdentifier);
         }
         
         _logger.LogInformation(InfoLogMessage2, fileIdentifier);

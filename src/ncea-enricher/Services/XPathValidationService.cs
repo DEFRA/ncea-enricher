@@ -1,6 +1,7 @@
 ﻿using Ncea.Enricher.Enums;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Services.Contracts;
+using Ncea.Enricher.Utils;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -24,7 +25,7 @@ public class XPathValidationService : IXmlValidationService
         _mdcFields = configuration.GetSection("MdcFields").Get<List<Field>>()!;
     }
 
-    public void Validate(XDocument xDoc)
+    public void Validate(XDocument xDoc, string fileIdentifier)
     {
         var errorList = new List<string>();
         var rootNode = xDoc.Root;
@@ -43,11 +44,11 @@ public class XPathValidationService : IXmlValidationService
             ValidateMandatoryFields(errorList, rootNode!, nsMgr, resourceType.Value);
         }
 
-        if(errorList.Any())
+        if(errorList.Count != 0)
         {
             var dataMismatchFieldNames = string.Join(",", errorList.ToArray());
-            var errorMessage = $"MDC Schema/Data mismatch detected on the mandatory fields : {dataMismatchFieldNames}";
-            _logger.LogWarning(errorMessage);
+            var errorMessage = $"MDC Schema/Data mismatch detected on the mandatory fields : {dataMismatchFieldNames} of xml with FileIdentifier : {fileIdentifier}";
+            CustomLogger.LogWarningMessage(_logger, errorMessage, null);
         }
     }
 

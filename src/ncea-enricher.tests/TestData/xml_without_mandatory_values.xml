@@ -396,8 +396,11 @@
         </gmd:MD_Resolution>
       </gmd:spatialResolution>
       <!-- 8 Resource languages (C) -->
-      <gmd:language>
+      <!--<gmd:language>
         <gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/php/code_list.php" codeListValue="eng">English</gmd:LanguageCode>
+      </gmd:language>-->
+      <gmd:language>
+        <gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/php/code_list.php" codeListValue="eng"></gmd:LanguageCode>
       </gmd:language>
       <!-- 33 Character encoding (C) -->
       <gmd:characterSet>

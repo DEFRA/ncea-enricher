@@ -30,7 +30,7 @@ public class XPathValidationServiceTests
         var xDoc = XDocument.Load(filePath);
 
         //Act
-        _xpathValidationService.Validate(xDoc!);
+        _xpathValidationService.Validate(xDoc!, It.IsAny<string>());
 
         //Assert
         _loggerMock.Verify(x => x.Log(LogLevel.Warning,
@@ -44,11 +44,11 @@ public class XPathValidationServiceTests
     public void Validate_WhenTheEnrichedXmlValidationFails_ThenLogWarning()
     {
         //Arrange
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "xml_without_fileidentifier_node.xml");
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "xml_without_mandatory_values.xml");
         var xDoc = XDocument.Load(filePath);
 
         //Act
-        _xpathValidationService.Validate(xDoc!);
+        _xpathValidationService.Validate(xDoc!, It.IsAny<string>());
 
         //Assert
         _loggerMock.Verify(x => x.Log(LogLevel.Warning,

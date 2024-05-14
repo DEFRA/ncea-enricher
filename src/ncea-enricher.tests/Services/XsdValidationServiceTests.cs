@@ -26,7 +26,7 @@ public class XsdValidationServiceTests
         var xDoc = XDocument.Load(filePath);
 
         //Act
-        _xmlValidationService.Validate(xDoc!);
+        _xmlValidationService.Validate(xDoc!, It.IsAny<string>());
 
         //Assert
         _loggerMock.Verify(x => x.Log(LogLevel.Error,
@@ -44,7 +44,7 @@ public class XsdValidationServiceTests
         var xDoc = XDocument.Load(filePath);
 
         //Act
-        _xmlValidationService.Validate(xDoc!);
+        _xmlValidationService.Validate(xDoc!, It.IsAny<string>());
 
         //Assert
         _loggerMock.Verify(x => x.Log(LogLevel.Error,
