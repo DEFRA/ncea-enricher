@@ -36,7 +36,7 @@ public class MdcEnricherTests
         _searchableFieldConfigurations = new SearchableFieldConfigurations(_configuration);
         _searchService = new SearchService();
         _nodeService = new XmlNodeService(_configuration);
-        _xmlValidationService = new XsdValidationService(_serviceProvider.GetService<ILogger<XsdValidationService>>()!);
+        _xmlValidationService = new XPathValidationService(_configuration);
         _logger = _serviceProvider.GetService<ILogger<MdcEnricher>>()!;
     }
 

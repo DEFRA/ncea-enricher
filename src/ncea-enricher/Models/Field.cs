@@ -1,4 +1,4 @@
-﻿using Ncea.Enricher.Constants;
+﻿using Ncea.Enricher.Enums;
 
 namespace Ncea.Enricher.Models;
 

@@ -1,4 +1,5 @@
-﻿using Ncea.Enricher.Models;
+﻿using Ncea.Enricher.Enums;
+using Ncea.Enricher.Models;
 using Ncea.Enricher.Services.Contracts;
 using System.Xml;
 using System.Xml.Linq;
@@ -57,7 +58,7 @@ public class XmlNodeService : IXmlNodeService
     {
         var value = string.Empty;
 
-        if (field.Type == Constants.FieldType.List)
+        if (field.Type == FieldType.List)
         {
             var elements = rootNode.XPathSelectElements(field.XPath, nsMgr);
             if (elements != null && elements.Any())

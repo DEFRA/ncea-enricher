@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Ncea.Enricher.Enums;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Services;
 using Ncea.Enricher.Tests.Clients;
@@ -159,8 +160,8 @@ public class XmlNodeServiceTests
         var xmlNodeService = new XmlNodeService(configuration!);
         var field = new Field
         {
-            Name = Constants.FieldName.Title,
-            Type =  Constants.FieldType.Text,
+            Name = FieldName.Title,
+            Type =  FieldType.Text,
             XPath = "//gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString"
         };
 
@@ -181,8 +182,8 @@ public class XmlNodeServiceTests
         var xmlNodeService = new XmlNodeService(configuration!);
         var field = new Field
         {
-            Name = Constants.FieldName.Title,
-            Type = Constants.FieldType.Text,
+            Name = FieldName.Title,
+            Type = FieldType.Text,
             XPath = "//gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString1"
         };
 
@@ -203,8 +204,8 @@ public class XmlNodeServiceTests
         var xmlNodeService = new XmlNodeService(configuration!);
         var field = new Field
         {
-            Name = Constants.FieldName.Title,
-            Type = Constants.FieldType.List,
+            Name = FieldName.Title,
+            Type = FieldType.List,
             XPath = "//gmd:identificationInfo/gmd:MD_DataIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gmx:Anchor"
         };
 
@@ -226,8 +227,8 @@ public class XmlNodeServiceTests
         var xmlNodeService = new XmlNodeService(configuration!);
         var field = new Field
         {
-            Name = Constants.FieldName.Title,
-            Type = Constants.FieldType.List,
+            Name = FieldName.Title,
+            Type = FieldType.List,
             XPath = "//gmd:identificationInfo/gmd:MD_DataIdentification/gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gmx:Anchor1"
         };
 

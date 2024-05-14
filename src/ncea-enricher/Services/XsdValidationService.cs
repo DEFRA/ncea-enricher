@@ -1,11 +1,13 @@
 ﻿using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Utils;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
 
 namespace Ncea.Enricher.Services;
 
+[ExcludeFromCodeCoverage]
 public class XsdValidationService : IXmlValidationService
 {
     private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";

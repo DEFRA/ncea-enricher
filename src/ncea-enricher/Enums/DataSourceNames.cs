@@ -1,4 +1,4 @@
-﻿namespace Ncea.Enricher.Constants;
+﻿namespace Ncea.Enricher.Enums;
 
 public enum DataSourceNames
 {

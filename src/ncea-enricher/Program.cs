@@ -12,12 +12,12 @@ using Microsoft.Extensions.Azure;
 using Ncea.Enricher.Processors;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Storage.Files.Shares;
-using Ncea.Enricher.Constants;
 using Azure.Storage.Blobs;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Services;
 using Microsoft.FeatureManagement;
+using Ncea.Enricher.Enums;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())

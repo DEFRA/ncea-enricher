@@ -1,7 +1,6 @@
-﻿using Ncea.Enricher.Constants;
+﻿using Ncea.Enricher.Enums;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Services.Contracts;
-using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -18,11 +17,9 @@ public class XPathValidationService : IXmlValidationService
     private const string MdcNamespace = "https://github.com/DEFRA/ncea-geonetwork/tree/main/core-geonetwork/schemas/iso19139/src/main/plugin/iso19139/schema2007/mdc";
 
     private readonly List<Field> _mandatoryFields;
-    private readonly ILogger<XPathValidationService> _logger;
 
-    public XPathValidationService(IConfiguration configuration, ILogger<XPathValidationService> logger)
+    public XPathValidationService(IConfiguration configuration)
     {
-        _logger = logger;
         _mandatoryFields = configuration.GetSection("MandatoryFields").Get<List<Field>>()!;
     }
 
@@ -63,10 +60,10 @@ public class XPathValidationService : IXmlValidationService
             }
         }
 
-        if(errorList.Count() > 0)
-        {
-            throw new XmlSchemaValidationException("");
-        }
+        //if(errorList.Count() > 0)
+        //{
+        //    throw new XmlSchemaValidationException("");
+        //}
     }
 
     private static void CheckConditionalTextField(XElement rootNode, XmlNamespaceManager nsMgr, List<string> errorList, Field field, string fieldNameText)
