@@ -58,7 +58,7 @@ public class MdcEnricherTests
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
-        var result = await medinService.Enrich("test-file-id", mappedMetadataXml, It.IsAny<CancellationToken>());
+        var result = await medinService.Enrich(It.IsAny<string>(), "test-file-id", mappedMetadataXml, It.IsAny<CancellationToken>());
 
         // Assert
         result.Should().NotBeNull();
@@ -81,7 +81,7 @@ public class MdcEnricherTests
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
-        var result = await medinService.Enrich("test-file-id", mappedMetadataXml, It.IsAny<CancellationToken>());
+        var result = await medinService.Enrich(It.IsAny<string>(), "test-file-id", mappedMetadataXml, It.IsAny<CancellationToken>());
 
         // Assert
         result.Should().NotBeNull();

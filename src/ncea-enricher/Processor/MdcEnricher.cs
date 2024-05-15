@@ -10,8 +10,8 @@ namespace Ncea.Enricher.Processors;
 
 public class MdcEnricher : IEnricherService
 {
-    private const string InfoLogMessage1 = "Enriching metadata in-progress for FileIdentifier: {fileIdentifier}";
-    private const string InfoLogMessage2 = "Enriching metadata completed for FileIdentifier: {fileIdentifier}";    
+    private const string InfoLogMessage1 = "Enriching metadata in-progress for DataSource: {dataSource}, FileIdentifier: {fileIdentifier}";
+    private const string InfoLogMessage2 = "Enriching metadata completed for DataSource: {dataSource}, FileIdentifier: {fileIdentifier}";    
     
     private readonly ISynonymsProvider _synonymsProvider;
     private readonly ISearchableFieldConfigurations _searchableFieldConfigurations;
@@ -37,9 +37,9 @@ public class MdcEnricher : IEnricherService
         _featureManager = featureManager;
         _logger = logger;
     }
-    public async Task<string> Enrich(string fileIdentifier, string mappedData, CancellationToken cancellationToken = default)
+    public async Task<string> Enrich(string dataSource, string fileIdentifier, string mappedData, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation(InfoLogMessage1, fileIdentifier);        
+        _logger.LogInformation(InfoLogMessage1, dataSource, fileIdentifier);        
 
         var xDoc = XDocument.Parse(mappedData);
         var nsMgr = _xmlNodeService.GetXmlNamespaceManager(xDoc);
@@ -56,10 +56,10 @@ public class MdcEnricher : IEnricherService
 
         if (await _featureManager.IsEnabledAsync(FeatureFlags.MdcValidationFeature))
         {
-            _xmlValidationService.Validate(xDoc, fileIdentifier);
+            _xmlValidationService.Validate(xDoc, dataSource, fileIdentifier);
         }
         
-        _logger.LogInformation(InfoLogMessage2, fileIdentifier);
+        _logger.LogInformation(InfoLogMessage2, dataSource, fileIdentifier);
 
         return await Task.FromResult(xDoc.ToString());
     }

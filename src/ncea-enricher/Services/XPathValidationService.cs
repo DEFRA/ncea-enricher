@@ -25,7 +25,7 @@ public class XPathValidationService : IXmlValidationService
         _mdcFields = configuration.GetSection("MdcFields").Get<List<Field>>()!;
     }
 
-    public void Validate(XDocument xDoc, string fileIdentifier)
+    public void Validate(XDocument xDoc, string dataSource, string fileIdentifier)
     {
         var errorList = new List<string>();
         var rootNode = xDoc.Root;
@@ -46,8 +46,8 @@ public class XPathValidationService : IXmlValidationService
 
         if(errorList.Count != 0)
         {
-            var dataMismatchFieldNames = string.Join(",", errorList.ToArray());
-            var errorMessage = $"MDC Schema/Data mismatch detected on the mandatory fields : {dataMismatchFieldNames} of xml with FileIdentifier : {fileIdentifier}";
+            var dataMismatchFieldNames = string.Join(", ", errorList.ToArray());
+            var errorMessage = $"MDC Schema/Data mismatch detected on the mandatory fields : '{dataMismatchFieldNames}' of xml with FileIdentifier : {fileIdentifier}, DataSource : {dataSource}";
             CustomLogger.LogWarningMessage(_logger, errorMessage, null);
         }
     }

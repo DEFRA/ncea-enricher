@@ -2,5 +2,5 @@
 
 public interface IEnricherService
 {
-    Task<string> Enrich(string fileIdentifier, string mappedData, CancellationToken cancellationToken = default);
+    Task<string> Enrich(string dataSource, string fileIdentifier, string mappedData, CancellationToken cancellationToken = default);
 }
