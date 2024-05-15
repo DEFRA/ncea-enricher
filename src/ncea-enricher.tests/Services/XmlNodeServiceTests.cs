@@ -21,9 +21,9 @@ public class XmlNodeServiceTests
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
         _xDoc = XDocument.Load(filePath);
+        _xmlNamespaceManager = GetXmlNamespaceManager();
 
         _serviceProvider = ServiceProviderForTests.Get();
-        _xmlNamespaceManager = GetXmlNamespaceManager();
     }
 
     [Fact]
@@ -166,7 +166,7 @@ public class XmlNodeServiceTests
         };
 
         // Act
-        var result = xmlNodeService.GetNodeValues(field, _xDoc.Root!, _xmlNamespaceManager);
+        var result = xmlNodeService.GetNodeValues(field, _xDoc.Root!);
 
         // Assert
         result.Should().NotBeNull();
@@ -188,7 +188,7 @@ public class XmlNodeServiceTests
         };
 
         // Act
-        var result = xmlNodeService.GetNodeValues(field, _xDoc.Root!, _xmlNamespaceManager);
+        var result = xmlNodeService.GetNodeValues(field, _xDoc.Root!);
 
         // Assert
         result.Should().NotBeNull();
@@ -210,7 +210,7 @@ public class XmlNodeServiceTests
         };
 
         // Act
-        var result = xmlNodeService.GetNodeValues(field, _xDoc.Root!, _xmlNamespaceManager);
+        var result = xmlNodeService.GetNodeValues(field, _xDoc.Root!);
 
         // Assert
         result.Should().NotBeNull();
@@ -233,7 +233,7 @@ public class XmlNodeServiceTests
         };
 
         // Act
-        var result = xmlNodeService.GetNodeValues(field, _xDoc.Root!, _xmlNamespaceManager);
+        var result = xmlNodeService.GetNodeValues(field, _xDoc.Root!);
 
         // Assert
         result.Should().NotBeNull();
@@ -249,7 +249,7 @@ public class XmlNodeServiceTests
         var xmlNodeService = new XmlNodeService(configuration!);
 
         // Act
-        var result = xmlNodeService.GetNCClassifiersParentNode(_xDoc.Root!, _xmlNamespaceManager);
+        var result = xmlNodeService.GetNCClassifiersParentNode(_xDoc.Root!);
 
         // Assert
         result.Should().NotBeNull();
@@ -262,10 +262,10 @@ public class XmlNodeServiceTests
         // Arrange
         var configuration = _serviceProvider.GetService<IConfiguration>();
         var xmlNodeService = new XmlNodeService(configuration!);
-        xmlNodeService.GetNCClassifiersParentNode(_xDoc.Root!, _xmlNamespaceManager);
+        xmlNodeService.GetNCClassifiersParentNode(_xDoc.Root!);
 
         // Act
-        var result = xmlNodeService.GetNCClassifiersParentNode(_xDoc.Root!, _xmlNamespaceManager);
+        var result = xmlNodeService.GetNCClassifiersParentNode(_xDoc.Root!);
 
         // Assert
         result.Should().NotBeNull();
@@ -284,7 +284,7 @@ public class XmlNodeServiceTests
         var xDoc = XDocument.Load(filePath);
 
         // Act
-        xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(_xmlNamespaceManager!, xDoc.Root!, matchedClassifier);
+        xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(xDoc.Root!, matchedClassifier);
 
         // Assert
         var nceaClassifierInfo = xDoc.XPathSelectElement("//mdc:nceaClassifierInfo", _xmlNamespaceManager);
@@ -314,7 +314,7 @@ public class XmlNodeServiceTests
         var xDoc = XDocument.Load(filePath);
 
         // Act
-        xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(_xmlNamespaceManager!, xDoc.Root!, matchedClassifier);
+        xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(xDoc.Root!, matchedClassifier);
 
         // Assert
         var nceaClassifierInfo = xDoc.XPathSelectElement("//mdc:nceaClassifierInfo", _xmlNamespaceManager);
@@ -326,30 +326,9 @@ public class XmlNodeServiceTests
         ncClassifiers!.Elements().Count().Should().Be(2);
     }
 
-    [Fact]
-    public void GetXmlNamespaceManager_ReturnsNamespaceManager()
-    {
-        // Arrange
-        var configuration = _serviceProvider.GetService<IConfiguration>();
-        var xmlNodeService = new XmlNodeService(configuration!);        
-
-        // Act
-        var result = xmlNodeService.GetXmlNamespaceManager(_xDoc);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().BeOfType<XmlNamespaceManager>();
-        result.HasNamespace("gmd").Should().BeTrue();
-        result.HasNamespace("gco").Should().BeTrue();
-        result.HasNamespace("gmx").Should().BeTrue();
-        result.HasNamespace("mdc").Should().BeTrue();
-    }
-
-
     private XmlNamespaceManager GetXmlNamespaceManager()
-    {
-        var reader = _xDoc.CreateReader();
-        XmlNamespaceManager nsMgr = new XmlNamespaceManager(reader.NameTable);
+    {        
+        XmlNamespaceManager nsMgr = new XmlNamespaceManager(new NameTable());
         nsMgr.AddNamespace("gmd", "http://www.isotc211.org/2005/gmd");
         nsMgr.AddNamespace("gco", "http://www.isotc211.org/2005/gco");
         nsMgr.AddNamespace("gmx", "http://www.isotc211.org/2005/gmx");

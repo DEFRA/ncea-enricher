@@ -10,15 +10,12 @@ using Ncea.Enricher.BusinessExceptions;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Utils;
+using Ncea.Enricher.Constants;
 
 namespace Ncea.Enricher.Services;
 
 public class OrchestrationService : IOrchestrationService
 {
-    private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
-    private const string GcoNamespace = "http://www.isotc211.org/2005/gco";
-    private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
-
     private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
 
     private readonly string _fileShareName;
@@ -147,9 +144,9 @@ public class OrchestrationService : IOrchestrationService
 
         var reader = xDoc.CreateReader();
         var nsMgr = new XmlNamespaceManager(reader.NameTable);
-        nsMgr.AddNamespace("gmd", GmdNamespace);
-        nsMgr.AddNamespace("gco", GcoNamespace);
-        nsMgr.AddNamespace("gmx", GmxNamespace);
+        nsMgr.AddNamespace("gmd", XmlNamespaces.Gmd);
+        nsMgr.AddNamespace("gco", XmlNamespaces.Gco);
+        nsMgr.AddNamespace("gmx", XmlNamespaces.Gmx);
 
         var identifierNode = rootNode!.XPathSelectElement("//gmd:fileIdentifier/gco:CharacterString", nsMgr);
         return identifierNode != null ? identifierNode.Value : null;
