@@ -30,7 +30,7 @@ public class XPathValidationServiceTests
         var xDoc = XDocument.Load(filePath);
 
         //Act
-        _xpathValidationService.Validate(xDoc!, It.IsAny<string>());
+        _xpathValidationService.Validate(xDoc!, It.IsAny<string>(), It.IsAny<string>());
 
         //Assert
         _loggerMock.Verify(x => x.Log(LogLevel.Warning,
@@ -48,7 +48,7 @@ public class XPathValidationServiceTests
         var xDoc = XDocument.Load(filePath);
 
         //Act
-        _xpathValidationService.Validate(xDoc!, It.IsAny<string>());
+        _xpathValidationService.Validate(xDoc!, "test-data-source", "test-file-identifier");
 
         //Assert
         _loggerMock.Verify(x => x.Log(LogLevel.Warning,

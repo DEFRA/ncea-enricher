@@ -1,4 +1,5 @@
-﻿using Ncea.Enricher.Enums;
+﻿using Ncea.Enricher.Constants;
+using Ncea.Enricher.Enums;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Services.Contracts;
 using System.Xml;
@@ -9,15 +10,20 @@ namespace Ncea.Enricher.Services;
 
 public class XmlNodeService : IXmlNodeService
 {
-    private const string GmdNamespace = "http://www.isotc211.org/2005/gmd";
-    private const string GcoNamespace = "http://www.isotc211.org/2005/gco";
-    private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
-
     private readonly string _mdcSchemaLocationPath;
+    private readonly XmlNamespaceManager _nsMgr;
 
     public XmlNodeService(IConfiguration configuration)
     {
         _mdcSchemaLocationPath = configuration.GetValue<string>("MdcSchemaLocation")!;
+
+        _nsMgr = new XmlNamespaceManager(new NameTable());
+        _nsMgr.AddNamespace("gmd", XmlNamespaces.Gmd);
+        _nsMgr.AddNamespace("gco", XmlNamespaces.Gco);
+        _nsMgr.AddNamespace("gmx", XmlNamespaces.Gmx);
+        _nsMgr.AddNamespace("gml", XmlNamespaces.Gml);
+        _nsMgr.AddNamespace("srv", XmlNamespaces.Srv);
+        _nsMgr.AddNamespace("mdc", _mdcSchemaLocationPath);
     }
 
     public XElement CreateClassifierNode(Classifier parentClassifier, List<Classifier>? childClassifers)
@@ -54,13 +60,13 @@ public class XmlNodeService : IXmlNodeService
         return classifier;
     }
 
-    public string GetNodeValues(Field field, XElement rootNode, XmlNamespaceManager nsMgr)
+    public string GetNodeValues(Field field, XElement rootNode)
     {
         var value = string.Empty;
 
         if (field.Type == FieldType.List)
         {
-            var elements = rootNode.XPathSelectElements(field.XPath, nsMgr);
+            var elements = rootNode.XPathSelectElements(field.XPath, _nsMgr);
             if (elements != null && elements.Any())
             {
                 var values = elements.Select(x => x.Value).ToList();
@@ -69,22 +75,38 @@ public class XmlNodeService : IXmlNodeService
         }
         else
         {
-            var element = rootNode.XPathSelectElement(field.XPath, nsMgr);
+            var element = rootNode.XPathSelectElement(field.XPath, _nsMgr);
             return element != null ? element.Value : string.Empty;
         }
 
         return value;
     }
 
-    public void EnrichMetadataXmlWithNceaClassifiers(XmlNamespaceManager nsMgr, XElement rootNode, HashSet<Classifier> matchedClassifiers)
+    public void EnrichMetadataXmlWithNceaClassifiers(XElement rootNode, HashSet<Classifier> matchedClassifiers)
     {
-        var ncClassifiersParentNode = GetNCClassifiersParentNode(rootNode, nsMgr);
+        var ncClassifiersParentNode = GetNCClassifiersParentNode(rootNode);
         var nceaClassifiers = BuildClassifierHierarchies(matchedClassifiers.ToList());
         foreach (var nceaClassifier in nceaClassifiers)
         {
             var element = CreateClassifierNode(nceaClassifier, nceaClassifier.Children);
             ncClassifiersParentNode.Add(element);
         }
+    }    
+
+    public XElement GetNCClassifiersParentNode(XElement rootNode)
+    {
+        var classifierInfo = rootNode.XPathSelectElement("//mdc:nceaClassifierInfo", _nsMgr);
+        if (classifierInfo != null)
+        {
+            return classifierInfo.Elements().FirstOrDefault()!;
+        }
+
+        XNamespace mdcSchemaLocation = _mdcSchemaLocationPath;
+        var nceaClassifierInfo = new XElement(mdcSchemaLocation + "nceaClassifierInfo");
+        var nc_Classifiers = new XElement(mdcSchemaLocation + "NC_Classifiers");
+        nceaClassifierInfo.Add(nc_Classifiers);
+        rootNode.Add(nceaClassifierInfo);
+        return nc_Classifiers;
     }
 
     private static List<Classifier> BuildClassifierHierarchies(List<Classifier> flattenedClassifierList)
@@ -111,36 +133,5 @@ public class XmlNodeService : IXmlNodeService
         hierarchicalItems.ForEach(SetChildren);
 
         return hierarchicalItems;
-    }
-
-    public XmlNamespaceManager GetXmlNamespaceManager(XDocument xDoc)
-    {
-        var reader = xDoc.CreateReader();
-        XmlNamespaceManager nsMgr = new XmlNamespaceManager(reader.NameTable);
-        nsMgr.AddNamespace("gmd", GmdNamespace);
-        nsMgr.AddNamespace("gco", GcoNamespace);
-        nsMgr.AddNamespace("gmx", GmxNamespace);
-        nsMgr.AddNamespace("mdc", _mdcSchemaLocationPath);
-
-        return nsMgr;
-    }
-
-
-    public XElement GetNCClassifiersParentNode(XElement rootNode, XmlNamespaceManager nsMgr)
-    {
-        nsMgr.AddNamespace("mdc", _mdcSchemaLocationPath);
-
-        var classifierInfo = rootNode.XPathSelectElement("//mdc:nceaClassifierInfo", nsMgr);
-        if (classifierInfo != null)
-        {
-            return classifierInfo.Elements().FirstOrDefault()!;
-        }
-
-        XNamespace mdcSchemaLocation = _mdcSchemaLocationPath;
-        var nceaClassifierInfo = new XElement(mdcSchemaLocation + "nceaClassifierInfo");
-        var nc_Classifiers = new XElement(mdcSchemaLocation + "NC_Classifiers");
-        nceaClassifierInfo.Add(nc_Classifiers);
-        rootNode.Add(nceaClassifierInfo);
-        return nc_Classifiers;
     }
 }

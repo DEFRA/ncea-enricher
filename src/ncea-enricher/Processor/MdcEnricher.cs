@@ -3,15 +3,14 @@ using Ncea.Enricher.Constants;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
-using System.Xml;
 using System.Xml.Linq;
 
 namespace Ncea.Enricher.Processors;
 
 public class MdcEnricher : IEnricherService
 {
-    private const string InfoLogMessage1 = "Enriching metadata in-progress for FileIdentifier: {fileIdentifier}";
-    private const string InfoLogMessage2 = "Enriching metadata completed for FileIdentifier: {fileIdentifier}";    
+    private const string InfoLogMessage1 = "Enriching metadata in-progress for DataSource: {dataSource}, FileIdentifier: {fileIdentifier}";
+    private const string InfoLogMessage2 = "Enriching metadata completed for DataSource: {dataSource}, FileIdentifier: {fileIdentifier}";    
     
     private readonly ISynonymsProvider _synonymsProvider;
     private readonly ISearchableFieldConfigurations _searchableFieldConfigurations;
@@ -37,38 +36,37 @@ public class MdcEnricher : IEnricherService
         _featureManager = featureManager;
         _logger = logger;
     }
-    public async Task<string> Enrich(string fileIdentifier, string mappedData, CancellationToken cancellationToken = default)
+    public async Task<string> Enrich(string dataSource, string fileIdentifier, string mappedData, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation(InfoLogMessage1, fileIdentifier);        
+        _logger.LogInformation(InfoLogMessage1, dataSource, fileIdentifier);        
 
         var xDoc = XDocument.Parse(mappedData);
-        var nsMgr = _xmlNodeService.GetXmlNamespaceManager(xDoc);
         var rootNode = xDoc.Root!;
 
         var matchedClassifiers = new HashSet<Classifier>();
 
         if (await _featureManager.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature))
         {
-            await FindMatchingClassifiers(nsMgr, rootNode, matchedClassifiers, cancellationToken);
+            await FindMatchingClassifiers(rootNode, matchedClassifiers, cancellationToken);
         }
 
-        _xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(nsMgr, rootNode, matchedClassifiers);
+        _xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(rootNode, matchedClassifiers);
 
         if (await _featureManager.IsEnabledAsync(FeatureFlags.MdcValidationFeature))
         {
-            _xmlValidationService.Validate(xDoc, fileIdentifier);
+            _xmlValidationService.Validate(xDoc, dataSource, fileIdentifier);
         }
         
-        _logger.LogInformation(InfoLogMessage2, fileIdentifier);
+        _logger.LogInformation(InfoLogMessage2, dataSource, fileIdentifier);
 
         return await Task.FromResult(xDoc.ToString());
     }
 
-    private async Task FindMatchingClassifiers(XmlNamespaceManager nsMgr, XElement rootNode, HashSet<Classifier> matchedClassifiers, CancellationToken cancellationToken)
+    private async Task FindMatchingClassifiers(XElement rootNode, HashSet<Classifier> matchedClassifiers, CancellationToken cancellationToken)
     {
         var searchableFieldValues = new Dictionary<string, string>();
 
-        var metadata = GetSearchableMetadataFieldValues(searchableFieldValues, nsMgr, rootNode);
+        var metadata = GetSearchableMetadataFieldValues(searchableFieldValues, rootNode);
 
         var classifierList = await _synonymsProvider.GetAll(cancellationToken);
         var classifiers = classifierList.Where(x => x.Synonyms != null).ToList();
@@ -79,12 +77,12 @@ public class MdcEnricher : IEnricherService
         }
     }
 
-    private List<string> GetSearchableMetadataFieldValues(Dictionary<string, string> searchableFieldValues, XmlNamespaceManager nsMgr, XElement rootNode)
+    private List<string> GetSearchableMetadataFieldValues(Dictionary<string, string> searchableFieldValues, XElement rootNode)
     {
         var searchableFields = _searchableFieldConfigurations.GetAll();
         foreach (var searchableField in searchableFields)
         {
-            var fieldValue = _xmlNodeService.GetNodeValues(searchableField, rootNode, nsMgr);
+            var fieldValue = _xmlNodeService.GetNodeValues(searchableField, rootNode);
             searchableFieldValues.Add(searchableField.Name.ToString(), fieldValue);
         }
         var metadata = searchableFieldValues.Where(x => !string.IsNullOrEmpty(x.Value)).Select(x => x.Value).ToList();

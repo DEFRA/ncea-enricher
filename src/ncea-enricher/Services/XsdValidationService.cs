@@ -36,14 +36,14 @@ public class XsdValidationService : IXmlValidationService
         _schemas.Compile();
     }
 
-    public void Validate(XDocument xDoc, string fileIdentifier)
+    public void Validate(XDocument xDoc, string dataSource, string fileIdentifier)
     {
         _errorList = [];
         xDoc.Validate(_schemas, ValidationEventHandler!);
 
         if (_errorList.Count != 0)
         {           
-            var errorMessage = $"MDC Schema/Data mismatch detected on xml with FileIdentifier : {fileIdentifier}";
+            var errorMessage = $"MDC Schema/Data mismatch detected on xml with FileIdentifier : {fileIdentifier}, DataSource : {dataSource}";
             CustomLogger.LogWarningMessage(_logger, errorMessage, null);
         }
     }
