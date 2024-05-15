@@ -5,5 +5,6 @@ public enum ResourceType
     Dataset,
     Series,
     Service,
-    NonGeographicDataset
+    NonGeographicDataset,
+    Publication
 }
