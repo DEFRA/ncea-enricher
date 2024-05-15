@@ -9,7 +9,7 @@ public class Field
     public string XPath { get; set; } = null!;
     public string ConditionalChild { get; set; } = null!;
     public string RelatedChild { get; set; } = null!;
-    public List<ResourceType> RelevantFor { get; set; } = null!;
+    public List<ResourceType> RelevantFor { get; set; } = [];
     public MdcObligation Obligation { get; set; }
     public bool UsedForNceaProfiling { get; set; }
 }
