@@ -80,17 +80,6 @@ static void ConfigureFileShareClient(IConfigurationRoot configuration, HostAppli
             Directory.CreateDirectory(dirPath);
         }
     }
-
-    var fileShareConnectionString = builder.Configuration.GetValue<string>("FileShare:ConnectionString");
-    builder.Services.AddAzureClients(builder =>
-    {
-        builder.AddFileServiceClient(fileShareConnectionString);
-        builder.UseCredential(new DefaultAzureCredential());
-
-        builder.AddClient<ShareClient, ShareClientOptions>(
-            (_, _, provider) => provider.GetService<ShareServiceClient>()!.GetShareClient(fileSharePath))
-        .WithName(fileSharePath);
-    });
 }
 
 static void ConfigureKeyVault(IConfigurationRoot configuration, HostApplicationBuilder builder)
