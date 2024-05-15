@@ -434,6 +434,64 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
+    public async Task ProcessMessagesAsync_WhenTheFileShareNotExists_ThenThrowExceptionAndAbandonMessageAsync()
+    {
+        // Arrange
+        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IOrchestrationService> mockOrchestrationService,
+                            out Mock<ILogger<OrchestrationService>> loggerMock,
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+
+        List<KeyValuePair<string, string?>> lstProps =
+        [
+            new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
+            new KeyValuePair<string, string?>("FileShareName", Directory.GetCurrentDirectory()),
+        ];
+
+        var config = new ConfigurationBuilder()
+                            .AddInMemoryCollection(lstProps)
+                            .Build();
+
+        var serviceBusMessageProps = new Dictionary<string, object>
+        {
+            { "DataSource", "Medin" }
+        };
+
+        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                        "<gmd:MD_Metadata " +
+                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
+                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
+                        "<gmd:fileIdentifier>" +
+                        "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
+                        "</gmd:fileIdentifier>" +
+                        "</gmd:MD_Metadata>";
+
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(message), messageId: "messageId", properties: serviceBusMessageProps);
+        var mockReceiver = new Mock<ServiceBusReceiver>();
+        var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
+        var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
+        mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        _enricherServiceMock.Setup(x => x.Enrich(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new DirectoryNotFoundException("test-error-message"));
+
+        // Act
+        var service = new OrchestrationService(config,
+            mockServiceBusProcessorFactory.Object,
+            _enricherServiceMock.Object,
+            loggerMock.Object);
+
+        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
+
+        // Assert
+        mockProcessMessageEventArgs.Verify(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<CancellationToken>()), Times.Once);
+        await Assert.ThrowsAsync<FileShareNotFoundException>(() => task!);
+    }
+
+    [Fact]
     public async Task SaveEnrichedXmlAsync_WhenMdcMappedMetadataXmlContentIsEmpty_ThenExceptionShouldBeThrown()
     {
         // Arrange
