@@ -326,7 +326,7 @@ public class XmlNodeServiceTests
         ncClassifiers!.Elements().Count().Should().Be(2);
     }
 
-    private XmlNamespaceManager GetXmlNamespaceManager()
+    private static XmlNamespaceManager GetXmlNamespaceManager()
     {        
         XmlNamespaceManager nsMgr = new XmlNamespaceManager(new NameTable());
         nsMgr.AddNamespace("gmd", "http://www.isotc211.org/2005/gmd");

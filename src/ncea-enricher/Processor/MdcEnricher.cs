@@ -40,7 +40,7 @@ public class MdcEnricher : IEnricherService
     {
         _logger.LogInformation(InfoLogMessage1, dataSource, fileIdentifier);        
 
-        var xDoc = XDocument.Parse(mappedData);;
+        var xDoc = XDocument.Parse(mappedData);
         var rootNode = xDoc.Root!;
 
         var matchedClassifiers = new HashSet<Classifier>();
