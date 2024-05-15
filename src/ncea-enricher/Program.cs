@@ -11,7 +11,6 @@ using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.Extensions.Azure;
 using Ncea.Enricher.Processors;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
-using Azure.Storage.Files.Shares;
 using Azure.Storage.Blobs;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
@@ -40,7 +39,7 @@ ConfigureKeyVault(configuration, builder);
 ConfigureBlobStorage(configuration, builder);
 ConfigureLogging(builder);
 await ConfigureServiceBusQueue(configuration, builder);
-ConfigureFileShareClient(configuration, builder);
+ConfigureFileShareClient(configuration);
 ConfigureServices(builder);
 
 var host = builder.Build();
@@ -69,7 +68,7 @@ static async Task ConfigureServiceBusQueue(IConfigurationRoot configuration, Hos
     });   
 }
 
-static void ConfigureFileShareClient(IConfigurationRoot configuration, HostApplicationBuilder builder)
+static void ConfigureFileShareClient(IConfigurationRoot configuration)
 {    
     var fileSharePath = configuration.GetValue<string>("FileShareName");
     foreach (string dataSourceName in Enum.GetNames(typeof(DataSourceNames)))
