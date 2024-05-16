@@ -1,0 +1,18 @@
+# These are populated when your service is created via the ADP Portal scaffolder. Do not change these, as they are abstracted from your service and are mandatory. They are for your reference here.
+name: ncea-enricher
+namespace: ncea-search
+workstream: ncea-search
+image: ncea-enricher
+
+# You may add further labels to identify the service or what your component does.
+labels:
+  component: web
+
+# Here you can define your Priority classes, min/max replicables etc. Empty block does the HELM Library defaults.
+deployment: {}
+
+# These may be changed. See here: https://github.com/DEFRA/adp-helm-library?tab=readme-ov-file#container-template
+container:
+  memCpuTier: M
+
+

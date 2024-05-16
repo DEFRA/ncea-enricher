@@ -1,0 +1,8 @@
+{{- include "adp-helm-library.deployment" (list . "ncea-enricher.deployment") -}}
+{{- define "ncea-enricher.deployment" -}}
+spec:
+  template:
+    spec:
+      containers:
+      - {{ include "adp-helm-library.container" (list . "ncea-enricher.container") }}
+{{- end -}}

@@ -1,0 +1,62 @@
+parameters:
+- name: deployFromFeature
+  displayName: "Deploy from Feature Branch"
+  type: boolean
+  default: false
+- name: deployConfigOnly
+  displayName: "Deploy App Config only"
+  type: boolean
+  default: false
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - test-output/*
+      - bin/*
+      - obj/*
+  drafts: false
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - "*"
+  paths:
+    exclude:
+      - test-output/*
+      - bin/*
+      - obj/*
+
+resources:
+  repositories:
+    - repository: DEFRA-ADPPipelineCommon
+      name: DEFRA/adp-pipeline-common
+      endpoint: DEFRA
+      type: github
+      ref: refs/heads/main
+
+extends:
+  template: /pipelines/common-app-build.yaml@DEFRA-ADPPipelineCommon
+  parameters:
+    projectName: "ncea-harvester"
+    serviceName: "ncea-harvester"
+    teamName: "ncea-search"
+    deployFromFeature: ${{ parameters.deployFromFeature }}
+    deployConfigOnly: ${{ parameters.deployConfigOnly }}
+    appBuildConfig:
+      appFrameworkType: "dotnet"
+      frameworkVersion: "8.x"
+      projectPath: "./src/ncea-harvester/ncea-harvester.csproj"
+      testProjectPath: "./src/ncea-harvester.tests/ncea-harvester.tests.csproj"
+      manifestPath: "./src/ncea-harvester/obj/project.assets.json"
+      imageRepoName: "ncea-harvester"
+    appTestConfig:
+      testFilePath: "./docker-compose.test.yaml"
+    appDeployConfig:
+      filepath: "./appConfig"
+      filetype: "yaml"
+      variableGroups:
+        - ncea-harvester-<environment>

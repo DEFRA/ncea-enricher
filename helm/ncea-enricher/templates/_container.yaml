@@ -1,0 +1,6 @@
+{{- define "ncea-frontend-4.container" -}}
+livenessProbe: {{ include "adp-helm-library.http-get-probe" (list . .Values.livenessProbe) | nindent 4}}
+readinessProbe: {{ include "adp-helm-library.http-get-probe" (list . .Values.readinessProbe) | nindent 4}}
+ports:
+- containerPort: {{ .Values.container.port }}
+{{- end -}}

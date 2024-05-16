@@ -1,0 +1,9 @@
+- key: ApplicationInsights__ConnectionString
+  value: "{{servicename}}-APPINSIGHTS-CONNECTIONSTRING"
+  type: "keyvault"
+- key: ServiceBusHostName
+  value: "SNDADPINFSB3401.servicebus.windows.net"
+- key: KeyVaultUri
+  value: "https://SNDADPINFVT3401.vault.azure.net/"
+- key: BlobStorageUri
+  value: "https://sndadpinfst3401ncea.blob.core.windows.net"
