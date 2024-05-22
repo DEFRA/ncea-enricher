@@ -71,7 +71,7 @@ static async Task ConfigureServiceBusQueue(IConfigurationRoot configuration, Hos
 static void ConfigureFileShareClient(IConfigurationRoot configuration)
 {    
     var fileSharePath = configuration.GetValue<string>("FileShareName");
-    foreach (string dataSourceName in Enum.GetNames(typeof(DataSourceNames)))
+    foreach (string dataSourceName in Enum.GetNames(typeof(DataSource)))
     {
         var dirPath = Path.Combine(fileSharePath!, dataSourceName.ToLowerInvariant());
         if (!Directory.Exists(dirPath))
@@ -123,7 +123,7 @@ static void ConfigureServices(HostApplicationBuilder builder)
 {
     builder.Services.AddSingleton<IApiClient, ApiClient>();
     builder.Services.AddSingleton<IOrchestrationService, OrchestrationService>();
-    builder.Services.AddSingleton<IBlobStorageService, BlobStorageService>();
+    builder.Services.AddSingleton<IBlobService, BlobService>();
     builder.Services.AddSingleton<ISearchableFieldConfigurations, SearchableFieldConfigurations>();
     builder.Services.AddSingleton<ISearchService, SearchService>();
     builder.Services.AddSingleton<IXmlNodeService, XmlNodeService>();

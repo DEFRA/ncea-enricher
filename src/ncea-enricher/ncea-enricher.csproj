@@ -11,13 +11,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Infrastructure\Models\**" />
-    <Content Remove="Infrastructure\Models\**" />
-    <EmbeddedResource Remove="Infrastructure\Models\**" />
-    <None Remove="Infrastructure\Models\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="Schema\gco\basicTypes.xsd" />
     <None Remove="Schema\gco\gco.xsd" />
     <None Remove="Schema\gco\gcoBase.xsd" />

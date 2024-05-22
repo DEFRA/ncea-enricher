@@ -8,7 +8,7 @@ namespace Ncea.Enricher.Tests.Clients;
 
 public static class BlobServiceForTests
 {
-    public static BlobStorageService Get()
+    public static BlobService Get()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "NCEA T&F Vocab v1.1 2024-04-02.xlsx");
         Stream fileStream = File.OpenRead(filePath);
@@ -25,7 +25,7 @@ public static class BlobServiceForTests
         mockBlobServiceClient.Setup(x => x.GetBlobContainerClient(It.IsAny<string>())).Returns(mockBlobContainerClient.Object);
         mockBlobContainerClient.Setup(x => x.GetBlobClient(It.IsAny<string>())).Returns(mockBlobClient.Object);
         
-        var service = new BlobStorageService(mockBlobServiceClient.Object);
+        var service = new BlobService(mockBlobServiceClient.Object);
         return service;
     }
 }

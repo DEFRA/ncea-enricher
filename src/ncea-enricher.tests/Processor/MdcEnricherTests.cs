@@ -18,7 +18,7 @@ namespace Ncea.Enricher.Tests.Processor;
 public class MdcEnricherTests
 {
     private IServiceProvider _serviceProvider;
-    private IBlobStorageService _blobStorageService;
+    private IBlobService _blobStorageService;
     private ISynonymsProvider _synonymsProvider;
     private ISearchableFieldConfigurations _searchableFieldConfigurations;
     private ISearchService _searchService;

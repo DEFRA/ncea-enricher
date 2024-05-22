@@ -14,7 +14,7 @@ namespace Ncea.Enricher.Tests.Services;
 public class CachedSynonymsProviderTests
 {
     private IServiceProvider _serviceProvider;
-    private IBlobStorageService _blobStorageService;
+    private IBlobService _blobStorageService;
     private ISynonymsProvider _synonymsProvider;
 
     public CachedSynonymsProviderTests()

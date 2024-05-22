@@ -5,12 +5,16 @@ using System.Xml.XPath;
 using Azure;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
-using Ncea.Enricher.Enums;
 using Ncea.Enricher.BusinessExceptions;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Utils;
 using Ncea.Enricher.Constants;
+using System.Text;
+using System.Text.Json;
+using Ncea.Enricher.Models;
+using Ncea.Enricher.Infrastructure.Models.Requests;
+using Ncea.Enricher.Infrastructure.Contracts;
 
 namespace Ncea.Enricher.Services;
 
@@ -19,12 +23,14 @@ public class OrchestrationService : IOrchestrationService
     private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
 
     private readonly string _fileShareName;
+    private readonly IBlobService _blobService;
     private readonly ServiceBusProcessor _processor;
     private readonly IEnricherService _mdcEnricherSerivice;
     private readonly ILogger<OrchestrationService> _logger;
     private string? _fileIdentifier;
 
     public OrchestrationService(IConfiguration configuration,
+        IBlobService blobService,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
         IEnricherService mdcEnricherSerivice,
         ILogger<OrchestrationService> logger)
@@ -34,6 +40,7 @@ public class OrchestrationService : IOrchestrationService
 
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
         _mdcEnricherSerivice = mdcEnricherSerivice;
+        _blobService = blobService;
         _logger = logger;
     }
 
@@ -46,25 +53,27 @@ public class OrchestrationService : IOrchestrationService
 
     private async Task ProcessMessagesAsync(ProcessMessageEventArgs args)
     {        
-        _logger.LogInformation("Received a messaage to enrich metadata");
+        _logger.LogInformation("Received a messaage to enrich metadata");       
 
-        var dataSource = string.Empty;
-        var mdcMappedData = args.Message.Body.ToString();
+        var body = Encoding.UTF8.GetString(args.Message.Body);
+        var mdcMappedRecord = JsonSerializer.Deserialize<MdcMappedRecordMessage>(body)!;
+
+        var dataSource = mdcMappedRecord.DataSource.ToString().ToLowerInvariant();
+
+        var request = new GetBlobContentRequest(mdcMappedRecord.FileIdentifier, dataSource);
+        var mdcMappedData = await _blobService.GetContentAsync(request, args.CancellationToken);
 
         try
-        {
-            dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
-            var dataSourceName = Enum.Parse(typeof(DataSourceNames), dataSource!, true).ToString()!.ToLowerInvariant();
-
+        { 
             if (string.IsNullOrWhiteSpace(mdcMappedData))
             {
                 throw new ArgumentException("Mappeed-queue message body should not be empty");
             }
 
             _fileIdentifier = GetFileIdentifier(mdcMappedData)!;
-            var enrichedMetadata = await _mdcEnricherSerivice.Enrich(dataSourceName, _fileIdentifier, mdcMappedData);
+            var enrichedMetadata = await _mdcEnricherSerivice.Enrich(dataSource, _fileIdentifier, mdcMappedData);
 
-            await SaveEnrichedXmlAsync(enrichedMetadata, dataSourceName!);
+            await SaveEnrichedXmlAsync(enrichedMetadata, dataSource);
 
             await args.CompleteMessageAsync(args.Message);
         }
