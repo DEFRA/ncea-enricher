@@ -15,6 +15,7 @@ using System.Text.Json;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Infrastructure.Contracts;
+using System.Text.Json.Serialization;
 
 namespace Ncea.Enricher.Services;
 
@@ -52,19 +53,32 @@ public class OrchestrationService : IOrchestrationService
     }
 
     private async Task ProcessMessagesAsync(ProcessMessageEventArgs args)
-    {        
-        _logger.LogInformation("Received a messaage to enrich metadata");       
+    {
+        var dataSource = string.Empty;
 
-        var body = Encoding.UTF8.GetString(args.Message.Body);
-        var mdcMappedRecord = JsonSerializer.Deserialize<MdcMappedRecordMessage>(body)!;
+        _logger.LogInformation("Received a messaage to enrich metadata");
 
-        var dataSource = mdcMappedRecord.DataSource.ToString().ToLowerInvariant();
-
-        var request = new GetBlobContentRequest(mdcMappedRecord.FileIdentifier, dataSource);
-        var mdcMappedData = await _blobService.GetContentAsync(request, args.CancellationToken);
+        var options = new JsonSerializerOptions
+        {
+            Converters = { new JsonStringEnumConverter() }
+        };        
 
         try
-        { 
+        {
+            if (string.IsNullOrWhiteSpace(args.Message.Body.ToString()))
+            {
+                throw new ArgumentException("Mappeed-queue message body should not be empty");
+            }
+
+            var body = Encoding.UTF8.GetString(args.Message.Body);
+            var mdcMappedRecord = JsonSerializer.Deserialize<MdcMappedRecordMessage>(body, options)!;
+
+            dataSource = mdcMappedRecord.DataSource.ToString().ToLowerInvariant();
+            var containerName = $"{dataSource}-mapper-staging";
+
+            var request = new GetBlobContentRequest(mdcMappedRecord.FileIdentifier, containerName);
+            var mdcMappedData = await _blobService.GetContentAsync(request, args.CancellationToken);
+
             if (string.IsNullOrWhiteSpace(mdcMappedData))
             {
                 throw new ArgumentException("Mappeed-queue message body should not be empty");
