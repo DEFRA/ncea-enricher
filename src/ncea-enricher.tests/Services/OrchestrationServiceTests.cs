@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Ncea.Enricher.BusinessExceptions;
+using Ncea.Enricher.Infrastructure;
+using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services;
 using Ncea.Enricher.Services.Contracts;
@@ -32,7 +34,10 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
+        var blobService = BlobServiceForTests.GetMdcXml();
+
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -53,8 +58,10 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -86,6 +93,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -108,6 +116,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -129,6 +138,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -154,6 +164,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -176,6 +187,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var serviceBusMessageProps = new Dictionary<string, object>
         {
@@ -190,6 +202,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -211,7 +224,8 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
-        
+        var blobService = BlobServiceForTests.GetMdcXml();
+
         List<KeyValuePair<string, string?>> lstProps =
         [
             new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
@@ -247,6 +261,7 @@ public class OrchestrationServiceTests
             .ReturnsAsync(message);
         // Act
         var service = new OrchestrationService(config,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -268,6 +283,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         List<KeyValuePair<string, string?>> lstProps =
         [
@@ -305,6 +321,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(config,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -326,6 +343,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         List<KeyValuePair<string, string?>> lstProps =
         [
@@ -363,6 +381,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(config,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -384,6 +403,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         List<KeyValuePair<string, string?>> lstProps =
         [
@@ -421,6 +441,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(config,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -442,6 +463,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         List<KeyValuePair<string, string?>> lstProps =
         [
@@ -479,6 +501,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(config,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -500,9 +523,11 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -523,6 +548,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -535,6 +561,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -556,6 +583,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -568,6 +596,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -588,6 +617,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -597,6 +627,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -617,6 +648,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -629,6 +661,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -648,10 +681,13 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
+
         var message = "";
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
