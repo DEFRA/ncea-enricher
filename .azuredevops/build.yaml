@@ -41,22 +41,22 @@ resources:
 extends:
   template: /pipelines/common-app-build.yaml@DEFRA-ADPPipelineCommon
   parameters:
-    projectName: "ncea-harvester"
-    serviceName: "ncea-harvester"
+    projectName: "ncea-enricher"
+    serviceName: "ncea-enricher"
     teamName: "ncea-search"
     deployFromFeature: ${{ parameters.deployFromFeature }}
     deployConfigOnly: ${{ parameters.deployConfigOnly }}
     appBuildConfig:
       appFrameworkType: "dotnet"
       frameworkVersion: "8.x"
-      projectPath: "./src/ncea-harvester/ncea-harvester.csproj"
-      testProjectPath: "./src/ncea-harvester.tests/ncea-harvester.tests.csproj"
-      manifestPath: "./src/ncea-harvester/obj/project.assets.json"
-      imageRepoName: "ncea-harvester"
+      projectPath: "./src/ncea-enricher/ncea-enricher.csproj"
+      testProjectPath: "./src/ncea-enricher.tests/ncea-enricher.tests.csproj"
+      manifestPath: "./src/ncea-enricher/obj/project.assets.json"
+      imageRepoName: "ncea-enricher"
     appTestConfig:
       testFilePath: "./docker-compose.test.yaml"
     appDeployConfig:
       filepath: "./appConfig"
       filetype: "yaml"
       variableGroups:
-        - ncea-harvester-<environment>
+        - ncea-enricher-<environment>

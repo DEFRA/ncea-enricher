@@ -6,7 +6,7 @@ image: ncea-enricher
 
 # You may add further labels to identify the service or what your component does.
 labels:
-  component: web
+  component: backend
 
 # Here you can define your Priority classes, min/max replicables etc. Empty block does the HELM Library defaults.
 deployment: {}

@@ -1,2 +1,10 @@
-- key: DummyKey
-  value: "DummyValue"
+- key: HarvesterQueueName
+  value: ncea-search-harvested-queue
+- key: MapperQueueName
+  value: ncea-search-mapped-queue
+- key: SynonymsContainerName
+  value: ncea-classifiers
+- key: SynonymsFileName
+  value: NCEA T&F Vocab v1.1 2024-04-02.xlsx
+- key: FileShareName
+  value: "/metadata-import"
