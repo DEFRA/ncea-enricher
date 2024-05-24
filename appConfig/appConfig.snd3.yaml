@@ -6,4 +6,4 @@
 - key: KeyVaultUri
   value: "https://SNDADPINFVT3401.vault.azure.net/"
 - key: BlobStorageUri
-  value: "https://sndadpinfst3401ncea.blob.core.windows.net"
+  value: "https://sndadpinfst3401nceasrh.blob.core.windows.net"
