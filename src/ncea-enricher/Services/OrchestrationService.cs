@@ -28,6 +28,10 @@ public class OrchestrationService : IOrchestrationService
     private readonly ServiceBusProcessor _processor;
     private readonly IEnricherService _mdcEnricherSerivice;
     private readonly ILogger<OrchestrationService> _logger;
+    private static readonly JsonSerializerOptions _serializerOptions = new()
+    {
+        Converters = { new JsonStringEnumConverter() }
+    };
     private string? _fileIdentifier;
 
     public OrchestrationService(IConfiguration configuration,
@@ -58,11 +62,6 @@ public class OrchestrationService : IOrchestrationService
 
         _logger.LogInformation("Received a messaage to enrich metadata");
 
-        var options = new JsonSerializerOptions
-        {
-            Converters = { new JsonStringEnumConverter() }
-        };        
-
         try
         {
             if (string.IsNullOrWhiteSpace(args.Message.Body.ToString()))
@@ -71,7 +70,7 @@ public class OrchestrationService : IOrchestrationService
             }
 
             var body = Encoding.UTF8.GetString(args.Message.Body);
-            var mdcMappedRecord = JsonSerializer.Deserialize<MdcMappedRecordMessage>(body, options)!;
+            var mdcMappedRecord = JsonSerializer.Deserialize<MdcMappedRecordMessage>(body, _serializerOptions)!;
 
             dataSource = mdcMappedRecord.DataSource.ToString().ToLowerInvariant();
             var containerName = $"{dataSource}-mapper-staging";
