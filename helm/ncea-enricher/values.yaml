@@ -14,5 +14,7 @@ deployment: {}
 # These may be changed. See here: https://github.com/DEFRA/adp-helm-library?tab=readme-ov-file#container-template
 container:
   memCpuTier: M
+  port: 8080
 
-
+pvc:
+  metaDataFileShareName: metadata-fileshare-pvc

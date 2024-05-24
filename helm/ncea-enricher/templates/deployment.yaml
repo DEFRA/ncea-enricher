@@ -5,4 +5,14 @@ spec:
     spec:
       containers:
       - {{ include "adp-helm-library.container" (list . "ncea-enricher.container") }}
+      volumes:
+      - name: enrichedmetadata
+        persistentVolumeClaim:
+          claimName: {{ $.Values.pvc.metaDataFileShareName }}s
+      - name: temp-dir
+        emptyDir: {}
+      - name: custom-root-ca
+        secret:
+          secretName: custom-ca-trust-secret
+          optional: true
 {{- end -}}
