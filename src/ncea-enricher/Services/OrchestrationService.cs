@@ -33,6 +33,7 @@ public class OrchestrationService : IOrchestrationService
         Converters = { new JsonStringEnumConverter() }
     };
     private string? _fileIdentifier;
+    private readonly string _mapperStagingContainerSuffix;
 
     public OrchestrationService(IConfiguration configuration,
         IBlobService blobService,
@@ -42,6 +43,7 @@ public class OrchestrationService : IOrchestrationService
     {
         var mapperQueueName = configuration.GetValue<string>("MapperQueueName");
         _fileShareName = configuration.GetValue<string>("FileShareName")!;
+        _mapperStagingContainerSuffix = configuration.GetValue<string>("MapperStagingContainerSuffix")!;
 
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
         _mdcEnricherSerivice = mdcEnricherSerivice;
@@ -73,9 +75,10 @@ public class OrchestrationService : IOrchestrationService
             var mdcMappedRecord = JsonSerializer.Deserialize<MdcMappedRecordMessage>(body, _serializerOptions)!;
 
             dataSource = mdcMappedRecord.DataSource.ToString().ToLowerInvariant();
-            var containerName = $"{dataSource}-mapper-staging";
+            var fileName = string.Concat(mdcMappedRecord.FileIdentifier, ".xml");
+            var mapperContainerName = $"{dataSource}-{_mapperStagingContainerSuffix}";
 
-            var request = new GetBlobContentRequest(mdcMappedRecord.FileIdentifier, containerName);
+            var request = new GetBlobContentRequest(fileName, mapperContainerName);
             var mdcMappedData = await _blobService.GetContentAsync(request, args.CancellationToken);
 
             if (string.IsNullOrWhiteSpace(mdcMappedData))
