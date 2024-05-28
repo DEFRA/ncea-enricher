@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Ncea.Enricher.BusinessExceptions;
-using Ncea.Enricher.Infrastructure;
 using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Processor.Contracts;
