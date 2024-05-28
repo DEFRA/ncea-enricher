@@ -332,7 +332,7 @@ public class OrchestrationServiceTests
 
         // Assert
         mockProcessMessageEventArgs.Verify(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<CancellationToken>()), Times.Once);
-        await Assert.ThrowsAsync<SynonymsNotAccessibleException>(() => task!);
+        await Assert.ThrowsAsync<BlobStorageNotAccessibleException>(() => task!);
     }
 
     [Fact]

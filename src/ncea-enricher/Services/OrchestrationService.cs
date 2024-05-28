@@ -16,6 +16,7 @@ using Ncea.Enricher.Models;
 using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Infrastructure.Contracts;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace Ncea.Enricher.Services;
 
@@ -61,8 +62,7 @@ public class OrchestrationService : IOrchestrationService
     private async Task ProcessMessagesAsync(ProcessMessageEventArgs args)
     {
         var dataSource = string.Empty;
-
-        _logger.LogInformation("Received a messaage to enrich metadata");
+        var fileIdentifier = string.Empty;
 
         try
         {
@@ -74,22 +74,24 @@ public class OrchestrationService : IOrchestrationService
             var body = Encoding.UTF8.GetString(args.Message.Body);
             var mdcMappedRecord = JsonSerializer.Deserialize<MdcMappedRecordMessage>(body, _serializerOptions)!;
 
-            dataSource = mdcMappedRecord.DataSource.ToString().ToLowerInvariant();
-            var fileName = string.Concat(mdcMappedRecord.FileIdentifier, ".xml");
-            var mapperContainerName = $"{dataSource}-{_mapperStagingContainerSuffix}";
+            dataSource = mdcMappedRecord.DataSource.ToString();
+            fileIdentifier = mdcMappedRecord.FileIdentifier;
+
+            _logger.LogInformation("Enricher summary | Metadata enrichment started for DataSource : {dataSource}, FileIdentifier : {fileIdentifier}", dataSource, fileIdentifier);
+
+            var dataSourceNameInLowerCase = dataSource.ToLowerInvariant();
+            var fileName = string.Concat(fileIdentifier, ".xml");
+            var mapperContainerName = $"{dataSourceNameInLowerCase}-{_mapperStagingContainerSuffix}";
 
             var request = new GetBlobContentRequest(fileName, mapperContainerName);
             var mdcMappedData = await _blobService.GetContentAsync(request, args.CancellationToken);
-
-            if (string.IsNullOrWhiteSpace(mdcMappedData))
-            {
-                throw new ArgumentException("Mappeed-queue message body should not be empty");
-            }
 
             _fileIdentifier = GetFileIdentifier(mdcMappedData)!;
             var enrichedMetadata = await _mdcEnricherSerivice.Enrich(dataSource, _fileIdentifier, mdcMappedData);
 
             await SaveEnrichedXmlAsync(enrichedMetadata, dataSource);
+
+            _logger.LogInformation("Enricher summary | Metadata enrichment completed for DataSource : {dataSource}, FileIdentifier : {fileIdentifier}", dataSource, fileIdentifier);
 
             await args.CompleteMessageAsync(args.Message);
         }
@@ -100,7 +102,7 @@ public class OrchestrationService : IOrchestrationService
         catch (RequestFailedException ex)
         {
             var errorMessage = $"Error occured while reading the synonyms file during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
-            await HandleException(args, ex, new SynonymsNotAccessibleException(errorMessage, ex));
+            await HandleException(args, ex, new BlobStorageNotAccessibleException(errorMessage, ex));
         }
         catch (DirectoryNotFoundException ex)
         {
