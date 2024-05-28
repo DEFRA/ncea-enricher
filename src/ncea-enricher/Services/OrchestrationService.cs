@@ -88,7 +88,7 @@ public class OrchestrationService : IOrchestrationService
             _fileIdentifier = GetFileIdentifier(mdcMappedData)!;
             var enrichedMetadata = await _mdcEnricherSerivice.Enrich(dataSource, _fileIdentifier, mdcMappedData);
 
-            await SaveEnrichedXmlAsync(enrichedMetadata, dataSource);
+            await SaveEnrichedXmlAsync(enrichedMetadata, dataSourceNameInLowerCase);
 
             _logger.LogInformation("Enricher summary | Metadata enrichment completed for DataSource : {dataSource}, FileIdentifier : {fileIdentifier}", dataSource, fileIdentifier);
 
