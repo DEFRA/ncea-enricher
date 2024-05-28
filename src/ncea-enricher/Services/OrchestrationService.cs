@@ -82,13 +82,14 @@ public class OrchestrationService : IOrchestrationService
             var fileName = string.Concat(fileIdentifier, ".xml");
             var mapperContainerName = $"{dataSourceNameInLowerCase}-{_mapperStagingContainerSuffix}";
 
-            var request = new GetBlobContentRequest(fileName, mapperContainerName);
-            var mdcMappedData = await _blobService.GetContentAsync(request, args.CancellationToken);
+            var mdcMappedData = await _blobService.GetContentAsync(new GetBlobContentRequest(fileName, mapperContainerName), args.CancellationToken);
 
             _fileIdentifier = GetFileIdentifier(mdcMappedData)!;
             var enrichedMetadata = await _mdcEnricherSerivice.Enrich(dataSource, _fileIdentifier, mdcMappedData);
 
             await SaveEnrichedXmlAsync(enrichedMetadata, dataSourceNameInLowerCase);
+
+            await _blobService.DeleteBlobAsync(new DeleteBlobRequest(fileName, mapperContainerName), args.CancellationToken);
 
             _logger.LogInformation("Enricher summary | Metadata enrichment completed for DataSource : {dataSource}, FileIdentifier : {fileIdentifier}", dataSource, fileIdentifier);
 

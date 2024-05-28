@@ -21,6 +21,7 @@ public static class BlobServiceForTests
         mockBlobClient.Setup(s => s.ExistsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Response.FromValue<bool>(true, new Mock<Response>().Object));
         mockBlobClient.Setup(s => s.OpenReadAsync(It.IsAny<BlobOpenReadOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(fileStream);
+        mockBlobClient.Setup(s => s.DeleteIfExistsAsync(DeleteSnapshotsOption.None, null, It.IsAny<CancellationToken>())).ReturnsAsync(Response.FromValue<bool>(true, new Mock<Response>().Object));
 
         mockBlobServiceClient.Setup(x => x.GetBlobContainerClient(It.IsAny<string>())).Returns(mockBlobContainerClient.Object);
         mockBlobContainerClient.Setup(x => x.GetBlobClient(It.IsAny<string>())).Returns(mockBlobClient.Object);
@@ -43,6 +44,7 @@ public static class BlobServiceForTests
 
         mockBlobClient.Setup(x =>
             x.DownloadContentAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(response));
+        mockBlobClient.Setup(s => s.DeleteIfExistsAsync(DeleteSnapshotsOption.None, null, It.IsAny<CancellationToken>())).ReturnsAsync(Response.FromValue<bool>(true, new Mock<Response>().Object));
 
         mockBlobServiceClient = new Mock<BlobServiceClient>();
         mockBlobContainerClient = new Mock<BlobContainerClient>();
@@ -91,6 +93,7 @@ public static class BlobServiceForTests
         mockBlobClient.Setup(s => s.ExistsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Response.FromValue<bool>(true, new Mock<Response>().Object));
         mockBlobClient.Setup(s => s.OpenReadAsync(It.IsAny<BlobOpenReadOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(fileStream);
+        mockBlobClient.Setup(s => s.DeleteIfExistsAsync(DeleteSnapshotsOption.None, null, It.IsAny<CancellationToken>())).ReturnsAsync(Response.FromValue<bool>(true, new Mock<Response>().Object));
 
         mockBlobServiceClient.Setup(x => x.GetBlobContainerClient(It.IsAny<string>())).Returns(mockBlobContainerClient.Object);
         mockBlobContainerClient.Setup(x => x.GetBlobClient(It.IsAny<string>())).Returns(mockBlobClient.Object);
