@@ -13,7 +13,7 @@ namespace Ncea.Enricher.Tests.Services;
 public class SynonymsProviderTests
 {
     private IServiceProvider _serviceProvider;
-    private IBlobStorageService _blobStorageService;
+    private IBlobService _blobStorageService;
 
     public SynonymsProviderTests()
     {
@@ -48,7 +48,7 @@ public class SynonymsProviderTests
         var dataRow = dataTable.NewRow();
         dataRow.ItemArray = ["test"];
         dataTable.Rows.Add(dataRow);
-        var blobStorageServiceMock = new Mock<IBlobStorageService>();
+        var blobStorageServiceMock = new Mock<IBlobService>();
         blobStorageServiceMock.Setup(x => x.ReadExcelFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dataTable);
         var synonymsProvider = new SynonymsProvider(configuration, blobStorageServiceMock.Object);
@@ -69,7 +69,7 @@ public class SynonymsProviderTests
         var dataRow = dataTable.NewRow();
         dataRow.ItemArray = [null, "test"];
         dataTable.Rows.Add(dataRow);
-        var blobStorageServiceMock = new Mock<IBlobStorageService>();
+        var blobStorageServiceMock = new Mock<IBlobService>();
         blobStorageServiceMock.Setup(x => x.ReadExcelFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dataTable);
         var synonymsProvider = new SynonymsProvider(configuration, blobStorageServiceMock.Object);
@@ -95,7 +95,7 @@ public class SynonymsProviderTests
         var dataRow = dataTable.NewRow();
         dataRow.ItemArray = ["test", null];
         dataTable.Rows.Add(dataRow);
-        var blobStorageServiceMock = new Mock<IBlobStorageService>();
+        var blobStorageServiceMock = new Mock<IBlobService>();
         blobStorageServiceMock.Setup(x => x.ReadExcelFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dataTable);
         var synonymsProvider = new SynonymsProvider(configuration, blobStorageServiceMock.Object);

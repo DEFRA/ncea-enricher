@@ -5,12 +5,17 @@ using System.Xml.XPath;
 using Azure;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
-using Ncea.Enricher.Enums;
 using Ncea.Enricher.BusinessExceptions;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Utils;
 using Ncea.Enricher.Constants;
+using System.Text;
+using System.Text.Json;
+using Ncea.Enricher.Models;
+using Ncea.Enricher.Infrastructure.Models.Requests;
+using Ncea.Enricher.Infrastructure.Contracts;
+using System.Text.Json.Serialization;
 
 namespace Ncea.Enricher.Services;
 
@@ -19,21 +24,30 @@ public class OrchestrationService : IOrchestrationService
     private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
 
     private readonly string _fileShareName;
+    private readonly IBlobService _blobService;
     private readonly ServiceBusProcessor _processor;
     private readonly IEnricherService _mdcEnricherSerivice;
     private readonly ILogger<OrchestrationService> _logger;
+    private static readonly JsonSerializerOptions _serializerOptions = new()
+    {
+        Converters = { new JsonStringEnumConverter() }
+    };
     private string? _fileIdentifier;
+    private readonly string _mapperStagingContainerSuffix;
 
     public OrchestrationService(IConfiguration configuration,
+        IBlobService blobService,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
         IEnricherService mdcEnricherSerivice,
         ILogger<OrchestrationService> logger)
     {
         var mapperQueueName = configuration.GetValue<string>("MapperQueueName");
         _fileShareName = configuration.GetValue<string>("FileShareName")!;
+        _mapperStagingContainerSuffix = configuration.GetValue<string>("MapperStagingContainerSuffix")!;
 
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
         _mdcEnricherSerivice = mdcEnricherSerivice;
+        _blobService = blobService;
         _logger = logger;
     }
 
@@ -45,26 +59,38 @@ public class OrchestrationService : IOrchestrationService
     }
 
     private async Task ProcessMessagesAsync(ProcessMessageEventArgs args)
-    {        
-        _logger.LogInformation("Received a messaage to enrich metadata");
-
+    {
         var dataSource = string.Empty;
-        var mdcMappedData = args.Message.Body.ToString();
+        var fileIdentifier = string.Empty;
 
         try
         {
-            dataSource = args.Message.ApplicationProperties["DataSource"].ToString();
-            var dataSourceName = Enum.Parse(typeof(DataSourceNames), dataSource!, true).ToString()!.ToLowerInvariant();
-
-            if (string.IsNullOrWhiteSpace(mdcMappedData))
+            if (string.IsNullOrWhiteSpace(args.Message.Body.ToString()))
             {
                 throw new ArgumentException("Mappeed-queue message body should not be empty");
             }
 
-            _fileIdentifier = GetFileIdentifier(mdcMappedData)!;
-            var enrichedMetadata = await _mdcEnricherSerivice.Enrich(dataSourceName, _fileIdentifier, mdcMappedData);
+            var body = Encoding.UTF8.GetString(args.Message.Body);
+            var mdcMappedRecord = JsonSerializer.Deserialize<MdcMappedRecordMessage>(body, _serializerOptions)!;
 
-            await SaveEnrichedXmlAsync(enrichedMetadata, dataSourceName!);
+            dataSource = mdcMappedRecord.DataSource.ToString();
+            fileIdentifier = mdcMappedRecord.FileIdentifier;
+
+            _logger.LogInformation("Enricher summary | Metadata enrichment started for DataSource : {dataSource}, FileIdentifier : {fileIdentifier}", dataSource, fileIdentifier);
+
+            var dataSourceNameInLowerCase = dataSource.ToLowerInvariant();
+            var fileName = string.Concat(fileIdentifier, ".xml");
+            var mapperContainerName = $"{dataSourceNameInLowerCase}-{_mapperStagingContainerSuffix}";
+
+            var request = new GetBlobContentRequest(fileName, mapperContainerName);
+            var mdcMappedData = await _blobService.GetContentAsync(request, args.CancellationToken);
+
+            _fileIdentifier = GetFileIdentifier(mdcMappedData)!;
+            var enrichedMetadata = await _mdcEnricherSerivice.Enrich(dataSource, _fileIdentifier, mdcMappedData);
+
+            await SaveEnrichedXmlAsync(enrichedMetadata, dataSourceNameInLowerCase);
+
+            _logger.LogInformation("Enricher summary | Metadata enrichment completed for DataSource : {dataSource}, FileIdentifier : {fileIdentifier}", dataSource, fileIdentifier);
 
             await args.CompleteMessageAsync(args.Message);
         }
@@ -75,7 +101,7 @@ public class OrchestrationService : IOrchestrationService
         catch (RequestFailedException ex)
         {
             var errorMessage = $"Error occured while reading the synonyms file during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
-            await HandleException(args, ex, new SynonymsNotAccessibleException(errorMessage, ex));
+            await HandleException(args, ex, new BlobStorageNotAccessibleException(errorMessage, ex));
         }
         catch (DirectoryNotFoundException ex)
         {

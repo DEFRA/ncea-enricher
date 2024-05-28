@@ -3,9 +3,9 @@
 namespace Ncea.Enricher.BusinessExceptions;
 
 [ExcludeFromCodeCoverageAttribute]
-public class SynonymsNotAccessibleException : BusinessException
+public class BlobStorageNotAccessibleException : BusinessException
 {
-    public SynonymsNotAccessibleException(string message, Exception inner)
+    public BlobStorageNotAccessibleException(string message, Exception inner)
         : base(message, inner)
     {
     }

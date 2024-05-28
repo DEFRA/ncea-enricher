@@ -1,17 +1,32 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Ncea.Enricher.Infrastructure.Contracts;
+using Ncea.Enricher.Infrastructure.Models.Requests;
 using OfficeOpenXml;
 using System.Data;
+using System.Text;
 
 namespace Ncea.Enricher.Infrastructure;
 
-public class BlobStorageService : IBlobStorageService
+public class BlobService : IBlobService
 {
     private readonly BlobServiceClient _blobServiceClient;
 
-    public BlobStorageService(BlobServiceClient blobServiceClient) =>
+    public BlobService(BlobServiceClient blobServiceClient) =>
         _blobServiceClient = blobServiceClient;
+
+    public async Task<string> GetContentAsync(GetBlobContentRequest request, CancellationToken cancellationToken)
+    {
+        BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(request.Container);
+
+        var blobClient = containerClient.GetBlobClient(request.FileName);
+        var response = await blobClient.DownloadContentAsync(cancellationToken);
+
+        var data = response.Value.Content;
+        var blobContents = Encoding.UTF8.GetString(data);
+
+        return blobContents;
+    }
 
     public async Task<DataTable> ReadExcelFileAsync(string containerName, string fileName, CancellationToken cancellationToken = default)
     {

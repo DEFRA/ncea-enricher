@@ -9,9 +9,9 @@ namespace Ncea.Enricher.Services;
 public class SynonymsProvider : ISynonymsProvider
 {
     private readonly IConfiguration _configuration;
-    private readonly IBlobStorageService _blobStorageService;
+    private readonly IBlobService _blobStorageService;
 
-    public SynonymsProvider(IConfiguration configuration, IBlobStorageService blobStorageService)
+    public SynonymsProvider(IConfiguration configuration, IBlobService blobStorageService)
     {
         _configuration = configuration;
         _blobStorageService = blobStorageService;

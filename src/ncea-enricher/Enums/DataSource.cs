@@ -1,6 +1,6 @@
 ﻿namespace Ncea.Enricher.Enums;
 
-public enum DataSourceNames
+public enum DataSource
 {
     Medin,
     Jncc

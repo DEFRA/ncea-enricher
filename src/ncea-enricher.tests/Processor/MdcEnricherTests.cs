@@ -18,7 +18,7 @@ namespace Ncea.Enricher.Tests.Processor;
 public class MdcEnricherTests
 {
     private IServiceProvider _serviceProvider;
-    private IBlobStorageService _blobStorageService;
+    private IBlobService _blobStorageService;
     private ISynonymsProvider _synonymsProvider;
     private ISearchableFieldConfigurations _searchableFieldConfigurations;
     private ISearchService _searchService;
@@ -54,7 +54,7 @@ public class MdcEnricherTests
         var xDoc = new XmlDocument();
         xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object, _logger);
+        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object);
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
@@ -77,7 +77,7 @@ public class MdcEnricherTests
         var xDoc = new XmlDocument();
         xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object, _logger);
+        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object);
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act

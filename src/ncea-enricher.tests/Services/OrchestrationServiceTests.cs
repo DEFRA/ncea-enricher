@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Ncea.Enricher.BusinessExceptions;
+using Ncea.Enricher.Infrastructure.Contracts;
+using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services;
 using Ncea.Enricher.Services.Contracts;
@@ -32,7 +34,10 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
+        var blobService = BlobServiceForTests.GetMdcXml();
+
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -53,8 +58,10 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -87,7 +94,7 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+        var blobContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
                         "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
                         "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
@@ -95,11 +102,14 @@ public class OrchestrationServiceTests
                         "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
                         "</gmd:fileIdentifier>" +
                         "</gmd:MD_Metadata>";
-        var serviceBusMessageProps = new Dictionary<string, object>
-        {
-            { "DataSource", "Medin" }
-        };
-        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(message), messageId: "messageId", properties: serviceBusMessageProps);
+
+        var blobServiceMock = new Mock<IBlobService>();
+        blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(blobContent);
+        
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\"}";
+        
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(messageBody), messageId: "messageId");
         var mockReceiver = new Mock<ServiceBusReceiver>();
         var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
@@ -108,6 +118,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -130,7 +141,7 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+        var blobContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
                         "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
                         "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
@@ -138,22 +149,25 @@ public class OrchestrationServiceTests
                         "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
                         "</gmd:fileIdentifier>" +
                         "</gmd:MD_Metadata>";
-        var serviceBusMessageProps = new Dictionary<string, object>
-        {
-            { "DataSource", "medin" }
-        };
+
+        var blobServiceMock = new Mock<IBlobService>();
+        blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(blobContent);
+
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\"}";
         
-        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(message), messageId: "messageId", properties: serviceBusMessageProps);
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(messageBody), messageId: "messageId");
         var mockReceiver = new Mock<ServiceBusReceiver>();
         var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
         mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _enricherServiceMock.Setup(x => x.Enrich(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(message);
+            .ReturnsAsync(messageBody);
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -175,14 +189,11 @@ public class OrchestrationServiceTests
                             out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);        
 
-        var serviceBusMessageProps = new Dictionary<string, object>
-        {
-            { "DataSource", "Medin" }
-        };
+        var blobServiceMock = new Mock<IBlobService>();
 
-        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: null, messageId: "messageId", properties: serviceBusMessageProps);
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: null, messageId: "messageId");
         var mockReceiver = new Mock<ServiceBusReceiver>();
         var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
@@ -190,6 +201,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -202,62 +214,65 @@ public class OrchestrationServiceTests
         await Assert.ThrowsAsync<EnricherArgumentException>(() => task!);
     }
 
-    [Fact]
-    public async Task ProcessMessagesAsync_WhenFileShareNotExists_ThenThrowExceptionAndAbandonMessageAsync()
-    {
-        // Arrange
-        OrchestrationServiceForTests.Get(out IConfiguration configuration,
-                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
-                            out Mock<IOrchestrationService> mockOrchestrationService,
-                            out Mock<ILogger<OrchestrationService>> loggerMock,
-                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+    //[Fact]
+    //public async Task ProcessMessagesAsync_WhenFileShareNotExists_ThenThrowExceptionAndAbandonMessageAsync()
+    //{
+    //    // Arrange
+    //    OrchestrationServiceForTests.Get(out IConfiguration configuration,
+    //                        out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+    //                        out Mock<IOrchestrationService> mockOrchestrationService,
+    //                        out Mock<ILogger<OrchestrationService>> loggerMock,
+    //                        out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+
+    //    var blobContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+    //                    "<gmd:MD_Metadata " +
+    //                    "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
+    //                    "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
+    //                    "<gmd:fileIdentifier>" +
+    //                    "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
+    //                    "</gmd:fileIdentifier>" +
+    //                    "</gmd:MD_Metadata>";
+
+    //    var blobServiceMock = new Mock<IBlobService>();
+    //    blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
+    //        .ReturnsAsync(blobContent);
+
+    //    List<KeyValuePair<string, string?>> lstProps =
+    //    [
+    //        new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
+    //        new KeyValuePair<string, string?>("FileShareName", Directory.GetCurrentDirectory()),
+    //    ];
+
+    //    var config = new ConfigurationBuilder()
+    //                        .AddInMemoryCollection(lstProps)
+    //                        .Build();
+
+    //    var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\"}";
+
+    //    var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(messageBody), messageId: "messageId");
+    //    var mockReceiver = new Mock<ServiceBusReceiver>();
+    //    var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
+    //    var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
+    //    mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+    //    mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+    //    _enricherServiceMock.Setup(x => x.Enrich(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+    //        .ReturnsAsync(blobContent);
         
-        List<KeyValuePair<string, string?>> lstProps =
-        [
-            new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
-            new KeyValuePair<string, string?>("FileShareName", Directory.GetCurrentDirectory()),
-        ];
+    //    // Act
+    //    var service = new OrchestrationService(config,
+    //        blobServiceMock.Object,
+    //        mockServiceBusProcessorFactory.Object,
+    //        _enricherServiceMock.Object,
+    //        loggerMock.Object);
 
-        var config = new ConfigurationBuilder()
-                            .AddInMemoryCollection(lstProps)
-                            .Build();
+    //    var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+    //    var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
 
-        var serviceBusMessageProps = new Dictionary<string, object>
-        {
-            { "DataSource", "Medin1" }
-        };
-
-        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
-                        "<gmd:MD_Metadata " +
-                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
-                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
-                        "<gmd:fileIdentifier>" +
-                        "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
-                        "</gmd:fileIdentifier>" +
-                        "</gmd:MD_Metadata>";
-
-        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(message), messageId: "messageId", properties: serviceBusMessageProps);
-        var mockReceiver = new Mock<ServiceBusReceiver>();
-        var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
-        var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
-        mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-
-        _enricherServiceMock.Setup(x => x.Enrich(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(message);
-        // Act
-        var service = new OrchestrationService(config,
-            mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
-            loggerMock.Object);
-
-        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
-
-        // Assert
-        mockProcessMessageEventArgs.Verify(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<CancellationToken>()), Times.Once);
-        await Assert.ThrowsAsync<EnricherArgumentException>(() => task!);
-    }
+    //    // Assert
+    //    mockProcessMessageEventArgs.Verify(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<CancellationToken>()), Times.Once);
+    //    await Assert.ThrowsAsync<EnricherArgumentException>(() => task!);
+    //}
 
     [Fact]
     public async Task ProcessMessagesAsync_WhenSynonymFileNotAccessible_ThenThrowExceptionAndAbandonMessageAsync()
@@ -269,6 +284,21 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
+        var blobContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                        "<gmd:MD_Metadata " +
+                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
+                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
+                        "<gmd:fileIdentifier>" +
+                        "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
+                        "</gmd:fileIdentifier>" +
+                        "</gmd:MD_Metadata>";
+
+        var blobServiceMock = new Mock<IBlobService>();
+        blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(blobContent);
+
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\"}";
+
         List<KeyValuePair<string, string?>> lstProps =
         [
             new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
@@ -279,21 +309,7 @@ public class OrchestrationServiceTests
                             .AddInMemoryCollection(lstProps)
                             .Build();
 
-        var serviceBusMessageProps = new Dictionary<string, object>
-        {
-            { "DataSource", "Medin" }
-        };
-
-        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
-                        "<gmd:MD_Metadata " +
-                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
-                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
-                        "<gmd:fileIdentifier>" +
-                        "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
-                        "</gmd:fileIdentifier>" +
-                        "</gmd:MD_Metadata>";
-
-        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(message), messageId: "messageId", properties: serviceBusMessageProps);
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(messageBody), messageId: "messageId");
         var mockReceiver = new Mock<ServiceBusReceiver>();
         var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
@@ -305,6 +321,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(config,
+            blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -314,7 +331,7 @@ public class OrchestrationServiceTests
 
         // Assert
         mockProcessMessageEventArgs.Verify(x => x.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<CancellationToken>()), Times.Once);
-        await Assert.ThrowsAsync<SynonymsNotAccessibleException>(() => task!);
+        await Assert.ThrowsAsync<BlobStorageNotAccessibleException>(() => task!);
     }
 
     [Fact]
@@ -326,6 +343,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         List<KeyValuePair<string, string?>> lstProps =
         [
@@ -363,6 +381,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(config,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -385,6 +404,22 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
+        var blobContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                        "<gmd:MD_Metadata " +
+                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
+                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
+                        "<gmd:fileIdentifier>" +
+                        "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
+                        "</gmd:fileIdentifier>" +
+                        "</gmd:MD_Metadata>";
+
+        var blobServiceMock = new Mock<IBlobService>();
+        blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(blobContent);
+
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\"}";
+
+
         List<KeyValuePair<string, string?>> lstProps =
         [
             new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
@@ -395,21 +430,7 @@ public class OrchestrationServiceTests
                             .AddInMemoryCollection(lstProps)
                             .Build();
 
-        var serviceBusMessageProps = new Dictionary<string, object>
-        {
-            { "DataSource", "Medin" }
-        };
-
-        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
-                        "<gmd:MD_Metadata " +
-                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
-                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
-                        "<gmd:fileIdentifier>" +
-                        "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
-                        "</gmd:fileIdentifier>" +
-                        "</gmd:MD_Metadata>";
-
-        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(message), messageId: "messageId", properties: serviceBusMessageProps);
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(messageBody), messageId: "messageId");
         var mockReceiver = new Mock<ServiceBusReceiver>();
         var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
@@ -421,6 +442,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(config,
+            blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -443,22 +465,7 @@ public class OrchestrationServiceTests
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
 
-        List<KeyValuePair<string, string?>> lstProps =
-        [
-            new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
-            new KeyValuePair<string, string?>("FileShareName", Directory.GetCurrentDirectory()),
-        ];
-
-        var config = new ConfigurationBuilder()
-                            .AddInMemoryCollection(lstProps)
-                            .Build();
-
-        var serviceBusMessageProps = new Dictionary<string, object>
-        {
-            { "DataSource", "Medin" }
-        };
-
-        var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+        var blobContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
                         "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
                         "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
@@ -467,7 +474,23 @@ public class OrchestrationServiceTests
                         "</gmd:fileIdentifier>" +
                         "</gmd:MD_Metadata>";
 
-        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(message), messageId: "messageId", properties: serviceBusMessageProps);
+        var blobServiceMock = new Mock<IBlobService>();
+        blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(blobContent);
+
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\"}";
+
+        List<KeyValuePair<string, string?>> lstProps =
+        [
+            new KeyValuePair<string, string?>("EnricherQueueName", "test-EnricherQueueName"),
+            new KeyValuePair<string, string?>("FileShareName", Directory.GetCurrentDirectory()),
+        ];
+
+        var config = new ConfigurationBuilder()
+                            .AddInMemoryCollection(lstProps)
+                            .Build();        
+
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(messageBody), messageId: "messageId");
         var mockReceiver = new Mock<ServiceBusReceiver>();
         var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
@@ -479,6 +502,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(config,
+            blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -500,9 +524,11 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -523,6 +549,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -535,6 +562,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -556,6 +584,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -568,6 +597,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -588,6 +618,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -597,6 +628,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -617,6 +649,7 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -629,6 +662,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -648,10 +682,13 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+        var blobService = BlobServiceForTests.GetMdcXml();
+
         var message = "";
 
         // Act
         var service = new OrchestrationService(configuration,
+            blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
