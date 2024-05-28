@@ -25,7 +25,7 @@ public class BlobServiceTests
     }
 
     [Fact]
-    public async Task GetContentAsync_WhenBlobsFromHarvesterExists_ReadTheContnetFromBlob()
+    public async Task GetContentAsync_WhenBlobsFromMapperStagingContainerExists_ReadTheContnetFromBlob()
     {
         // Arrange
         var service = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
@@ -39,5 +39,22 @@ public class BlobServiceTests
         mockBlobServiceClient.Verify(x => x.GetBlobContainerClient(It.IsAny<string>()), Times.Exactly(1));
         mockBlobContainerClient.Verify(x => x.GetBlobClient(It.IsAny<string>()), Times.Exactly(1));
         mockBlobClient.Verify(x => x.DownloadContentAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteBlobAsync_WhenBlobsFromMapperStagingContainerExists_DeleteTheBlob()
+    {
+        // Arrange
+        var service = BlobServiceForTests.Get(out Mock<BlobServiceClient> mockBlobServiceClient,
+                                              out Mock<BlobContainerClient> mockBlobContainerClient,
+                                              out Mock<BlobClient> mockBlobClient);
+
+        // Act
+        await service.DeleteBlobAsync(new DeleteBlobRequest(It.IsAny<string>(), It.IsAny<string>()), It.IsAny<CancellationToken>());
+
+        // Assert
+        mockBlobServiceClient.Verify(x => x.GetBlobContainerClient(It.IsAny<string>()), Times.Exactly(1));
+        mockBlobContainerClient.Verify(x => x.GetBlobClient(It.IsAny<string>()), Times.Exactly(1));
+        mockBlobClient.Verify(x => x.DeleteIfExistsAsync( Azure.Storage.Blobs.Models.DeleteSnapshotsOption.None, null, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
