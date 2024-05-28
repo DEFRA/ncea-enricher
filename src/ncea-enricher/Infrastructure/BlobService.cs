@@ -28,6 +28,13 @@ public class BlobService : IBlobService
         return blobContents;
     }
 
+    public async Task DeleteBlobAsync(DeleteBlobRequest request, CancellationToken cancellationToken)
+    {
+        var containerClient = _blobServiceClient.GetBlobContainerClient(request.Container);
+        var blobClient = containerClient.GetBlobClient(request.FileName);
+        await blobClient.DeleteIfExistsAsync(DeleteSnapshotsOption.None, null, cancellationToken);
+    }
+
     public async Task<DataTable> ReadExcelFileAsync(string containerName, string fileName, CancellationToken cancellationToken = default)
     {
         var dtData = new DataTable();

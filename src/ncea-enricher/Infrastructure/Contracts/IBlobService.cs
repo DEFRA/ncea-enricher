@@ -6,5 +6,6 @@ namespace Ncea.Enricher.Infrastructure.Contracts;
 public interface IBlobService
 {
     Task<string> GetContentAsync(GetBlobContentRequest request, CancellationToken cancellationToken);
-    Task<DataTable> ReadExcelFileAsync(string containerName, string fileName, CancellationToken cancellationToken = default);
+    Task DeleteBlobAsync(DeleteBlobRequest request, CancellationToken cancellationToken);
+    Task<DataTable> ReadExcelFileAsync(string containerName, string fileName, CancellationToken cancellationToken = default);    
 }
