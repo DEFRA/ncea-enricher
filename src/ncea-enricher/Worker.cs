@@ -27,7 +27,7 @@ public class Worker : BackgroundService
         {
             _logger.LogInformation("Ncea Enricher service started at: {time}", DateTimeOffset.Now);
 
-            using (_telemetryClient.StartOperation<RequestTelemetry>("operation"))
+            using (_telemetryClient.StartOperation<RequestTelemetry>("etl-mdc-enrichment"))
             {
                 await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
 

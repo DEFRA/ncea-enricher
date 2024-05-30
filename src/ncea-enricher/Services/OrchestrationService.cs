@@ -21,7 +21,7 @@ namespace Ncea.Enricher.Services;
 
 public class OrchestrationService : IOrchestrationService
 {
-    private const string ProcessorErrorMessage = "Error in processing message in ncea-enricher service";
+    private const string ProcessorErrorMessage = "Enricher Exception | Error in processing message in ncea-enricher service";
 
     private readonly string _fileShareName;
     private readonly IBlobService _blobService;
@@ -187,6 +187,7 @@ public class OrchestrationService : IOrchestrationService
 
     private async Task HandleException(ProcessMessageEventArgs args, Exception ex, BusinessException businessException)
     {
+        _logger.LogError(businessException, ProcessorErrorMessage);
         CustomLogger.LogErrorMessage(_logger, businessException.Message, ex);
         await args.AbandonMessageAsync(args.Message);
         throw businessException;
