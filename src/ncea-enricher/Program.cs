@@ -111,7 +111,7 @@ static void ConfigureLogging(HostApplicationBuilder builder)
         loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(null, LogLevel.Information);
 
     });
-    builder.Services.AddApplicationInsightsTelemetryWorkerService();
+    builder.Services.AddApplicationInsightsTelemetryWorkerService(o => o.EnableAdaptiveSampling = false);
     builder.Services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
     {
         module.EnableSqlCommandTextInstrumentation = true;
