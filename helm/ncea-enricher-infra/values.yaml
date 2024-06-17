@@ -7,3 +7,9 @@ namespaceQueues:
     roleAssignments:  
       - roleName: QueueSender
       - roleName: QueueReceiver 
+
+storageAccounts:
+  - name: 'nceasrh'
+    owner: 'no'
+    roleAssignments:
+      - roleName: 'DataWriter'
