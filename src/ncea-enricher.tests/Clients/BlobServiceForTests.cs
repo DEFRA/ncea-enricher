@@ -10,7 +10,7 @@ public static class BlobServiceForTests
 {
     public static BlobService Get()
     {
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "NCEA T&F Vocab v1.1 2024-04-02.xlsx");
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Synonyms.xlsx");
         Stream fileStream = File.OpenRead(filePath);
 
         var mockBlobServiceClient = new Mock<BlobServiceClient>();

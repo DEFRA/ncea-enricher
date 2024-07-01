@@ -49,7 +49,7 @@ public class BlobService : IBlobService
             {
                 using (var package = new ExcelPackage(stream))
                 {
-                    var worksheet = package.Workbook.Worksheets["ncea-classifiers"];
+                    var worksheet = package.Workbook.Worksheets["ClassifierSynonyms"];
                     dtData = worksheet.Cells[1, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].ToDataTable(c =>
                     {
                         c.FirstRowIsColumnNames = true;

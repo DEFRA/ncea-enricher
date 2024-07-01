@@ -14,10 +14,14 @@
     <None Remove="TestData\fff8010e6a805ba79102d35dbdda4d93.xml" />
     <None Remove="TestData\MEDIN_Metadata_series_v3_1_2_example 1.xml" />
     <None Remove="TestData\NCEA T&amp;F Vocab v1.1 2024-04-02.xlsx" />
+    <None Remove="TestData\Synonyms.xlsx" />
     <None Remove="TestData\xml_without_mandatory_values.xml" />
   </ItemGroup>
 
   <ItemGroup>    
+    <EmbeddedResource Include="TestData\Synonyms.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>    
     <EmbeddedResource Include="TestData\xml_without_mandatory_values.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>    
@@ -33,6 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.12.0" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Moq" Version="4.20.70" />
