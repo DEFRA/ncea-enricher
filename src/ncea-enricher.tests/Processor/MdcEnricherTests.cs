@@ -4,8 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 using Moq;
+using ncea.enricher.Services.Contracts;
 using Ncea.Enricher.Constants;
 using Ncea.Enricher.Infrastructure.Contracts;
+using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Processors;
 using Ncea.Enricher.Services;
 using Ncea.Enricher.Services.Contracts;
@@ -47,14 +49,26 @@ public class MdcEnricherTests
     {
         //Arrange
         var featureManagerMock = new Mock<IFeatureManager>();
-        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature)).ReturnsAsync(true);
+        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.SynonymBasedClassificationFeature)).ReturnsAsync(true);
         featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MdcValidationFeature)).ReturnsAsync(true);
+
+        var classifierPredictionServiceMock = new Mock<IClassifierPredictionService>();
+        classifierPredictionServiceMock.Setup(x => x.PredictTheme(It.IsAny<string>(), It.IsAny<ModelInputTheme>())).Returns(new ModelOutput());
+        classifierPredictionServiceMock.Setup(x => x.PredictCategory(It.IsAny<string>(), It.IsAny<ModelInputCategory>())).Returns(new ModelOutput());
+        classifierPredictionServiceMock.Setup(x => x.PredictSubCategory(It.IsAny<string>(), It.IsAny<ModelInputSubCategory>())).Returns(new ModelOutput());
 
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "fff8010e6a805ba79102d35dbdda4d93.xml");
         var xDoc = new XmlDocument();
         xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object);
+        var medinService = new MdcEnricher(_synonymsProvider, 
+            _searchableFieldConfigurations, 
+            _searchService, 
+            _nodeService, 
+            _xmlValidationService, 
+            featureManagerMock.Object,
+            classifierPredictionServiceMock.Object);
+
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
@@ -70,14 +84,25 @@ public class MdcEnricherTests
     {
         //Arrange
         var featureManagerMock = new Mock<IFeatureManager>();
-        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature)).ReturnsAsync(false);
+        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.SynonymBasedClassificationFeature)).ReturnsAsync(false);
         featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MdcValidationFeature)).ReturnsAsync(false);
+
+        var classifierPredictionServiceMock = new Mock<IClassifierPredictionService>();
+        classifierPredictionServiceMock.Setup(x => x.PredictTheme(It.IsAny<string>(), It.IsAny<ModelInputTheme>())).Returns(new ModelOutput());
+        classifierPredictionServiceMock.Setup(x => x.PredictCategory(It.IsAny<string>(), It.IsAny<ModelInputCategory>())).Returns(new ModelOutput());
+        classifierPredictionServiceMock.Setup(x => x.PredictSubCategory(It.IsAny<string>(), It.IsAny<ModelInputSubCategory>())).Returns(new ModelOutput());
 
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "fff8010e6a805ba79102d35dbdda4d93.xml");
         var xDoc = new XmlDocument();
         xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object);
+        var medinService = new MdcEnricher(_synonymsProvider, 
+            _searchableFieldConfigurations, 
+            _searchService, 
+            _nodeService, 
+            _xmlValidationService, 
+            featureManagerMock.Object,
+            classifierPredictionServiceMock.Object);
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act

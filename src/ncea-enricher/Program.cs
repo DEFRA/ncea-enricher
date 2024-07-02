@@ -17,6 +17,10 @@ using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Services;
 using Microsoft.FeatureManagement;
 using Ncea.Enricher.Enums;
+using Microsoft.Extensions.ML;
+using Ncea.Enricher.Models.ML;
+using ncea.enricher.Services.Contracts;
+using Ncea.Enricher.Utils;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -41,6 +45,7 @@ ConfigureLogging(builder);
 await ConfigureServiceBusQueue(configuration, builder);
 ConfigureFileShareClient(configuration);
 ConfigureServices(builder);
+ConfigureMachineLearningModels(builder);
 
 var host = builder.Build();
 await host.RunAsync();
@@ -143,6 +148,18 @@ static async Task CreateServiceBusQueueIfNotExist(ServiceBusAdministrationClient
     {
         await servicebusAdminClient.CreateQueueAsync(queueName);
     }
+}
+
+static void ConfigureMachineLearningModels(HostApplicationBuilder builder)
+{
+    builder.Services.AddPredictionEnginePool<ModelInputTheme, ModelOutput>()
+    .FromFile(modelName: "NCEAClassificationModel", filePath: "ncea_classification_model.zip", watchForChanges: true);
+
+    builder.Services.AddPredictionEnginePool<ModelInputCategory, ModelOutput>()
+    .FromFile(modelName: "NCEAClassificationModel", filePath: "ncea_classification_model.zip", watchForChanges: true);
+
+    builder.Services.AddPredictionEnginePool<ModelInputSubCategory, ModelOutput>()
+    .FromFile(modelName: "NCEAClassificationModel", filePath: "ncea_classification_model.zip", watchForChanges: true);
 }
 
 [ExcludeFromCodeCoverage]

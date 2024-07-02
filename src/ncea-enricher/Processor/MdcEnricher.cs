@@ -1,4 +1,5 @@
 ﻿using Microsoft.FeatureManagement;
+using ncea.enricher.Services.Contracts;
 using Ncea.Enricher.Constants;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Processor.Contracts;
@@ -15,13 +16,15 @@ public class MdcEnricher : IEnricherService
     private readonly IXmlNodeService _xmlNodeService;
     private readonly IXmlValidationService _xmlValidationService;
     private readonly IFeatureManager _featureManager;
+    private readonly IClassifierPredictionService _classifierPredictionService;
 
     public MdcEnricher(ISynonymsProvider synonymsProvider,
         ISearchableFieldConfigurations searchableFieldConfigurations,
         ISearchService xmlSearchService,
         IXmlNodeService xmlNodeService,
         IXmlValidationService xmlValidationService,
-        IFeatureManager featureManager)
+        IFeatureManager featureManager,
+        IClassifierPredictionService classifierPredictionService)
     {
         _synonymsProvider = synonymsProvider;
         _searchableFieldConfigurations = searchableFieldConfigurations;
@@ -29,6 +32,7 @@ public class MdcEnricher : IEnricherService
         _xmlNodeService = xmlNodeService;
         _xmlValidationService = xmlValidationService;
         _featureManager = featureManager;
+        _classifierPredictionService = classifierPredictionService;
     }
     public async Task<string> Enrich(string dataSource, string fileIdentifier, string mappedData, CancellationToken cancellationToken = default)
     {
@@ -36,10 +40,13 @@ public class MdcEnricher : IEnricherService
         var rootNode = xDoc.Root!;
 
         var matchedClassifiers = new HashSet<Classifier>();
-
-        if (await _featureManager.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature))
+        if (await _featureManager.IsEnabledAsync(FeatureFlags.SynonymBasedClassificationFeature))
         {
             await FindMatchingClassifiers(rootNode, matchedClassifiers, cancellationToken);
+        }
+        else if (await _featureManager.IsEnabledAsync(FeatureFlags.MLBasedClassificationFeature))
+        {
+            GetPredictedClassifiers(rootNode, matchedClassifiers);
         }
 
         _xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(rootNode, matchedClassifiers);
@@ -50,6 +57,11 @@ public class MdcEnricher : IEnricherService
         }
 
         return await Task.FromResult(xDoc.ToString());
+    }
+
+    private void GetPredictedClassifiers(XElement rootNode, HashSet<Classifier> matchedClassifiers)
+    {
+
     }
 
     private async Task FindMatchingClassifiers(XElement rootNode, HashSet<Classifier> matchedClassifiers, CancellationToken cancellationToken)
