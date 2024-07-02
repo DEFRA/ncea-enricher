@@ -17,7 +17,7 @@ public class SynonymsProvider : ISynonymsProvider
         _blobStorageService = blobStorageService;
     }
 
-    public async Task<List<Classifier>> GetAll(CancellationToken cancellationToken)
+    public async Task<List<ClassifierInfo>> GetAll(CancellationToken cancellationToken)
     {
         var synonymsContainerName = _configuration.GetValue<string>("SynonymsContainerName");
         var synonymsFileName = _configuration.GetValue<string>("SynonymsFileName");
@@ -26,9 +26,9 @@ public class SynonymsProvider : ISynonymsProvider
         return GetClassifiers(rawData);
     }
 
-    private static List<Classifier> GetClassifiers(DataTable rawData)
+    private static List<ClassifierInfo> GetClassifiers(DataTable rawData)
     {
-        var items = new HashSet<Classifier>();
+        var items = new HashSet<ClassifierInfo>();
 
         var regEx = new Regex(@"L([0-9]+)\ ID", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(1000));
 
@@ -72,11 +72,11 @@ public class SynonymsProvider : ISynonymsProvider
         }
     }
 
-    private static Classifier CreateClassifier(DataTable rawData, DataRow row, int level)
+    private static ClassifierInfo CreateClassifier(DataTable rawData, DataRow row, int level)
     {
         var isSynonymColumnExists = rawData.Columns.Contains($"L{level} Synonyms");
 
-        var classifier = new Classifier
+        var classifier = new ClassifierInfo
         {
             ParentId = level == 1 ? null : row[$"L{level - 1} ID"].ToString()!.Trim(),
             Id = row[$"L{level} ID"].ToString()!.Trim(),

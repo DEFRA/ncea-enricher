@@ -21,6 +21,7 @@ using Microsoft.Extensions.ML;
 using Ncea.Enricher.Models.ML;
 using ncea.enricher.Services.Contracts;
 using Ncea.Enricher.Utils;
+using Ncea.Classifier.Microservice;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -133,6 +134,14 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<ISearchService, SearchService>();
     builder.Services.AddSingleton<IXmlNodeService, XmlNodeService>();
     builder.Services.AddSingleton<IXmlValidationService, XPathValidationService>();
+
+    builder.Services.AddHttpClient<INceaClassifierMicroserviceClient, NceaClassifierMicroserviceClient>(client =>
+    {
+        client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ClassifierApiUri")!);
+    });
+
+    builder.Services.AddSingleton<IClassifierVocabularyProvider, ClassifierVocabularyProvider>();
+    builder.Services.Decorate<IClassifierVocabularyProvider, CachedClassifierVocabularyProvider>();
 
     builder.Services.AddMemoryCache();
     builder.Services.AddSingleton<ISynonymsProvider, SynonymsProvider>();

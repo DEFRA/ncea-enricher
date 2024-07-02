@@ -37,7 +37,7 @@ public class CachedSynonymsProviderTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeOfType<List<Classifier>>();
+        result.Should().BeOfType<List<ClassifierInfo>>();
         result.Where(x => x.Level == 1).Count().Should().Be(4);
     }
 
@@ -54,7 +54,7 @@ public class CachedSynonymsProviderTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeOfType<List<Classifier>>();
+        result.Should().BeOfType<List<ClassifierInfo>>();
         result.Where(x => x.Level == 1).Count().Should().Be(4);
     }
 }

@@ -4,17 +4,17 @@ using Ncea.Enricher.Services.Contracts;
 
 namespace Ncea.Enricher.Services;
 
-public class CachedSynonymsProvider : ISynonymsProvider
+public class CachedClassifierVocabularyProvider : IClassifierVocabularyProvider
 {
-    private const string ClassifierListCacheKey = "ClassifierList";
+    private const string ClassifierListCacheKey = "ClassifierVocabularyList";
 
     private readonly IMemoryCache _memoryCache;
-    private readonly ISynonymsProvider _synonymsProvider;
+    private readonly IClassifierVocabularyProvider _classifierVocabularyProvider;
 
-    public CachedSynonymsProvider(IMemoryCache memoryCache, ISynonymsProvider synonymsProvider)
+    public CachedClassifierVocabularyProvider(IMemoryCache memoryCache, IClassifierVocabularyProvider classifierVocabularyProvider)
     {
         _memoryCache = memoryCache;
-        _synonymsProvider = synonymsProvider;
+        _classifierVocabularyProvider = classifierVocabularyProvider;
     }
 
     public async Task<List<ClassifierInfo>> GetAll(CancellationToken cancellationToken)
@@ -24,7 +24,7 @@ public class CachedSynonymsProvider : ISynonymsProvider
 
         if (_memoryCache.TryGetValue(ClassifierListCacheKey, out List<ClassifierInfo> result)) return result;
 
-        result = await _synonymsProvider.GetAll(cancellationToken);
+        result = await _classifierVocabularyProvider.GetAll(cancellationToken);
 
         _memoryCache.Set(ClassifierListCacheKey, result, options);
 

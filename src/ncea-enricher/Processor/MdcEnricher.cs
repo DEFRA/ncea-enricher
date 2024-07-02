@@ -39,7 +39,7 @@ public class MdcEnricher : IEnricherService
         var xDoc = XDocument.Parse(mappedData);
         var rootNode = xDoc.Root!;
 
-        var matchedClassifiers = new HashSet<Classifier>();
+        var matchedClassifiers = new HashSet<ClassifierInfo>();
         if (await _featureManager.IsEnabledAsync(FeatureFlags.SynonymBasedClassificationFeature))
         {
             await FindMatchingClassifiers(rootNode, matchedClassifiers, cancellationToken);
@@ -59,12 +59,12 @@ public class MdcEnricher : IEnricherService
         return await Task.FromResult(xDoc.ToString());
     }
 
-    private void GetPredictedClassifiers(XElement rootNode, HashSet<Classifier> matchedClassifiers)
+    private void GetPredictedClassifiers(XElement rootNode, HashSet<ClassifierInfo> matchedClassifiers)
     {
 
     }
 
-    private async Task FindMatchingClassifiers(XElement rootNode, HashSet<Classifier> matchedClassifiers, CancellationToken cancellationToken)
+    private async Task FindMatchingClassifiers(XElement rootNode, HashSet<ClassifierInfo> matchedClassifiers, CancellationToken cancellationToken)
     {
         var searchableFieldValues = new Dictionary<string, string>();
 
@@ -91,7 +91,7 @@ public class MdcEnricher : IEnricherService
         return metadata;
     }
 
-    private static void CollectRelatedClassifiers(HashSet<Classifier> matchedClassifiers, List<Classifier> classifierList, Classifier classifier)
+    private static void CollectRelatedClassifiers(HashSet<ClassifierInfo> matchedClassifiers, List<ClassifierInfo> classifierList, ClassifierInfo classifier)
     {
         matchedClassifiers.Add(classifier);
         while (classifier.ParentId != null)

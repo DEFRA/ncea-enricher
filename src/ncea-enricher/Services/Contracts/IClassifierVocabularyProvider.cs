@@ -2,7 +2,7 @@
 
 namespace Ncea.Enricher.Services.Contracts;
 
-public interface IClassifierVocabularyProvider
+public interface ISynonymsProvider
 {
     Task<List<ClassifierInfo>> GetAll(CancellationToken cancellationToken);
 }

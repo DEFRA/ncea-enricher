@@ -34,7 +34,7 @@ public class XmlNodeServiceTests
         var xmlNodeService = new XmlNodeService(configuration!);
 
         // Act
-        var result = xmlNodeService.CreateClassifierNode(new Classifier { Id = "lvl1-001", Level = 1, Name = "test-value" }, null);
+        var result = xmlNodeService.CreateClassifierNode(new ClassifierInfo { Id = "lvl1-001", Level = 1, Name = "test-value" }, null);
 
         // Assert
         result.Should().NotBeNull();
@@ -58,13 +58,13 @@ public class XmlNodeServiceTests
         // Arrange
         var configuration = _serviceProvider.GetService<IConfiguration>();
         var xmlNodeService = new XmlNodeService(configuration!);
-        var level2Classifiers = new List<Classifier>
+        var level2Classifiers = new List<ClassifierInfo>
         {
-            new Classifier { Id = "lvl2-001", Level = 2, Name = "test-value-2" }
+            new ClassifierInfo { Id = "lvl2-001", Level = 2, Name = "test-value-2" }
         };
 
         // Act
-        var result = xmlNodeService.CreateClassifierNode(new Classifier { Id = "lvl1-001", Level = 1, Name = "test-value" }, level2Classifiers);
+        var result = xmlNodeService.CreateClassifierNode(new ClassifierInfo { Id = "lvl1-001", Level = 1, Name = "test-value" }, level2Classifiers);
 
         // Assert
         result.Should().NotBeNull();
@@ -96,15 +96,15 @@ public class XmlNodeServiceTests
         // Arrange
         var configuration = _serviceProvider.GetService<IConfiguration>();
         var xmlNodeService = new XmlNodeService(configuration!);
-        var level2AndLevel3Classifiers = new List<Classifier>
+        var level2AndLevel3Classifiers = new List<ClassifierInfo>
         {
-            new Classifier {
+            new ClassifierInfo {
                 Id = "lvl2-001",
                 Level = 2, 
                 Name = "test-value-2", 
-                Children = new List<Classifier> 
+                Children = new List<ClassifierInfo> 
                 {
-                    new Classifier 
+                    new ClassifierInfo 
                     {
                         Id = "lvl3-001",
                         Level = 3,
@@ -115,7 +115,7 @@ public class XmlNodeServiceTests
         };
 
         // Act
-        var result = xmlNodeService.CreateClassifierNode(new Classifier { Id = "lvl1-001", Level = 1, Name = "test-value" }, level2AndLevel3Classifiers);
+        var result = xmlNodeService.CreateClassifierNode(new ClassifierInfo { Id = "lvl1-001", Level = 1, Name = "test-value" }, level2AndLevel3Classifiers);
 
         // Assert
         result.Should().NotBeNull();
@@ -278,7 +278,7 @@ public class XmlNodeServiceTests
         // Arrange
         var configuration = _serviceProvider.GetService<IConfiguration>();
         var xmlNodeService = new XmlNodeService(configuration!);
-        var matchedClassifier = new HashSet<Classifier>();
+        var matchedClassifier = new HashSet<ClassifierInfo>();
 
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
         var xDoc = XDocument.Load(filePath);
@@ -302,12 +302,12 @@ public class XmlNodeServiceTests
         // Arrange
         var configuration = _serviceProvider.GetService<IConfiguration>();
         var xmlNodeService = new XmlNodeService(configuration!);
-        var matchedClassifier = new HashSet<Classifier>
+        var matchedClassifier = new HashSet<ClassifierInfo>
         {
-            new Classifier { ParentId = null, Id = "test-id-1", Level = 1, Name = "test-value-1" },
-            new Classifier { ParentId = "test-id-1", Id = "test-id-2", Level = 2, Name = "test-value-2" },
-            new Classifier { ParentId = "test-id-2", Id = "test-id-3", Level = 3, Name = "test-value-3" },
-            new Classifier { ParentId = null, Id = "test-id-4", Level = 1, Name = "test-value-4" },
+            new ClassifierInfo { ParentId = null, Id = "test-id-1", Level = 1, Name = "test-value-1" },
+            new ClassifierInfo { ParentId = "test-id-1", Id = "test-id-2", Level = 2, Name = "test-value-2" },
+            new ClassifierInfo { ParentId = "test-id-2", Id = "test-id-3", Level = 3, Name = "test-value-3" },
+            new ClassifierInfo { ParentId = null, Id = "test-id-4", Level = 1, Name = "test-value-4" },
         };
 
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
