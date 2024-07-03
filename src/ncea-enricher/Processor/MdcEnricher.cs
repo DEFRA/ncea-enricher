@@ -1,9 +1,10 @@
 ﻿using Microsoft.FeatureManagement;
-using ncea.enricher.Services.Contracts;
 using Ncea.Enricher.Constants;
 using Ncea.Enricher.Models;
+using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
+using Newtonsoft.Json;
 using System.Xml.Linq;
 
 namespace Ncea.Enricher.Processors;
@@ -11,28 +12,31 @@ namespace Ncea.Enricher.Processors;
 public class MdcEnricher : IEnricherService
 {
     private readonly ISynonymsProvider _synonymsProvider;
-    private readonly ISearchableFieldConfigurations _searchableFieldConfigurations;
+    private readonly IMdcFieldConfigurationService _fieldConfigurations;
     private readonly ISearchService _xmlSearchService;
     private readonly IXmlNodeService _xmlNodeService;
     private readonly IXmlValidationService _xmlValidationService;
     private readonly IFeatureManager _featureManager;
     private readonly IClassifierPredictionService _classifierPredictionService;
+    private readonly IClassifierVocabularyProvider _classifierVocabularyProvider;
 
     public MdcEnricher(ISynonymsProvider synonymsProvider,
-        ISearchableFieldConfigurations searchableFieldConfigurations,
+        IMdcFieldConfigurationService fieldConfigurations,
         ISearchService xmlSearchService,
         IXmlNodeService xmlNodeService,
         IXmlValidationService xmlValidationService,
         IFeatureManager featureManager,
-        IClassifierPredictionService classifierPredictionService)
+        IClassifierPredictionService classifierPredictionService,
+        IClassifierVocabularyProvider classifierVocabularyProvider)
     {
         _synonymsProvider = synonymsProvider;
-        _searchableFieldConfigurations = searchableFieldConfigurations;
+        _fieldConfigurations = fieldConfigurations;
         _xmlSearchService = xmlSearchService;
         _xmlNodeService = xmlNodeService;
         _xmlValidationService = xmlValidationService;
         _featureManager = featureManager;
         _classifierPredictionService = classifierPredictionService;
+        _classifierVocabularyProvider = classifierVocabularyProvider;
     }
     public async Task<string> Enrich(string dataSource, string fileIdentifier, string mappedData, CancellationToken cancellationToken = default)
     {
@@ -46,7 +50,7 @@ public class MdcEnricher : IEnricherService
         }
         else if (await _featureManager.IsEnabledAsync(FeatureFlags.MLBasedClassificationFeature))
         {
-            GetPredictedClassifiers(rootNode, matchedClassifiers);
+            await GetPredictedClassifiers(rootNode, matchedClassifiers, cancellationToken);
         }
 
         _xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(rootNode, matchedClassifiers);
@@ -59,10 +63,48 @@ public class MdcEnricher : IEnricherService
         return await Task.FromResult(xDoc.ToString());
     }
 
-    private void GetPredictedClassifiers(XElement rootNode, HashSet<ClassifierInfo> matchedClassifiers)
+    private async Task GetPredictedClassifiers(XElement rootNode, HashSet<ClassifierInfo> matchedClassifiers, CancellationToken cancellationToken)
     {
+        var modelInputs = GetPredictionModelInputs(rootNode)!;
 
+        var classifierVocabulary = await _classifierVocabularyProvider.GetAll(cancellationToken);
+
+        var themeModelInputs = JsonConvert.DeserializeObject<ModelInputTheme>(modelInputs)!;
+        var predictedThemes = _classifierPredictionService.PredictTheme(TrainedModels.Theme, themeModelInputs);
+        if(predictedThemes != null && !string.IsNullOrWhiteSpace(predictedThemes.PredictedLabel))
+        {
+            ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 1, predictedThemes);
+        }
+
+        //var possibleCategories = _classifierPredictionService.PredictCategory(TrainedModels.Category, JsonConvert.DeserializeObject<ModelInputCategory>(modelInputs)!);
+        //if (possibleCategories != null && !string.IsNullOrWhiteSpace(possibleCategories.PredictedLabel))
+        //{
+        //    ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 2, possibleCategories);
+        //}
+
+        //var possibleSubCategories = _classifierPredictionService.PredictSubCategory(TrainedModels.Subcategory, JsonConvert.DeserializeObject<ModelInputSubCategory>(modelInputs)!);
+        //if (possibleSubCategories != null && !string.IsNullOrWhiteSpace(possibleSubCategories.PredictedLabel))
+        //{
+        //    ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 3, possibleSubCategories);
+        //}
     }
+
+    private static void ConsolidatePredictedClassifiers(HashSet<ClassifierInfo> matchedClassifiers, List<ClassifierInfo> classifierVocabulary, int classifierLevel, ModelOutput output)
+    {
+        var predictedValues = output.PredictedLabel!.Trim().Split(',').Select(x => x.Trim()).Distinct();
+        var classifiers = classifierVocabulary.Where(x => x.Level == classifierLevel && predictedValues.Contains(x.Name));
+        foreach (var classifier in classifiers)
+        {
+            if(classifierLevel > 1)
+            {
+                if(!matchedClassifiers.Any(x => x.Id == classifier.ParentId))
+                {
+                    matchedClassifiers.Add(classifierVocabulary.FirstOrDefault(x => x.Id == classifier.ParentId)!);
+                }
+            }
+            matchedClassifiers.Add(classifier);
+        }
+    } 
 
     private async Task FindMatchingClassifiers(XElement rootNode, HashSet<ClassifierInfo> matchedClassifiers, CancellationToken cancellationToken)
     {
@@ -81,7 +123,7 @@ public class MdcEnricher : IEnricherService
 
     private List<string> GetSearchableMetadataFieldValues(Dictionary<string, string> searchableFieldValues, XElement rootNode)
     {
-        var searchableFields = _searchableFieldConfigurations.GetAll();
+        var searchableFields = _fieldConfigurations.GetFieldsForClassification();
         foreach (var searchableField in searchableFields)
         {
             var fieldValue = _xmlNodeService.GetNodeValues(searchableField, rootNode);
@@ -89,6 +131,18 @@ public class MdcEnricher : IEnricherService
         }
         var metadata = searchableFieldValues.Where(x => !string.IsNullOrEmpty(x.Value)).Select(x => x.Value).ToList();
         return metadata;
+    }
+
+    private string GetPredictionModelInputs(XElement rootNode)
+    {
+        var fieldValues = new Dictionary<string, string>();
+        var classifierFields = _fieldConfigurations.GetFieldsForClassification();
+        foreach (var classifierField in classifierFields)
+        {
+            var fieldValue = _xmlNodeService.GetNodeValues(classifierField, rootNode);
+            fieldValues.Add(classifierField.Name.ToString(), fieldValue);
+        }
+        return JsonConvert.SerializeObject(fieldValues);
     }
 
     private static void CollectRelatedClassifiers(HashSet<ClassifierInfo> matchedClassifiers, List<ClassifierInfo> classifierList, ClassifierInfo classifier)

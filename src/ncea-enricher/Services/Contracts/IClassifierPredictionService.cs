@@ -1,6 +1,6 @@
 ﻿using Ncea.Enricher.Models.ML;
 
-namespace ncea.enricher.Services.Contracts;
+namespace Ncea.Enricher.Services.Contracts;
 
 public interface IClassifierPredictionService
 {

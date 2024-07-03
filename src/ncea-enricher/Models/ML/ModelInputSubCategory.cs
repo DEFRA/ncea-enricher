@@ -2,9 +2,14 @@
 
 namespace Ncea.Enricher.Models.ML;
 
-public class ModelInputSubCategory : ModelInputCategory
+public class ModelInputSubCategory : ModelInputBase
 {
-    [LoadColumn(8)]
+    [ColumnName(@"Theme")]
+    public string? Theme { get; set; }
+
+    [ColumnName(@"CategoryL2")]
+    public string? CategoryL2 { get; set; }
+
     [ColumnName(@"Label")]
     public string? SubCategoryL3 { get; set; }
 }

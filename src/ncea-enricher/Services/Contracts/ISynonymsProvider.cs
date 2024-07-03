@@ -1,8 +1,6 @@
-﻿using Ncea.Enricher.Models;
-
-namespace Ncea.Enricher.Services.Contracts;
+﻿namespace Ncea.Enricher.Services.Contracts;
 
 public interface IClassifierVocabularyProvider
 {
-    Task<List<ClassifierInfo>> GetAll(CancellationToken cancellationToken);
+    Task<List<Models.ClassifierInfo>> GetAll(CancellationToken cancellationToken);
 }

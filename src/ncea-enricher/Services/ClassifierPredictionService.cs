@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.ML;
-using ncea.enricher.Services.Contracts;
+using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Models.ML;
 
 namespace Ncea.Enricher.Services;

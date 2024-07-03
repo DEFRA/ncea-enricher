@@ -2,7 +2,8 @@
 
 namespace Ncea.Enricher.Services.Contracts;
 
-public interface ISearchableFieldConfigurations
+public interface IMdcFieldConfigurationService
 {
     List<Field> GetAll();
+    List<Field> GetFieldsForClassification();
 }
