@@ -53,10 +53,10 @@ internal static class ServiceProviderForTests
             .FromFile(modelName: TrainedModels.Theme, filePath: Path.Combine("MLTrainedModels", "ThemeTrainedModel.zip"), watchForChanges: false);
 
         serviceCollection.AddPredictionEnginePool<ModelInputCategory, ModelOutput>()
-            .FromFile(modelName: TrainedModels.Category, filePath: Path.Combine("MLTrainedModels", "ThemeTrainedModel.zip"), watchForChanges: false);
+            .FromFile(modelName: TrainedModels.Category, filePath: Path.Combine("MLTrainedModels", "CategoryTrainedModel.zip"), watchForChanges: false);
 
         serviceCollection.AddPredictionEnginePool<ModelInputSubCategory, ModelOutput>()
-            .FromFile(modelName: TrainedModels.Subcategory, filePath: Path.Combine("MLTrainedModels", "ThemeTrainedModel.zip"), watchForChanges: false);
+            .FromFile(modelName: TrainedModels.Subcategory, filePath: Path.Combine("MLTrainedModels", "SubCategoryTrainedModel.zip"), watchForChanges: false);
 
         serviceCollection.AddMemoryCache();
 

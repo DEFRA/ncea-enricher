@@ -11,6 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="MLTrainedModels\CategoryTrainedModel.zip" />
+    <None Remove="MLTrainedModels\SubCategoryTrainedModel.zip" />
     <None Remove="MLTrainedModels\ThemeTrainedModel.zip" />
     <None Remove="Schema\gco\basicTypes.xsd" />
     <None Remove="Schema\gco\gco.xsd" />
@@ -21,6 +23,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="MLTrainedModels\CategoryTrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MLTrainedModels\SubCategoryTrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="MLTrainedModels\ThemeTrainedModel.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>

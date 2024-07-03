@@ -22,7 +22,10 @@ public class CachedSynonymsProvider : ISynonymsProvider
         var options = new MemoryCacheEntryOptions()
             .SetSlidingExpiration(TimeSpan.FromMinutes(30));
 
-        if (_memoryCache.TryGetValue(ClassifierListCacheKey, out List<ClassifierInfo> result)) return result;
+        if (_memoryCache.TryGetValue(ClassifierListCacheKey, out List<ClassifierInfo>? result))
+        {
+            return result!;
+        }
 
         result = await _synonymsProvider.GetAll(cancellationToken);
 

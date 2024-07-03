@@ -81,15 +81,25 @@ public class MLBasedEnricher : IEnricherService
 
     private static void ConsolidatePredictedClassifiers(HashSet<ClassifierInfo> matchedClassifiers, List<ClassifierInfo> classifierVocabulary, int classifierLevel, ModelOutput output)
     {
-        var predictedValues = output.PredictedLabel!.Trim().Split(',').Select(x => x.Trim()).Distinct();
-        var classifiers = classifierVocabulary.Where(x => x.Level == classifierLevel && predictedValues.Contains(x.Name));
+        var predictedValues = output.PredictedLabel!
+            .Trim()
+            .Split(',')
+            .Select(x => x.Trim().Substring(0, x.IndexOf(' ')))
+            .Distinct();
+
+        var classifiers = classifierVocabulary.Where(x => x.Level == classifierLevel && predictedValues.Contains(x.Id));
         foreach (var classifier in classifiers)
         {
-            if (classifierLevel > 1 && !matchedClassifiers.Any(x => x.Id == classifier.ParentId))
+            matchedClassifiers.Add(classifier);           
+            
+            var parentId = classifier.ParentId;
+            while (parentId != null && !matchedClassifiers.Any(x => x.Id == parentId))
             {
-                matchedClassifiers.Add(classifierVocabulary.Find(x => x.Id == classifier.ParentId)!);
+                var parentClassifier = classifierVocabulary.Single(x => x.Id == parentId);
+                matchedClassifiers.Add(parentClassifier);
+
+                parentId = parentClassifier.ParentId;
             }
-            matchedClassifiers.Add(classifier);
         }
     } 
     
