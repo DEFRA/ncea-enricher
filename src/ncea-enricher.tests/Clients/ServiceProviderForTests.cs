@@ -25,7 +25,7 @@ internal static class ServiceProviderForTests
 
 
         serviceCollection.AddLogging();
-        serviceCollection.AddSingleton<IEnricherService, MdcEnricher>();
+        serviceCollection.AddSingleton<IEnricherService, SynonymBasedEnricher>();
 
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())

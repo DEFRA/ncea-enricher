@@ -1,6 +1,6 @@
 ﻿namespace Ncea.Enricher.Constants;
 
-public class ApiKeyParameters
+public static class ApiKeyParameters
 {
     public const string ApiKeyHeaderName = "X-API-Key";
 

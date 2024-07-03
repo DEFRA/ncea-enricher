@@ -148,7 +148,7 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<IClassifierVocabularyProvider, ClassifierVocabularyProvider>();
     builder.Services.Decorate<IClassifierVocabularyProvider, CachedClassifierVocabularyProvider>();
 
-    builder.Services.AddSingleton<IEnricherService, MdcEnricher>();
+    builder.Services.AddSingleton<IEnricherService, SynonymBasedEnricher>();
 }
 
 static async Task CreateServiceBusQueueIfNotExist(ServiceBusAdministrationClient servicebusAdminClient, string queueName)
@@ -166,10 +166,10 @@ static void ConfigureMachineLearningModels(HostApplicationBuilder builder)
     .FromFile(modelName: TrainedModels.Theme, filePath: Path.Combine("MLTrainedModels","ThemeTrainedModel.zip"), watchForChanges: false);
 
     builder.Services.AddPredictionEnginePool<ModelInputCategory, ModelOutput>()
-    .FromFile(modelName: TrainedModels.Category, filePath: Path.Combine("MLTrainedModels", "ThemeTrainedModel.zip"), watchForChanges: false);
+    .FromFile(modelName: TrainedModels.Category, filePath: Path.Combine("MLTrainedModels", "CategoryTrainedModel.zip"), watchForChanges: false);
 
     builder.Services.AddPredictionEnginePool<ModelInputSubCategory, ModelOutput>()
-    .FromFile(modelName: TrainedModels.Subcategory, filePath: Path.Combine("MLTrainedModels", "ThemeTrainedModel.zip"), watchForChanges: false);
+    .FromFile(modelName: TrainedModels.Subcategory, filePath: Path.Combine("MLTrainedModels", "SubCategoryTrainedModel.zip"), watchForChanges: false);
 }
 
 [ExcludeFromCodeCoverage]
