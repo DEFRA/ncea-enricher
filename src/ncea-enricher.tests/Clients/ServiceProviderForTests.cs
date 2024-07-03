@@ -37,7 +37,7 @@ internal static class ServiceProviderForTests
                  path: "appsettings-fieldconfigurations.json",
                  optional: false,
                  reloadOnChange: true)
-            .AddAzureKeyVault(new SecretClient(new Uri("https://devnceinfkvt1401.vault.azure.net/"), new DefaultAzureCredential()), new KeyVaultSecretManager())
+            //.AddAzureKeyVault(new SecretClient(new Uri("https://devnceinfkvt1401.vault.azure.net/"), new DefaultAzureCredential()), new KeyVaultSecretManager())
            .Build();
         serviceCollection.AddSingleton<IConfiguration>(configuration);
 

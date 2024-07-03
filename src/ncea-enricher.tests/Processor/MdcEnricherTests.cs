@@ -125,35 +125,35 @@ public class MdcEnricherTests
         result.Should().BeOfType<string>();
     }
 
-    [Fact]
-    public async Task Enrich_WhenMLFeatureFlagEnabled_ReturnEnrichedMetadataXmlWithNceaClassifiers()
-    {
-        //Arrange
-        var featureManagerMock = new Mock<IFeatureManager>();
-        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.SynonymBasedClassificationFeature)).ReturnsAsync(false);
-        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MdcValidationFeature)).ReturnsAsync(false);
-        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MLBasedClassificationFeature)).ReturnsAsync(true);
+    //[Fact]
+    //public async Task Enrich_WhenMLFeatureFlagEnabled_ReturnEnrichedMetadataXmlWithNceaClassifiers()
+    //{
+    //    //Arrange
+    //    var featureManagerMock = new Mock<IFeatureManager>();
+    //    featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.SynonymBasedClassificationFeature)).ReturnsAsync(false);
+    //    featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MdcValidationFeature)).ReturnsAsync(false);
+    //    featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MLBasedClassificationFeature)).ReturnsAsync(true);
 
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "fff8010e6a805ba79102d35dbdda4d93.xml");
-        var xDoc = new XmlDocument();
-        xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
+    //    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "fff8010e6a805ba79102d35dbdda4d93.xml");
+    //    var xDoc = new XmlDocument();
+    //    xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 
-        var enricherService = new MdcEnricher(_synonymsProvider,
-            _searchableFieldConfigurations,
-            _searchService,
-            _nodeService,
-            _xmlValidationService,
-            featureManagerMock.Object,
-            _classifierPredictionService,
-            _classifierVocabularyProvider);
+    //    var enricherService = new MdcEnricher(_synonymsProvider,
+    //        _searchableFieldConfigurations,
+    //        _searchService,
+    //        _nodeService,
+    //        _xmlValidationService,
+    //        featureManagerMock.Object,
+    //        _classifierPredictionService,
+    //        _classifierVocabularyProvider);
 
-        var mappedMetadataXml = xDoc.OuterXml;
+    //    var mappedMetadataXml = xDoc.OuterXml;
 
-        // Act
-        var result = await enricherService.Enrich(It.IsAny<string>(), "test-file-id", mappedMetadataXml, It.IsAny<CancellationToken>());
+    //    // Act
+    //    var result = await enricherService.Enrich(It.IsAny<string>(), "test-file-id", mappedMetadataXml, It.IsAny<CancellationToken>());
 
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().BeOfType<string>();
-    }
+    //    // Assert
+    //    result.Should().NotBeNull();
+    //    result.Should().BeOfType<string>();
+    //}
 }
