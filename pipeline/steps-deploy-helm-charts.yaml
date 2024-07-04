@@ -56,7 +56,7 @@ steps:
         env.serviceBusHostName=$(serviceBusHostName)
         env.keyVaultUri=$(keyVaultUri)
         env.blobStorageUri=$(blobStorageUri)
-        env.classifierApiBaseUri =$(classifierApiBaseUri)
+        env.classifierApiBaseUri=$(classifierApiBaseUri)
         autoscaling.enabled=$(autoScalingEnabled)
         autoscaling.maxReplicas=$(autoScalingMaxReplicas)
     install: true
