@@ -148,15 +148,7 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<IClassifierVocabularyProvider, ClassifierVocabularyProvider>();
     builder.Services.Decorate<IClassifierVocabularyProvider, CachedClassifierVocabularyProvider>();
 
-    var isMLBasedClassificationFeatureEnabled = builder.Configuration.GetValue<bool>("FeatureManagement:EnableMLBasedClassification");
-    if (isMLBasedClassificationFeatureEnabled)
-    {
-        builder.Services.AddSingleton<IEnricherService, MLBasedEnricher>();
-    }
-    else
-    {
-        builder.Services.AddSingleton<IEnricherService, SynonymBasedEnricher>();
-    }
+    builder.Services.AddSingleton<IEnricherService, MLBasedEnricher>();
 }
 
 static async Task CreateServiceBusQueueIfNotExist(ServiceBusAdministrationClient servicebusAdminClient, string queueName)
