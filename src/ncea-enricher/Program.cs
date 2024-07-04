@@ -177,7 +177,7 @@ static void ConfigureMachineLearningModels(HostApplicationBuilder builder)
     .FromFile(modelName: TrainedModels.Category, filePath: Path.Combine("MLTrainedModels", "CategoryTrainedModel.zip"), watchForChanges: false);
 
     builder.Services.AddPredictionEnginePool<ModelInputSubCategory, ModelOutput>()
-    .FromFile(modelName: TrainedModels.Subcategory, filePath: Path.Combine("MLTrainedModels", "SubCategoryTrainedModel.zip"), watchForChanges: false);
+    .FromFile(modelName: TrainedModels.SubCategory, filePath: Path.Combine("MLTrainedModels", "SubCategoryTrainedModel.zip"), watchForChanges: false);
 }
 
 [ExcludeFromCodeCoverage]

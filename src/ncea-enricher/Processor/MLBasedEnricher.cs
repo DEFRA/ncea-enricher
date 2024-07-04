@@ -72,7 +72,7 @@ public class MLBasedEnricher : IEnricherService
             ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 2, possibleCategories);
         }
 
-        var possibleSubCategories = _classifierPredictionService.PredictSubCategory(TrainedModels.Subcategory, JsonConvert.DeserializeObject<ModelInputSubCategory>(modelInputs)!);
+        var possibleSubCategories = _classifierPredictionService.PredictSubCategory(TrainedModels.SubCategory, JsonConvert.DeserializeObject<ModelInputSubCategory>(modelInputs)!);
         if (possibleSubCategories != null && !string.IsNullOrWhiteSpace(possibleSubCategories.PredictedLabel))
         {
             ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 3, possibleSubCategories);

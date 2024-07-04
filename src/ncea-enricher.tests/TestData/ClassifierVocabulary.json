@@ -1,0 +1,830 @@
+[
+  {
+    "code": "lvl1-001",
+    "name": "Natural asset",
+    "level": 1,
+    "classifiers": [
+      {
+        "code": "lv2-001",
+        "name": "Terrestrial and freshwater habitats",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-001",
+            "name": "Broadleaved, mixed and yew woodland",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-002",
+            "name": "Coniferous woodland",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-003",
+            "name": "Boundary and linear features",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-004",
+            "name": "Arable and horticulture",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-005",
+            "name": "Improved grassland",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-006",
+            "name": "Neutral grassland",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-007",
+            "name": "Calcareous grassland",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-008",
+            "name": "Acid grassland",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-009",
+            "name": "Bracken",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-010",
+            "name": "Dwarf shrub heath",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-011",
+            "name": "Fen, marsh and swamp",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-012",
+            "name": "Bogs",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-013",
+            "name": "Standing open water and canals",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-014",
+            "name": "Rivers and streams",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-015",
+            "name": "Montane habitats",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-016",
+            "name": "Inland rock",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-017",
+            "name": "Built up areas and gardens",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      },
+      {
+        "code": "lv2-002",
+        "name": "Coastal and estuarine habitats",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-018",
+            "name": "Coastal dunes and sandy shores",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-019",
+            "name": "Coastal shingle",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-020",
+            "name": "Rock cliffs, ledges and shores including the supralittoral",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-021",
+            "name": "Estuaries",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      },
+      {
+        "code": "lv2-003",
+        "name": "Marine habitats",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-022",
+            "name": "Biogenic habitat",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-023",
+            "name": "Rock (and other hard substrate)",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-024",
+            "name": "Coarse sediment",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-025",
+            "name": "Mixed sediment",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-026",
+            "name": "Sand",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-027",
+            "name": "Mud",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-028",
+            "name": "Pelagic - indeterminate",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-029",
+            "name": "Pelagic - intermittently stratified",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-030",
+            "name": "Pelagic - permanently mixed",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-031",
+            "name": "Pelagic - permanently stratified",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-032",
+            "name": "Pelagic - seasonally stratified",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-033",
+            "name": "Pelagic - region of freshwater influence",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-034",
+            "name": "Pelagic - coastal water (up to 1mm)",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      },
+      {
+        "code": "lv2-004",
+        "name": "Generalist species (spanning multiple habitats)",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-038",
+            "name": "Insects",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-035",
+            "name": "Fish",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-039",
+            "name": "Reptiles",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-040",
+            "name": "Cephalopods",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-036",
+            "name": "Birds",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-037",
+            "name": "Mammals",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-041",
+            "name": "Other",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      },
+      {
+        "code": "lv2-005",
+        "name": "Ecosystem component",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-046",
+            "name": "Soils, Sediments and Geology",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-048",
+            "name": "Atmosphere",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-042",
+            "name": "Climate and Microclimate",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-043",
+            "name": "Ecological community",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-044",
+            "name": "Functional trait",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-045",
+            "name": "Ecosystem process",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-047",
+            "name": "Water Chemistry and Hydrology",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "lvl1-002",
+    "name": "Ecosystem service or benefit",
+    "level": 1,
+    "classifiers": [
+      {
+        "code": "lv2-006",
+        "name": "Provisioning services",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-050",
+            "name": "Materials",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-052",
+            "name": "Energy",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-049",
+            "name": "Food",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-051",
+            "name": "Water",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      },
+      {
+        "code": "lv2-007",
+        "name": "Regulating services",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-054",
+            "name": "Maintaining wild populations",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-055",
+            "name": "Hazard and nuisance reduction",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-056",
+            "name": "Climate regulation",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-053",
+            "name": "Environmental quality",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      },
+      {
+        "code": "lv2-008",
+        "name": "Cultural services",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-057",
+            "name": "Physical, experiential and intellectual interactions",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-058",
+            "name": "Cultural significance of nature",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-059",
+            "name": "Non-use values",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "lvl1-003",
+    "name": "Natural capital valuation",
+    "level": 1,
+    "classifiers": [
+      {
+        "code": "lv2-009",
+        "name": "Monetary",
+        "level": 2,
+        "classifiers": []
+      },
+      {
+        "code": "lv2-010",
+        "name": "Non-monetary",
+        "level": 2,
+        "classifiers": []
+      }
+    ]
+  },
+  {
+    "code": "lvl1-004",
+    "name": "Pressure",
+    "level": 1,
+    "classifiers": [
+      {
+        "code": "lv2-011",
+        "name": "Climate change",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-063",
+            "name": "Sea-level rise",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-064",
+            "name": "More frequent and extreme weather or climate events",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-065",
+            "name": "Changes in precipitation pattern",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-061",
+            "name": "Marine heatwaves",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-062",
+            "name": "Ocean acidification",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-060",
+            "name": "Global warming",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      },
+      {
+        "code": "lv2-012",
+        "name": "Chemical pollution",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-069",
+            "name": "Synthetic compound contamination",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-070",
+            "name": "Radionuclide contamination",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-071",
+            "name": "Introduction of other substances (solid, liquid or gas)",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-072",
+            "name": "De-oxygenation",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-073",
+            "name": "Organic enrichment",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-074",
+            "name": "Nutrient enrichment",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-075",
+            "name": "Air pollution",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-067",
+            "name": "Transitional elements & organometal contamination",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-068",
+            "name": "Hydrocarbon & Polyaromatic hydrocarbons (PAH) contamination",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      },
+      {
+        "code": "lv2-013",
+        "name": "Biological disturbances",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-077",
+            "name": "Introduction of microbial pathogens",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-078",
+            "name": "Introduction or spread of invasive non-indigenous species",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-079",
+            "name": "Removal of non-target species",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-080",
+            "name": "Removal of target species",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-081",
+            "name": "Pest outbreaks",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-082",
+            "name": "Biodiversity loss and extinction",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-083",
+            "name": "Phenological shifts resulting in phenological mismatch",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-066",
+            "name": "Climate-induced range shifts",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-076",
+            "name": "Genetic modification & translocation of indigenous species",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      },
+      {
+        "code": "lv2-014",
+        "name": "Hydrological changes",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-089",
+            "name": "Water abstraction and drainage",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-084",
+            "name": "Temperature changes - local",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-085",
+            "name": "Salinity changes - local",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-086",
+            "name": "Water flow changes - local",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-087",
+            "name": "Emergence regime changes - local",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-088",
+            "name": "Wave exposure changes - local",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      },
+      {
+        "code": "lv2-015",
+        "name": "Land and sea use change",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-090",
+            "name": "Physical change",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-093",
+            "name": "Abrasion/disturbance at the surface of the substratum",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-094",
+            "name": "Penetration and/or disturbance of the substratum below the surface",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-095",
+            "name": "Changes in suspended soils (water clarity)",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-096",
+            "name": "Smothering and siltation rate changes",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-097",
+            "name": "Soil erosion",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-098",
+            "name": "Woodland management and forestry",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-099",
+            "name": "Planning and development",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-100",
+            "name": "Agriculture",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-101",
+            "name": "Energy production and associated infrastructure",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-102",
+            "name": "Recreational use",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-103",
+            "name": "Soil degradation",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-104",
+            "name": "Managed and uncontrolled burning",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-105",
+            "name": "Game bird management",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-106",
+            "name": "Overgrazing & undergrazing",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-107",
+            "name": "Cutting, mowing or cultivation regime",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-108",
+            "name": "Extraction of resources (minerals, peat, non-renewable energy resources)",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-091",
+            "name": "Physical loss",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-092",
+            "name": "Habitat structure changes - removal of substratum",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      },
+      {
+        "code": "lv2-016",
+        "name": "Other pollution or physical pressure",
+        "level": 2,
+        "classifiers": [
+          {
+            "code": "lv3-111",
+            "name": "Noise changes",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-112",
+            "name": "Introduction of light or shading",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-113",
+            "name": "Barriers to species movement",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-114",
+            "name": "Death or injury by collision",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-115",
+            "name": "Visual disturbance",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-109",
+            "name": "Litter",
+            "level": 3,
+            "classifiers": []
+          },
+          {
+            "code": "lv3-110",
+            "name": "Electromagnetic changes",
+            "level": 3,
+            "classifiers": []
+          }
+        ]
+      }
+    ]
+  }
+]

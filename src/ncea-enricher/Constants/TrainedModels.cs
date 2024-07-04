@@ -4,5 +4,5 @@ public static class TrainedModels
 {
     public const string Theme = "ThemeTrainedModel";
     public const string Category = "CategoryTrainedModel";
-    public const string Subcategory = "SubCategoryTrainedModel";
+    public const string SubCategory = "SubCategoryTrainedModel";
 }

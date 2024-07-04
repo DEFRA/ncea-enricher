@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>ncea_enricher.tests</RootNamespace>
+    <RootNamespace>Ncea.Enricher.Tests</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="TestData\ClassifierVocabulary.json" />
     <None Remove="TestData\fff8010e6a805ba79102d35dbdda4d93.xml" />
     <None Remove="TestData\MEDIN_Metadata_series_v3_1_2_example 1.xml" />
     <None Remove="TestData\NCEA T&amp;F Vocab v1.1 2024-04-02.xlsx" />
@@ -19,6 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>    
+    <EmbeddedResource Include="TestData\ClassifierVocabulary.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>    
     <EmbeddedResource Include="TestData\Synonyms.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>    

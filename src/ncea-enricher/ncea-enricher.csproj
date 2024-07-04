@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-ncea_enricher-4a95507a-e12d-4b0d-be93-795bc3624d76</UserSecretsId>
-    <RootNamespace>ncea.enricher</RootNamespace>
+    <RootNamespace>Ncea.Enricher</RootNamespace>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>

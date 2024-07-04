@@ -12,6 +12,7 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Ncea.Enricher.Models.ML;
 using Microsoft.Extensions.ML;
+using Newtonsoft.Json;
 
 namespace Ncea.Enricher.Tests.Clients;
 
@@ -41,11 +42,19 @@ internal static class ServiceProviderForTests
            .Build();
         serviceCollection.AddSingleton<IConfiguration>(configuration);
 
-        serviceCollection.AddHttpClient<INceaClassifierMicroserviceClient, NceaClassifierMicroserviceClient>(client =>
-        {
-            client.BaseAddress = new Uri(configuration.GetValue<string>("ClassifierApiUri")!);
-            client.DefaultRequestHeaders.Add(ApiKeyParameters.ApiKeyHeaderName, configuration.GetValue<string>(ApiKeyParameters.ApiKeyName)!);
-        });
+        var classifierVocabularyFilePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "ClassifierVocabulary.json");
+        var classifierVocabulary = JsonConvert.DeserializeObject<List<ClassifierInfo>>(File.ReadAllText(classifierVocabularyFilePath));
+
+        var classifierMicroserviceClientMock = new Mock<INceaClassifierMicroserviceClient>();
+        classifierMicroserviceClientMock.Setup(s => s.VocabularyAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(classifierVocabulary);
+
+        serviceCollection.AddSingleton(classifierMicroserviceClientMock.Object);
+        //serviceCollection.AddHttpClient<INceaClassifierMicroserviceClient, NceaClassifierMicroserviceClient>(client =>
+        //{
+        //    client.BaseAddress = new Uri(configuration.GetValue<string>("ClassifierApiUri")!);
+        //    client.DefaultRequestHeaders.Add(ApiKeyParameters.ApiKeyHeaderName, configuration.GetValue<string>(ApiKeyParameters.ApiKeyName)!);
+        //});
 
         serviceCollection.AddSingleton<IClassifierPredictionService, ClassifierPredictionService>();
 
@@ -56,7 +65,7 @@ internal static class ServiceProviderForTests
             .FromFile(modelName: TrainedModels.Category, filePath: Path.Combine("MLTrainedModels", "CategoryTrainedModel.zip"), watchForChanges: false);
 
         serviceCollection.AddPredictionEnginePool<ModelInputSubCategory, ModelOutput>()
-            .FromFile(modelName: TrainedModels.Subcategory, filePath: Path.Combine("MLTrainedModels", "SubCategoryTrainedModel.zip"), watchForChanges: false);
+            .FromFile(modelName: TrainedModels.SubCategory, filePath: Path.Combine("MLTrainedModels", "SubCategoryTrainedModel.zip"), watchForChanges: false);
 
         serviceCollection.AddMemoryCache();
 
