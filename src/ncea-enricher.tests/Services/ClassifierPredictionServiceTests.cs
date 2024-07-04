@@ -43,7 +43,8 @@ public class ClassifierPredictionServiceTests
             Lineage = "test-lineage",
             Topics = "test-topics",
             Keywords = "test-keywords",
-            AltTitle = "test-alttitle"
+            AltTitle = "test-alttitle",
+            Theme = "test-theme"
         };
 
         //Act
@@ -79,7 +80,9 @@ public class ClassifierPredictionServiceTests
             Lineage = "test-lineage",
             Topics = "test-topics",
             Keywords = "test-keywords",
-            AltTitle = "test-alttitle"
+            AltTitle = "test-alttitle",
+            Theme = "test-theme",
+            CategoryL2 = "test-category"
         };
 
         //Act
@@ -115,7 +118,10 @@ public class ClassifierPredictionServiceTests
             Lineage = "test-lineage",
             Topics = "test-topics",
             Keywords = "test-keywords",
-            AltTitle = "test-alttitle"
+            AltTitle = "test-alttitle",
+            Theme = "test-theme",
+            CategoryL2 = "test-category",
+            SubCategoryL3 = "test-sub-category"
         };
 
         //Act
