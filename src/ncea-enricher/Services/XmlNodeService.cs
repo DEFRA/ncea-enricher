@@ -31,16 +31,16 @@ public class XmlNodeService : IXmlNodeService
         XNamespace gcoNamespace = "http://www.isotc211.org/2005/gco";
         XNamespace mdcSchemaLocation = _mdcSchemaLocationPath;
 
-        var classifier = new XElement(mdcSchemaLocation + "classifier");
+        var classifier = new XElement(mdcSchemaLocation + "Classifier");
 
         //Create classifierValue node
-        var classifierValue = new XElement(mdcSchemaLocation + "name");
+        var classifierValue = new XElement(mdcSchemaLocation + "Name");
         var classifierValueCharacterString = new XElement(gcoNamespace + "CharacterString", parentClassifier.Name);
         classifierValue.Add(classifierValueCharacterString);
         classifier.Add(classifierValue);
 
         //Create classifierCode node
-        var classifierCode = new XElement(mdcSchemaLocation + "code");
+        var classifierCode = new XElement(mdcSchemaLocation + "Code");
         var classifierCodeCharacterString = new XElement(gcoNamespace + "CharacterString", parentClassifier.Id);
         classifierCode.Add(classifierCodeCharacterString);
         classifier.Add(classifierCode);
@@ -95,14 +95,14 @@ public class XmlNodeService : IXmlNodeService
 
     public XElement GetNCClassifiersParentNode(XElement rootNode)
     {
-        var classifierInfo = rootNode.XPathSelectElement("//mdc:nceaClassifierInfo", _nsMgr);
+        var classifierInfo = rootNode.XPathSelectElement("//mdc:NceaClassifierInfo", _nsMgr);
         if (classifierInfo != null)
         {
             return classifierInfo.Elements().FirstOrDefault()!;
         }
 
         XNamespace mdcSchemaLocation = _mdcSchemaLocationPath;
-        var nceaClassifierInfo = new XElement(mdcSchemaLocation + "nceaClassifierInfo");
+        var nceaClassifierInfo = new XElement(mdcSchemaLocation + "NceaClassifierInfo");
         var nc_Classifiers = new XElement(mdcSchemaLocation + "NC_Classifiers");
         nceaClassifierInfo.Add(nc_Classifiers);
         rootNode.Add(nceaClassifierInfo);

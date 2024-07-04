@@ -40,11 +40,11 @@ public class XmlNodeServiceTests
         result.Should().NotBeNull();
         result.Should().BeOfType<XElement>();
 
-        var classifierName = result.XPathSelectElement("//mdc:name/gco:CharacterString", _xmlNamespaceManager);
+        var classifierName = result.XPathSelectElement("//mdc:Name/gco:CharacterString", _xmlNamespaceManager);
         classifierName.Should().NotBeNull();
         classifierName!.Value.Should().Be("test-value");
 
-        var classifierCode = result.XPathSelectElement("//mdc:code/gco:CharacterString", _xmlNamespaceManager);
+        var classifierCode = result.XPathSelectElement("//mdc:Code/gco:CharacterString", _xmlNamespaceManager);
         classifierCode.Should().NotBeNull();
         classifierCode!.Value.Should().Be("lvl1-001");
 
@@ -70,22 +70,22 @@ public class XmlNodeServiceTests
         result.Should().NotBeNull();
         result.Should().BeOfType<XElement>();
 
-        var classifierName = result.XPathSelectElement("//mdc:name/gco:CharacterString", _xmlNamespaceManager);
+        var classifierName = result.XPathSelectElement("//mdc:Name/gco:CharacterString", _xmlNamespaceManager);
         classifierName.Should().NotBeNull();
         classifierName!.Value.Should().Be("test-value");
 
-        var classifierCode = result.XPathSelectElement("//mdc:code/gco:CharacterString", _xmlNamespaceManager);
+        var classifierCode = result.XPathSelectElement("//mdc:Code/gco:CharacterString", _xmlNamespaceManager);
         classifierCode.Should().NotBeNull();
         classifierCode!.Value.Should().Be("lvl1-001");
 
         var ncClassifiers = result.XPathSelectElement("//mdc:NC_Classifiers", _xmlNamespaceManager);
         ncClassifiers.Should().NotBeNull();
 
-        var classifierName2 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:name/gco:CharacterString", _xmlNamespaceManager);
+        var classifierName2 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:Classifier/mdc:Name/gco:CharacterString", _xmlNamespaceManager);
         classifierName2.Should().NotBeNull();
         classifierName2!.Value.Should().Be("test-value-2");
 
-        var classifierCode2 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:code/gco:CharacterString", _xmlNamespaceManager);
+        var classifierCode2 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:Classifier/mdc:Code/gco:CharacterString", _xmlNamespaceManager);
         classifierCode2.Should().NotBeNull();
         classifierCode2!.Value.Should().Be("lvl2-001");
     }
@@ -121,33 +121,33 @@ public class XmlNodeServiceTests
         result.Should().NotBeNull();
         result.Should().BeOfType<XElement>();
 
-        var classifierName = result.XPathSelectElement("//mdc:name/gco:CharacterString", _xmlNamespaceManager);
+        var classifierName = result.XPathSelectElement("//mdc:Name/gco:CharacterString", _xmlNamespaceManager);
         classifierName.Should().NotBeNull();
         classifierName!.Value.Should().Be("test-value");
 
-        var classifierCode = result.XPathSelectElement("//mdc:code/gco:CharacterString", _xmlNamespaceManager);
+        var classifierCode = result.XPathSelectElement("//mdc:Code/gco:CharacterString", _xmlNamespaceManager);
         classifierCode.Should().NotBeNull();
         classifierCode!.Value.Should().Be("lvl1-001");
 
         var ncClassifiers = result.XPathSelectElement("//mdc:NC_Classifiers", _xmlNamespaceManager);
         ncClassifiers.Should().NotBeNull();
 
-        var classifierName2 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:name/gco:CharacterString", _xmlNamespaceManager);
+        var classifierName2 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:Classifier/mdc:Name/gco:CharacterString", _xmlNamespaceManager);
         classifierName2.Should().NotBeNull();
         classifierName2!.Value.Should().Be("test-value-2");
 
-        var classifierCode2 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:code/gco:CharacterString", _xmlNamespaceManager);
+        var classifierCode2 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:Classifier/mdc:Code/gco:CharacterString", _xmlNamespaceManager);
         classifierCode2.Should().NotBeNull();
         classifierCode2!.Value.Should().Be("lvl2-001");
 
-        var ncClassifiers1 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:NC_Classifiers", _xmlNamespaceManager);
+        var ncClassifiers1 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:Classifier/mdc:NC_Classifiers", _xmlNamespaceManager);
         ncClassifiers1.Should().NotBeNull();
 
-        var classifierName3 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:NC_Classifiers/mdc:classifier/mdc:name/gco:CharacterString", _xmlNamespaceManager);
+        var classifierName3 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:Classifier/mdc:NC_Classifiers/mdc:Classifier/mdc:Name/gco:CharacterString", _xmlNamespaceManager);
         classifierName3.Should().NotBeNull();
         classifierName3!.Value.Should().Be("test-value-3");
 
-        var classifierCode3 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:classifier/mdc:NC_Classifiers/mdc:classifier/mdc:code/gco:CharacterString", _xmlNamespaceManager);
+        var classifierCode3 = result.XPathSelectElement("//mdc:NC_Classifiers/mdc:Classifier/mdc:NC_Classifiers/mdc:Classifier/mdc:Code/gco:CharacterString", _xmlNamespaceManager);
         classifierCode3.Should().NotBeNull();
         classifierCode3!.Value.Should().Be("lvl3-001");
     }
@@ -287,7 +287,7 @@ public class XmlNodeServiceTests
         xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(xDoc.Root!, matchedClassifier);
 
         // Assert
-        var nceaClassifierInfo = xDoc.XPathSelectElement("//mdc:nceaClassifierInfo", _xmlNamespaceManager);
+        var nceaClassifierInfo = xDoc.XPathSelectElement("//mdc:NceaClassifierInfo", _xmlNamespaceManager);
         nceaClassifierInfo.Should().NotBeNull();
 
         var ncClassifiers = xDoc.XPathSelectElement("//mdc:NC_Classifiers", _xmlNamespaceManager);
@@ -317,7 +317,7 @@ public class XmlNodeServiceTests
         xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(xDoc.Root!, matchedClassifier);
 
         // Assert
-        var nceaClassifierInfo = xDoc.XPathSelectElement("//mdc:nceaClassifierInfo", _xmlNamespaceManager);
+        var nceaClassifierInfo = xDoc.XPathSelectElement("//mdc:NceaClassifierInfo", _xmlNamespaceManager);
         nceaClassifierInfo.Should().NotBeNull();
 
         var ncClassifiers = xDoc.XPathSelectElement("//mdc:NC_Classifiers", _xmlNamespaceManager);
