@@ -50,11 +50,6 @@ internal static class ServiceProviderForTests
             .ReturnsAsync(classifierVocabulary);
 
         serviceCollection.AddSingleton(classifierMicroserviceClientMock.Object);
-        //serviceCollection.AddHttpClient<INceaClassifierMicroserviceClient, NceaClassifierMicroserviceClient>(client =>
-        //{
-        //    client.BaseAddress = new Uri(configuration.GetValue<string>("ClassifierApiUri")!);
-        //    client.DefaultRequestHeaders.Add(ApiKeyParameters.ApiKeyHeaderName, configuration.GetValue<string>(ApiKeyParameters.ApiKeyName)!);
-        //});
 
         serviceCollection.AddSingleton<IClassifierPredictionService, ClassifierPredictionService>();
 

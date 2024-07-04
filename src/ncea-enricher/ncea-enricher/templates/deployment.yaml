@@ -59,6 +59,8 @@ spec:
               value: {{ .Values.env.keyVaultUri }}
             - name: BlobStorageUri
               value: {{ .Values.env.blobStorageUri }}
+            - name: ClassifierApiBaseUri
+              value: {{ .Values.env.classifierApiBaseUri }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}

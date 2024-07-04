@@ -49,10 +49,7 @@ public class MLBasedEnricherTests
         featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MdcValidationFeature)).ReturnsAsync(true);
         featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MLBasedClassificationFeature)).ReturnsAsync(true);
 
-        //var classifierVocabularyProviderMock = new Mock<IClassifierVocabularyProvider>();
-        //classifierVocabularyProviderMock.Setup(x => x.GetAll(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Enricher.Models.ClassifierInfo>());
-
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "fff8010e6a805ba79102d35dbdda4d93.xml");
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
         var xDoc = new XmlDocument();
         xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 

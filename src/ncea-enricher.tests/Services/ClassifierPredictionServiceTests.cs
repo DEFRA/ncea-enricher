@@ -33,6 +33,28 @@ public class ClassifierPredictionServiceTests
     }
 
     [Fact]
+    public void GivenPredictTheme_WhenInputValuesAreNotNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
+    {
+        //Arrange
+        var input = new ModelInputTheme()
+        {
+            Title = "test-title",
+            Abstract = "test-abstract",
+            Lineage = "test-lineage",
+            Topics = "test-topics",
+            Keywords = "test-keywords",
+            AltTitle = "test-alttitle"
+        };
+
+        //Act
+        var result = _classifierPredictionService.PredictTheme(TrainedModels.Theme, input);
+
+        //Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<ModelOutput>();
+    }
+
+    [Fact]
     public void GivenPredictCategory_WhenInputValuesAreNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
@@ -47,10 +69,54 @@ public class ClassifierPredictionServiceTests
     }
 
     [Fact]
+    public void GivenPredictCategory_WhenInputValuesAreNotNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
+    {
+        //Arrange
+        var input = new ModelInputCategory()
+        {
+            Title = "test-title",
+            Abstract = "test-abstract",
+            Lineage = "test-lineage",
+            Topics = "test-topics",
+            Keywords = "test-keywords",
+            AltTitle = "test-alttitle"
+        };
+
+        //Act
+        var result = _classifierPredictionService.PredictCategory(TrainedModels.Category, input);
+
+        //Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<ModelOutput>();
+    }
+
+    [Fact]
     public void GivenPredictSubCategory_WhenInputValuesAreNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
         var input = new ModelInputSubCategory();
+
+        //Act
+        var result = _classifierPredictionService.PredictSubCategory(TrainedModels.SubCategory, input);
+
+        //Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<ModelOutput>();
+    }
+
+    [Fact]
+    public void GivenPredictSubCategory_WhenInputValuesAreNotNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
+    {
+        //Arrange
+        var input = new ModelInputSubCategory()
+        {
+            Title = "test-title",
+            Abstract = "test-abstract",
+            Lineage = "test-lineage",
+            Topics = "test-topics",
+            Keywords = "test-keywords",
+            AltTitle = "test-alttitle"
+        };
 
         //Act
         var result = _classifierPredictionService.PredictSubCategory(TrainedModels.SubCategory, input);

@@ -24,7 +24,7 @@ public class MdcFieldConfigurationService : IMdcFieldConfigurationService
         var mdcFields = _configuration.GetSection("MdcFields").Get<List<Field>>()!;
 
         return mdcFields
-            .Where(x => x.UsedForNceaProfiling)
+            .Where(x => x.UsedForNceaProfiling == true)
             .ToList();
     }
 }

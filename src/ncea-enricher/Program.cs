@@ -137,7 +137,7 @@ static void ConfigureServices(HostApplicationBuilder builder)
 
     builder.Services.AddHttpClient<INceaClassifierMicroserviceClient, NceaClassifierMicroserviceClient>(client =>
     {
-        client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ClassifierApiUri")!);
+        client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ClassifierApiBaseUri")!);
     });    
 
     builder.Services.AddMemoryCache();

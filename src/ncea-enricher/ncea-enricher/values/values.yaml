@@ -16,6 +16,7 @@ env:
   serviceBusHostName: $(serviceBusHostName)
   keyVaultUri: $(keyVaultUri)
   blobStorageUri: $(blobStorageUri)
+  classifierApiBaseUri: $(classifierApiBaseUri)
 
 podAnnotations: {}
 podLabels: 
