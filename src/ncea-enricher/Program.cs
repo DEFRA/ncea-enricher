@@ -19,8 +19,8 @@ using Microsoft.FeatureManagement;
 using Ncea.Enricher.Enums;
 using Microsoft.Extensions.ML;
 using Ncea.Enricher.Models.ML;
-using Ncea.Classifier.Microservice;
 using Ncea.Enricher.Constants;
+using Ncea.Classifier.Microservice.Clients;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())

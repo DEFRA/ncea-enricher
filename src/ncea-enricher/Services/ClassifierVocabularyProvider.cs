@@ -1,4 +1,4 @@
-﻿using Ncea.Classifier.Microservice;
+﻿using Ncea.Classifier.Microservice.Clients;
 using Ncea.Enricher.Constants;
 using Ncea.Enricher.Services.Contracts;
 
@@ -29,7 +29,7 @@ public class ClassifierVocabularyProvider : IClassifierVocabularyProvider
         return classifierList;
     }
 
-    private static void GetChildren(List<Models.ClassifierInfo> classifierList, Classifier.Microservice.ClassifierInfo parentClassifier)
+    private static void GetChildren(List<Models.ClassifierInfo> classifierList, ClassifierInfo parentClassifier)
     {
         foreach (var classifier in parentClassifier.Classifiers)
         {
