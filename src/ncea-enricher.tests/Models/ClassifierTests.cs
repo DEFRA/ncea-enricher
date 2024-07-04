@@ -9,7 +9,7 @@ public class ClassifierTests
     public void ClassifierEquals_ShouldBeTrue()
     {
         //Arrange
-        var classifier = new Classifier
+        var classifier = new ClassifierInfo
         {
             Id = "test-id",
             ParentId = "test-parent-id",
@@ -27,7 +27,7 @@ public class ClassifierTests
     public void ClassifierObjectEquals_ShouldBeTrue()
     {
         //Arrange
-        var classifier = new Classifier
+        var classifier = new ClassifierInfo
         {
             Id = "test-id",
             ParentId = "test-parent-id",
@@ -45,7 +45,7 @@ public class ClassifierTests
     public void ClassifierEquals_ShouldBeFalse()
     {
         //Arrange
-        var classifier = new Classifier
+        var classifier = new ClassifierInfo
         {
             Id = "test-id",
             ParentId = "test-parent-id",

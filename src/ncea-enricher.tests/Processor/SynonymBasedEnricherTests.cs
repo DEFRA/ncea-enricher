@@ -15,50 +15,59 @@ using System.Xml;
 
 namespace Ncea.Enricher.Tests.Processor;
 
-public class MdcEnricherTests
+public class SynonymBasedEnricherTests
 {
     private IServiceProvider _serviceProvider;
     private IBlobService _blobStorageService;
     private ISynonymsProvider _synonymsProvider;
-    private ISearchableFieldConfigurations _searchableFieldConfigurations;
+    private IMdcFieldConfigurationService _searchableFieldConfigurations;
     private ISearchService _searchService;
     private IXmlNodeService _nodeService;
     private IXmlValidationService _xmlValidationService;
     private IConfiguration _configuration;
-    private ILogger<MdcEnricher> _logger;
+    private ILogger<SynonymBasedEnricher> _logger;
 
-    public MdcEnricherTests()
+    public SynonymBasedEnricherTests()
     {
         _serviceProvider = ServiceProviderForTests.Get();
         _configuration = _serviceProvider.GetService<IConfiguration>()!;
         _blobStorageService = BlobServiceForTests.Get();
         _synonymsProvider = new SynonymsProvider(_configuration, _blobStorageService);
-        _searchableFieldConfigurations = new SearchableFieldConfigurations(_configuration);
+        _searchableFieldConfigurations = new MdcFieldConfigurationService(_configuration);
         _searchService = new SearchService();
         _nodeService = new XmlNodeService(_configuration);
 
         LoggerForTests.Get(out Mock<ILogger<XPathValidationService>> loggerMock);
         _xmlValidationService = new XPathValidationService(_configuration, loggerMock.Object);
-        _logger = _serviceProvider.GetService<ILogger<MdcEnricher>>()!;
+        _logger = _serviceProvider.GetService<ILogger<SynonymBasedEnricher>>()!;
     }
 
     [Fact]
-    public async Task Enrich_WhenFeatureFlagEnabled_ReturnEnrichedMetadataXmlWithNceaClassifiers()
+    public async Task Enrich_WhenSynonymFeatureFlagEnabled_ReturnEnrichedMetadataXmlWithNceaClassifiers()
     {
         //Arrange
         var featureManagerMock = new Mock<IFeatureManager>();
-        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature)).ReturnsAsync(true);
+        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.SynonymBasedClassificationFeature)).ReturnsAsync(true);
         featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MdcValidationFeature)).ReturnsAsync(true);
+        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MLBasedClassificationFeature)).ReturnsAsync(false);
+
+        var classifierVocabularyProviderMock = new Mock<IClassifierVocabularyProvider>();
 
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "fff8010e6a805ba79102d35dbdda4d93.xml");
         var xDoc = new XmlDocument();
         xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object);
+        var enricherService = new SynonymBasedEnricher(featureManagerMock.Object,
+            _nodeService,
+            _xmlValidationService,
+            _searchableFieldConfigurations,
+            _searchService,
+            _synonymsProvider);
+
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
-        var result = await medinService.Enrich(It.IsAny<string>(), "test-file-id", mappedMetadataXml, It.IsAny<CancellationToken>());
+        var result = await enricherService.Enrich(It.IsAny<string>(), "test-file-id", mappedMetadataXml, It.IsAny<CancellationToken>());
 
         // Assert
         result.Should().NotBeNull();
@@ -66,22 +75,29 @@ public class MdcEnricherTests
     }
 
     [Fact]
-    public async Task Enrich_WhenFeatureFlagDisabled_ReturnEnrichedMetadataXmlWithNceaClassifiers()
+    public async Task Enrich_WhenSynonymFeatureFlagDisabled_ReturnEnrichedMetadataXmlWithNceaClassifiers()
     {
         //Arrange
         var featureManagerMock = new Mock<IFeatureManager>();
-        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature)).ReturnsAsync(false);
-        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MdcValidationFeature)).ReturnsAsync(false);
+        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.SynonymBasedClassificationFeature)).ReturnsAsync(false);
+        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MdcValidationFeature)).ReturnsAsync(true);
+        featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MLBasedClassificationFeature)).ReturnsAsync(false);
 
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "fff8010e6a805ba79102d35dbdda4d93.xml");
         var xDoc = new XmlDocument();
         xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 
-        var medinService = new MdcEnricher(_synonymsProvider, _searchableFieldConfigurations, _searchService, _nodeService, _xmlValidationService, featureManagerMock.Object);
+        var enricherService = new SynonymBasedEnricher(featureManagerMock.Object,
+             _nodeService,
+            _xmlValidationService,
+            _searchableFieldConfigurations,
+            _searchService,
+            _synonymsProvider);
+
         var mappedMetadataXml = xDoc.OuterXml;
 
         // Act
-        var result = await medinService.Enrich(It.IsAny<string>(), "test-file-id", mappedMetadataXml, It.IsAny<CancellationToken>());
+        var result = await enricherService.Enrich(It.IsAny<string>(), "test-file-id", mappedMetadataXml, It.IsAny<CancellationToken>());
 
         // Assert
         result.Should().NotBeNull();

@@ -16,6 +16,7 @@ env:
   serviceBusHostName: DEVNCESBINF1401.servicebus.windows.net
   keyVaultUri: https://devnceinfkvt1401.vault.azure.net/
   blobStorageUri: https://devnceinfst1401.blob.core.windows.net
+  classifierApiBaseUri: https://dev-ncea-classifier.azure.defra.cloud/
 
 podAnnotations: {}
 

@@ -7,40 +7,40 @@ using System.Xml.Linq;
 
 namespace Ncea.Enricher.Processors;
 
-public class MdcEnricher : IEnricherService
+public class SynonymBasedEnricher : IEnricherService
 {
-    private readonly ISynonymsProvider _synonymsProvider;
-    private readonly ISearchableFieldConfigurations _searchableFieldConfigurations;
-    private readonly ISearchService _xmlSearchService;
+    private readonly IFeatureManager _featureManager;
     private readonly IXmlNodeService _xmlNodeService;
     private readonly IXmlValidationService _xmlValidationService;
-    private readonly IFeatureManager _featureManager;
+    private readonly IMdcFieldConfigurationService _fieldConfigurations;
+    private readonly ISearchService _xmlSearchService;
+    private readonly ISynonymsProvider _synonymsProvider;
 
-    public MdcEnricher(ISynonymsProvider synonymsProvider,
-        ISearchableFieldConfigurations searchableFieldConfigurations,
-        ISearchService xmlSearchService,
+    public SynonymBasedEnricher(IFeatureManager featureManager,
         IXmlNodeService xmlNodeService,
         IXmlValidationService xmlValidationService,
-        IFeatureManager featureManager)
+        IMdcFieldConfigurationService fieldConfigurations,
+        ISearchService xmlSearchService, 
+        ISynonymsProvider synonymsProvider)
     {
-        _synonymsProvider = synonymsProvider;
-        _searchableFieldConfigurations = searchableFieldConfigurations;
-        _xmlSearchService = xmlSearchService;
+        _featureManager = featureManager;
         _xmlNodeService = xmlNodeService;
         _xmlValidationService = xmlValidationService;
-        _featureManager = featureManager;
+        _fieldConfigurations = fieldConfigurations;
+        _xmlSearchService = xmlSearchService;
+        _synonymsProvider = synonymsProvider;
     }
+
     public async Task<string> Enrich(string dataSource, string fileIdentifier, string mappedData, CancellationToken cancellationToken = default)
     {
         var xDoc = XDocument.Parse(mappedData);
         var rootNode = xDoc.Root!;
 
-        var matchedClassifiers = new HashSet<Classifier>();
-
-        if (await _featureManager.IsEnabledAsync(FeatureFlags.MetadataEnrichmentFeature))
+        var matchedClassifiers = new HashSet<ClassifierInfo>();
+        if (await _featureManager.IsEnabledAsync(FeatureFlags.SynonymBasedClassificationFeature))
         {
             await FindMatchingClassifiers(rootNode, matchedClassifiers, cancellationToken);
-        }
+        }       
 
         _xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(rootNode, matchedClassifiers);
 
@@ -52,7 +52,7 @@ public class MdcEnricher : IEnricherService
         return await Task.FromResult(xDoc.ToString());
     }
 
-    private async Task FindMatchingClassifiers(XElement rootNode, HashSet<Classifier> matchedClassifiers, CancellationToken cancellationToken)
+    private async Task FindMatchingClassifiers(XElement rootNode, HashSet<ClassifierInfo> matchedClassifiers, CancellationToken cancellationToken)
     {
         var searchableFieldValues = new Dictionary<string, string>();
 
@@ -69,7 +69,7 @@ public class MdcEnricher : IEnricherService
 
     private List<string> GetSearchableMetadataFieldValues(Dictionary<string, string> searchableFieldValues, XElement rootNode)
     {
-        var searchableFields = _searchableFieldConfigurations.GetAll();
+        var searchableFields = _fieldConfigurations.GetFieldsForClassification();
         foreach (var searchableField in searchableFields)
         {
             var fieldValue = _xmlNodeService.GetNodeValues(searchableField, rootNode);
@@ -77,9 +77,9 @@ public class MdcEnricher : IEnricherService
         }
         var metadata = searchableFieldValues.Where(x => !string.IsNullOrEmpty(x.Value)).Select(x => x.Value).ToList();
         return metadata;
-    }
+    }    
 
-    private static void CollectRelatedClassifiers(HashSet<Classifier> matchedClassifiers, List<Classifier> classifierList, Classifier classifier)
+    private static void CollectRelatedClassifiers(HashSet<ClassifierInfo> matchedClassifiers, List<ClassifierInfo> classifierList, ClassifierInfo classifier)
     {
         matchedClassifiers.Add(classifier);
         while (classifier.ParentId != null)

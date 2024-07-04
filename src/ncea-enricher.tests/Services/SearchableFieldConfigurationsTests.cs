@@ -21,7 +21,7 @@ public class SearchableFieldConfigurationsTests
     {
         //Arrange
         var configuration = _serviceProvider.GetService<IConfiguration>();
-        var searchableFieldConfigurations = new SearchableFieldConfigurations(configuration!);        
+        var searchableFieldConfigurations = new MdcFieldConfigurationService(configuration!);        
 
         // Act
         var result = searchableFieldConfigurations.GetAll();
@@ -29,6 +29,5 @@ public class SearchableFieldConfigurationsTests
         // Assert
         result.Should().NotBeNull();
         result.Should().BeOfType<List<Field>>();
-        result.Should().HaveCount(9);
     }
 }

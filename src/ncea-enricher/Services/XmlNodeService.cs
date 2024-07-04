@@ -26,7 +26,7 @@ public class XmlNodeService : IXmlNodeService
         _nsMgr.AddNamespace("mdc", _mdcSchemaLocationPath);
     }
 
-    public XElement CreateClassifierNode(Classifier parentClassifier, List<Classifier>? childClassifers)
+    public XElement CreateClassifierNode(ClassifierInfo parentClassifier, List<ClassifierInfo>? childClassifers)
     {
         XNamespace gcoNamespace = "http://www.isotc211.org/2005/gco";
         XNamespace mdcSchemaLocation = _mdcSchemaLocationPath;
@@ -82,7 +82,7 @@ public class XmlNodeService : IXmlNodeService
         return value;
     }
 
-    public void EnrichMetadataXmlWithNceaClassifiers(XElement rootNode, HashSet<Classifier> matchedClassifiers)
+    public void EnrichMetadataXmlWithNceaClassifiers(XElement rootNode, HashSet<ClassifierInfo> matchedClassifiers)
     {
         var ncClassifiersParentNode = GetNCClassifiersParentNode(rootNode);
         var nceaClassifiers = BuildClassifierHierarchies(matchedClassifiers.ToList());
@@ -109,9 +109,9 @@ public class XmlNodeService : IXmlNodeService
         return nc_Classifiers;
     }
 
-    private static List<Classifier> BuildClassifierHierarchies(List<Classifier> flattenedClassifierList)
+    private static List<ClassifierInfo> BuildClassifierHierarchies(List<ClassifierInfo> flattenedClassifierList)
     {
-        Action<Classifier> SetChildren = null!;
+        Action<ClassifierInfo> SetChildren = null!;
 
         SetChildren = parent =>
         {

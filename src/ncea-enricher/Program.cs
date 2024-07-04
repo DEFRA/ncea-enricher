@@ -17,6 +17,10 @@ using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Services;
 using Microsoft.FeatureManagement;
 using Ncea.Enricher.Enums;
+using Microsoft.Extensions.ML;
+using Ncea.Enricher.Models.ML;
+using Ncea.Enricher.Constants;
+using Ncea.Classifier.Microservice.Clients;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -41,6 +45,7 @@ ConfigureLogging(builder);
 await ConfigureServiceBusQueue(configuration, builder);
 ConfigureFileShareClient(configuration);
 ConfigureServices(builder);
+ConfigureMachineLearningModels(builder);
 
 var host = builder.Build();
 await host.RunAsync();
@@ -124,16 +129,26 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<IApiClient, ApiClient>();
     builder.Services.AddSingleton<IOrchestrationService, OrchestrationService>();
     builder.Services.AddSingleton<IBlobService, BlobService>();
-    builder.Services.AddSingleton<ISearchableFieldConfigurations, SearchableFieldConfigurations>();
+    builder.Services.AddSingleton<IMdcFieldConfigurationService, MdcFieldConfigurationService>();
     builder.Services.AddSingleton<ISearchService, SearchService>();
     builder.Services.AddSingleton<IXmlNodeService, XmlNodeService>();
     builder.Services.AddSingleton<IXmlValidationService, XPathValidationService>();
+    builder.Services.AddSingleton<IClassifierPredictionService, ClassifierPredictionService>();
+
+    builder.Services.AddHttpClient<INceaClassifierMicroserviceClient, NceaClassifierMicroserviceClient>(client =>
+    {
+        client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ClassifierApiBaseUri")!);
+    });    
 
     builder.Services.AddMemoryCache();
+
     builder.Services.AddSingleton<ISynonymsProvider, SynonymsProvider>();
     builder.Services.Decorate<ISynonymsProvider, CachedSynonymsProvider>();
-    
-    builder.Services.AddSingleton<IEnricherService, MdcEnricher>();
+
+    builder.Services.AddSingleton<IClassifierVocabularyProvider, ClassifierVocabularyProvider>();
+    builder.Services.Decorate<IClassifierVocabularyProvider, CachedClassifierVocabularyProvider>();
+
+    builder.Services.AddSingleton<IEnricherService, MLBasedEnricher>();
 }
 
 static async Task CreateServiceBusQueueIfNotExist(ServiceBusAdministrationClient servicebusAdminClient, string queueName)
@@ -143,6 +158,18 @@ static async Task CreateServiceBusQueueIfNotExist(ServiceBusAdministrationClient
     {
         await servicebusAdminClient.CreateQueueAsync(queueName);
     }
+}
+
+static void ConfigureMachineLearningModels(HostApplicationBuilder builder)
+{
+    builder.Services.AddPredictionEnginePool<ModelInputTheme, ModelOutput>()
+    .FromFile(modelName: TrainedModels.Theme, filePath: Path.Combine("MLTrainedModels","ThemeTrainedModel.zip"), watchForChanges: false);
+
+    builder.Services.AddPredictionEnginePool<ModelInputCategory, ModelOutput>()
+    .FromFile(modelName: TrainedModels.Category, filePath: Path.Combine("MLTrainedModels", "CategoryTrainedModel.zip"), watchForChanges: false);
+
+    builder.Services.AddPredictionEnginePool<ModelInputSubCategory, ModelOutput>()
+    .FromFile(modelName: TrainedModels.SubCategory, filePath: Path.Combine("MLTrainedModels", "SubCategoryTrainedModel.zip"), watchForChanges: false);
 }
 
 [ExcludeFromCodeCoverage]
