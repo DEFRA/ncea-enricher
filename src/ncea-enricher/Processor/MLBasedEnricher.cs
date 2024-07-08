@@ -88,7 +88,7 @@ public class MLBasedEnricher : IEnricherService
 
             _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText}, Missing ParentIds : {missingparentIds}",
                 predictedClassifiersLogText,
-                string.Join(", ", missingParentClassifiers != null ? missingParentClassifiers.ToArray() : string.Empty));
+                string.Join(", ", missingParentClassifiers.ToArray()));
         }
     }
 
