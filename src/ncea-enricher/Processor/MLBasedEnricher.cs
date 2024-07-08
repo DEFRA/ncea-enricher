@@ -79,7 +79,7 @@ public class MLBasedEnricher : IEnricherService
         ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 2, predictedCategories, missingParentClassifiers);
         ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 3, predictedSubCategories, missingParentClassifiers);
 
-        if (missingParentClassifiers.Any())
+        if (missingParentClassifiers.Count > 0)
         {
             var predictedClassifiersLogText = $"Predicted classifiers for FileIdentifier : {fileIdentifier} | " +
             $"Themes: {string.Join(", ", predictedThemes != null ? predictedThemes.ToArray() : string.Empty)} | " +
