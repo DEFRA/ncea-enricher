@@ -10,17 +10,19 @@ public class CachedClassifierVocabularyProvider : IClassifierVocabularyProvider
 
     private readonly IMemoryCache _memoryCache;
     private readonly IClassifierVocabularyProvider _classifierVocabularyProvider;
+    private readonly int _cacheDurationInMinutes;
 
-    public CachedClassifierVocabularyProvider(IMemoryCache memoryCache, IClassifierVocabularyProvider classifierVocabularyProvider)
+    public CachedClassifierVocabularyProvider(IMemoryCache memoryCache, IClassifierVocabularyProvider classifierVocabularyProvider, IConfiguration configuration)
     {
         _memoryCache = memoryCache;
         _classifierVocabularyProvider = classifierVocabularyProvider;
+        _cacheDurationInMinutes = configuration.GetValue<int>("CacheDurationInMinutes");
     }
 
     public async Task<List<ClassifierInfo>> GetAll(CancellationToken cancellationToken)
     {
         var options = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(30));
+            .SetSlidingExpiration(TimeSpan.FromMinutes(_cacheDurationInMinutes));
 
         if (_memoryCache.TryGetValue(ClassifierListCacheKey, out List<ClassifierInfo>? result)) 
             return result!;

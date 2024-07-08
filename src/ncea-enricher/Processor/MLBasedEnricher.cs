@@ -1,5 +1,6 @@
 ﻿using Microsoft.FeatureManagement;
 using Ncea.Enricher.Constants;
+using Ncea.Enricher.Extensions;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Processor.Contracts;
@@ -17,20 +18,23 @@ public class MLBasedEnricher : IEnricherService
     private readonly IMdcFieldConfigurationService _fieldConfigurations;
     private readonly IClassifierPredictionService _classifierPredictionService;
     private readonly IClassifierVocabularyProvider _classifierVocabularyProvider;
+    private readonly ILogger _logger;
 
     public MLBasedEnricher(IFeatureManager featureManager,
         IXmlNodeService xmlNodeService,
         IXmlValidationService xmlValidationService,
         IMdcFieldConfigurationService fieldConfigurations,
         IClassifierPredictionService classifierPredictionService,
-        IClassifierVocabularyProvider classifierVocabularyProvider)
-    {   
+        IClassifierVocabularyProvider classifierVocabularyProvider,
+        ILogger<MLBasedEnricher> logger)
+    {
         _featureManager = featureManager;
         _xmlNodeService = xmlNodeService;
         _xmlValidationService = xmlValidationService;
         _fieldConfigurations = fieldConfigurations;
         _classifierPredictionService = classifierPredictionService;
         _classifierVocabularyProvider = classifierVocabularyProvider;
+        _logger = logger;
     }
     public async Task<string> Enrich(string dataSource, string fileIdentifier, string mappedData, CancellationToken cancellationToken = default)
     {
@@ -40,7 +44,7 @@ public class MLBasedEnricher : IEnricherService
         var matchedClassifiers = new HashSet<ClassifierInfo>();
         if (await _featureManager.IsEnabledAsync(FeatureFlags.MLBasedClassificationFeature))
         {
-            await GetPredictedClassifiers(rootNode, matchedClassifiers, cancellationToken);
+            await GetPredictedClassifiers(rootNode, matchedClassifiers, fileIdentifier, cancellationToken);
         }
 
         _xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(rootNode, matchedClassifiers);
@@ -53,52 +57,64 @@ public class MLBasedEnricher : IEnricherService
         return await Task.FromResult(xDoc.ToString());
     }
 
-    private async Task GetPredictedClassifiers(XElement rootNode, HashSet<ClassifierInfo> matchedClassifiers, CancellationToken cancellationToken)
+    private async Task GetPredictedClassifiers(XElement rootNode, HashSet<ClassifierInfo> matchedClassifiers, string fileIdentifier, CancellationToken cancellationToken)
     {
         var modelInputs = GetPredictionModelInputs(rootNode)!;
 
         var classifierVocabulary = await _classifierVocabularyProvider.GetAll(cancellationToken);
 
-        var themeModelInputs = JsonConvert.DeserializeObject<ModelInputTheme>(modelInputs)!;
-        var predictedThemes = _classifierPredictionService.PredictTheme(TrainedModels.Theme, themeModelInputs);
-        if(predictedThemes != null && !string.IsNullOrWhiteSpace(predictedThemes.PredictedLabel))
-        {
-            ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 1, predictedThemes);
-        }
+        var predictedThemes = _classifierPredictionService.PredictTheme(TrainedModels.Theme, JsonConvert.DeserializeObject<ModelInputTheme>(modelInputs)!)
+            .PredictedLabel!
+            .GetClassifierIds();
+        var predictedCategories = _classifierPredictionService.PredictCategory(TrainedModels.Category, JsonConvert.DeserializeObject<ModelInputCategory>(modelInputs)!)
+            .PredictedLabel!
+            .GetClassifierIds();
+        var predictedSubCategories = _classifierPredictionService.PredictSubCategory(TrainedModels.SubCategory, JsonConvert.DeserializeObject<ModelInputSubCategory>(modelInputs)!)
+            .PredictedLabel!
+            .GetClassifierIds();        
+        
+        List<string> missingParentClassifiers = [];
 
-        var possibleCategories = _classifierPredictionService.PredictCategory(TrainedModels.Category, JsonConvert.DeserializeObject<ModelInputCategory>(modelInputs)!);
-        if (possibleCategories != null && !string.IsNullOrWhiteSpace(possibleCategories.PredictedLabel))
-        {
-            ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 2, possibleCategories);
-        }
+        ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 1, predictedThemes, missingParentClassifiers);
+        ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 2, predictedCategories, missingParentClassifiers);
+        ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 3, predictedSubCategories, missingParentClassifiers);
 
-        var possibleSubCategories = _classifierPredictionService.PredictSubCategory(TrainedModels.SubCategory, JsonConvert.DeserializeObject<ModelInputSubCategory>(modelInputs)!);
-        if (possibleSubCategories != null && !string.IsNullOrWhiteSpace(possibleSubCategories.PredictedLabel))
+        if (missingParentClassifiers.Count > 0)
         {
-            ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 3, possibleSubCategories);
+            var predictedClassifiersLogText = $"Predicted classifiers for FileIdentifier : {fileIdentifier} | " +
+            $"Themes: {string.Join(", ", predictedThemes != null ? predictedThemes.ToArray() : string.Empty)} | " +
+            $"Categories: {string.Join(", ", predictedCategories != null ? predictedCategories.ToArray() : string.Empty)} | " +
+            $"SubCategories: {string.Join(", ", predictedSubCategories != null ? predictedSubCategories.ToArray() : string.Empty)}";
+
+            _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText}, Missing ParentIds : {missingparentIds}",
+                predictedClassifiersLogText,
+                string.Join(", ", missingParentClassifiers.ToArray()));
         }
     }
 
-    private static void ConsolidatePredictedClassifiers(HashSet<ClassifierInfo> matchedClassifiers, List<ClassifierInfo> classifierVocabulary, int classifierLevel, ModelOutput output)
+    private static void ConsolidatePredictedClassifiers(HashSet<ClassifierInfo> matchedClassifiers, 
+        List<ClassifierInfo> classifierVocabulary, 
+        int classifierLevel, 
+        IEnumerable<string>? predictedClassifierIds,
+        List<string> missingParentClassifiers)
     {
-        var predictedValues = output.PredictedLabel!
-            .Trim()
-            .Split(',')
-            .Select(x => x.Trim().Substring(0, x.IndexOf(' ')))
-            .Distinct();
-
-        var classifiers = classifierVocabulary.Where(x => x.Level == classifierLevel && predictedValues.Contains(x.Id));
-        foreach (var classifier in classifiers)
+        if (predictedClassifierIds != null && predictedClassifierIds.Any())
         {
-            matchedClassifiers.Add(classifier);           
             
-            var parentId = classifier.ParentId;
-            while (parentId != null && !matchedClassifiers.Any(x => x.Id == parentId))
+            var classifiers = classifierVocabulary.Where(x => x.Level == classifierLevel && predictedClassifierIds.Contains(x.Id));
+            foreach (var classifier in classifiers)
             {
-                var parentClassifier = classifierVocabulary.Single(x => x.Id == parentId);
-                matchedClassifiers.Add(parentClassifier);
+                matchedClassifiers.Add(classifier);
 
-                parentId = parentClassifier.ParentId;
+                var parentId = classifier.ParentId;
+                while (parentId != null && !matchedClassifiers.Any(x => x.Id == parentId))
+                {
+                    missingParentClassifiers.Add(parentId);
+                    var parentClassifier = classifierVocabulary.Single(x => x.Id == parentId);
+                    matchedClassifiers.Add(parentClassifier);
+
+                    parentId = parentClassifier.ParentId;
+                }
             }
         }
     } 
