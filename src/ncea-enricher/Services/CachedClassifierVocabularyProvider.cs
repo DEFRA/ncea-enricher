@@ -10,7 +10,7 @@ public class CachedClassifierVocabularyProvider : IClassifierVocabularyProvider
 
     private readonly IMemoryCache _memoryCache;
     private readonly IClassifierVocabularyProvider _classifierVocabularyProvider;
-    private readonly int _cacheDurationInMinutes = 30;
+    private readonly int _cacheDurationInMinutes;
 
     public CachedClassifierVocabularyProvider(IMemoryCache memoryCache, IClassifierVocabularyProvider classifierVocabularyProvider, IConfiguration configuration)
     {

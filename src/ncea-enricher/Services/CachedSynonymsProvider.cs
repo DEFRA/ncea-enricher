@@ -10,7 +10,7 @@ public class CachedSynonymsProvider : ISynonymsProvider
 
     private readonly IMemoryCache _memoryCache;
     private readonly ISynonymsProvider _synonymsProvider;
-    private readonly int _cacheDurationInMinutes = 30;
+    private readonly int _cacheDurationInMinutes;
 
     public CachedSynonymsProvider(IMemoryCache memoryCache, ISynonymsProvider synonymsProvider, IConfiguration configuration)
     {

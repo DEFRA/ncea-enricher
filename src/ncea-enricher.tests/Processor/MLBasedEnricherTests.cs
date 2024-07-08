@@ -21,7 +21,7 @@ public class MLBasedEnricherTests
     private IXmlNodeService _nodeService;
     private IXmlValidationService _xmlValidationService;
     private IConfiguration _configuration;
-    private ILogger<SynonymBasedEnricher> _logger;
+    private ILogger<MLBasedEnricher> _logger;
     private IClassifierPredictionService _classifierPredictionService;
     private IClassifierVocabularyProvider _classifierVocabularyProvider;
 
@@ -34,7 +34,7 @@ public class MLBasedEnricherTests
 
         LoggerForTests.Get(out Mock<ILogger<XPathValidationService>> loggerMock);
         _xmlValidationService = new XPathValidationService(_configuration, loggerMock.Object);
-        _logger = _serviceProvider.GetService<ILogger<SynonymBasedEnricher>>()!;
+        _logger = _serviceProvider.GetService<ILogger<MLBasedEnricher>>()!;
 
         _classifierPredictionService = _serviceProvider.GetService<IClassifierPredictionService>()!;
         _classifierVocabularyProvider = _serviceProvider.GetService<IClassifierVocabularyProvider>()!;
@@ -58,7 +58,8 @@ public class MLBasedEnricherTests
             _xmlValidationService,
             _searchableFieldConfigurations,
             _classifierPredictionService,
-            _classifierVocabularyProvider);
+            _classifierVocabularyProvider,
+            _logger);
 
         var mappedMetadataXml = xDoc.OuterXml;
 
