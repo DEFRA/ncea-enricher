@@ -5,6 +5,7 @@ using Moq;
 using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Models;
 using Ncea.Enricher.Services;
+using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
 using System.Data;
 
@@ -30,6 +31,23 @@ public class SynonymsProviderTests
         
         // Act
         var result = await synonymsProvider.GetAll(It.IsAny<CancellationToken>());
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<List<ClassifierInfo>>();
+        result.Where(x => x.Level == 1).Count().Should().Be(4);
+    }
+
+    [Fact]
+    public async Task GetAll_WhenAllRequiredColumnsExistsAndCacheNotExpires_ThenReturnListOfClassifiers()
+    {
+        //Arrange
+
+        var synonymsProvider = _serviceProvider.GetService<ISynonymsProvider>()!;
+
+        // Act
+        var result = await synonymsProvider.GetAll(It.IsAny<CancellationToken>());
+        result = await synonymsProvider.GetAll(It.IsAny<CancellationToken>());
 
         // Assert
         result.Should().NotBeNull();

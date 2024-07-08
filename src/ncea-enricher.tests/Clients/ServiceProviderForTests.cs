@@ -10,6 +10,7 @@ using Ncea.Enricher.Services;
 using Ncea.Enricher.Models.ML;
 using Microsoft.Extensions.ML;
 using Newtonsoft.Json;
+using Ncea.Enricher.Infrastructure.Contracts;
 
 namespace Ncea.Enricher.Tests.Clients;
 
@@ -45,6 +46,8 @@ internal static class ServiceProviderForTests
         var classifierMicroserviceClientMock = new Mock<INceaClassifierMicroserviceClient>();
         classifierMicroserviceClientMock.Setup(s => s.VocabularyAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(classifierVocabulary);
+
+        serviceCollection.AddSingleton<IBlobService>(BlobServiceForTests.Get());
 
         serviceCollection.AddSingleton(classifierMicroserviceClientMock.Object);
 

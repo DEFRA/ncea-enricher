@@ -10,17 +10,19 @@ public class CachedSynonymsProvider : ISynonymsProvider
 
     private readonly IMemoryCache _memoryCache;
     private readonly ISynonymsProvider _synonymsProvider;
+    private readonly int _cacheDurationInMinutes = 30;
 
-    public CachedSynonymsProvider(IMemoryCache memoryCache, ISynonymsProvider synonymsProvider)
+    public CachedSynonymsProvider(IMemoryCache memoryCache, ISynonymsProvider synonymsProvider, IConfiguration configuration)
     {
         _memoryCache = memoryCache;
         _synonymsProvider = synonymsProvider;
+        _cacheDurationInMinutes = configuration.GetValue<int>("CacheDurationInMinutes");
     }
 
     public async Task<List<ClassifierInfo>> GetAll(CancellationToken cancellationToken)
     {
         var options = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(30));
+            .SetSlidingExpiration(TimeSpan.FromMinutes(_cacheDurationInMinutes));
 
         if (_memoryCache.TryGetValue(ClassifierListCacheKey, out List<ClassifierInfo>? result))
         {
