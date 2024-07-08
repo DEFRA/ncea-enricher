@@ -4,9 +4,9 @@ public static class ClassifierStringExtensions
 {
     public static IEnumerable<string>? GetClassifierIds(this string str)
     {
-        return str.Trim()
+        return (str != null) ? str.Trim()
             .Split(',')
             .Select(x => x.Trim().Substring(0, x.IndexOf(' ')))
-            .Distinct();
+            .Distinct() : null;
     }
 }

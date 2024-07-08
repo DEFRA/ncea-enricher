@@ -71,12 +71,7 @@ public class MLBasedEnricher : IEnricherService
             .GetClassifierIds();
         var predictedSubCategories = _classifierPredictionService.PredictSubCategory(TrainedModels.SubCategory, JsonConvert.DeserializeObject<ModelInputSubCategory>(modelInputs)!)
             .PredictedLabel!
-            .GetClassifierIds();
-
-        var predictedClassifiersLogText = $"Predicted classifiers for FileIdentifier : {fileIdentifier} | " +
-            $"Themes: {string.Join(", ", predictedThemes != null ? predictedThemes.ToArray() : string.Empty)} | " +
-            $"Categories: {string.Join(", ", predictedCategories != null ? predictedCategories.ToArray() : string.Empty)} | " +
-            $"SubCategories: {string.Join(", ", predictedSubCategories != null ? predictedSubCategories.ToArray() : string.Empty)}";
+            .GetClassifierIds();        
         
         List<string> missingParentClassifiers = [];
 
@@ -84,9 +79,17 @@ public class MLBasedEnricher : IEnricherService
         ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 2, predictedCategories, missingParentClassifiers);
         ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 3, predictedSubCategories, missingParentClassifiers);
 
-        _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText}, Missing ParentIds : {missingparentIds}", 
-            predictedClassifiersLogText,
-            string.Join(", ", missingParentClassifiers != null ? missingParentClassifiers.ToArray() : string.Empty));
+        if (missingParentClassifiers.Any())
+        {
+            var predictedClassifiersLogText = $"Predicted classifiers for FileIdentifier : {fileIdentifier} | " +
+            $"Themes: {string.Join(", ", predictedThemes != null ? predictedThemes.ToArray() : string.Empty)} | " +
+            $"Categories: {string.Join(", ", predictedCategories != null ? predictedCategories.ToArray() : string.Empty)} | " +
+            $"SubCategories: {string.Join(", ", predictedSubCategories != null ? predictedSubCategories.ToArray() : string.Empty)}";
+
+            _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText}, Missing ParentIds : {missingparentIds}",
+                predictedClassifiersLogText,
+                string.Join(", ", missingParentClassifiers != null ? missingParentClassifiers.ToArray() : string.Empty));
+        }
     }
 
     private static void ConsolidatePredictedClassifiers(HashSet<ClassifierInfo> matchedClassifiers, 
