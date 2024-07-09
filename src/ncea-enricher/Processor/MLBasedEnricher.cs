@@ -82,13 +82,13 @@ public class MLBasedEnricher : IEnricherService
         if (missingParentClassifiers.Count > 0)
         {
             var predictedClassifiersLogText = $"Predicted classifiers for FileIdentifier : {fileIdentifier} | " +
-            $"Themes: {string.Join(", ", predictedThemes != null ? predictedThemes.ToArray() : string.Empty)} | " +
-            $"Categories: {string.Join(", ", predictedCategories != null ? predictedCategories.ToArray() : string.Empty)} | " +
-            $"SubCategories: {string.Join(", ", predictedSubCategories != null ? predictedSubCategories.ToArray() : string.Empty)}";
+            $"Themes: { string.Join(", ", predictedThemes ?? []) } | " +
+            $"Categories: {string.Join(", ", predictedCategories ?? []) } | " +
+            $"SubCategories: {string.Join(", ", predictedSubCategories ?? []) }";
 
             _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText}, Missing ParentIds : {missingparentIds}",
                 predictedClassifiersLogText,
-                string.Join(", ", missingParentClassifiers.ToArray()));
+                string.Join(", ", missingParentClassifiers));
         }
     }
 
