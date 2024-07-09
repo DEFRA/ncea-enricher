@@ -87,7 +87,7 @@ public class MLBasedEnricher : IEnricherService
                 $"Categories: {string.Join(", ", predictedCategories ?? []) } | " +
                 $"SubCategories: {string.Join(", ", predictedSubCategories ?? []) }";
 
-            _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText}, Missing ParentIds : {missingparentIds}",
+            _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText} | Missing ParentIds : {missingparentIds}",
                 predictedClassifiersLogText,
                 string.Join(", ", missingParentClassifiers));
         }
