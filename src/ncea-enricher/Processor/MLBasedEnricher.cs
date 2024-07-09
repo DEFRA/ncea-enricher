@@ -44,7 +44,7 @@ public class MLBasedEnricher : IEnricherService
         var matchedClassifiers = new HashSet<ClassifierInfo>();
         if (await _featureManager.IsEnabledAsync(FeatureFlags.MLBasedClassificationFeature))
         {
-            await GetPredictedClassifiers(rootNode, matchedClassifiers, fileIdentifier, cancellationToken);
+            await GetPredictedClassifiers(rootNode, matchedClassifiers, fileIdentifier, dataSource, cancellationToken);
         }
 
         _xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(rootNode, matchedClassifiers);
@@ -57,7 +57,7 @@ public class MLBasedEnricher : IEnricherService
         return await Task.FromResult(xDoc.ToString());
     }
 
-    private async Task GetPredictedClassifiers(XElement rootNode, HashSet<ClassifierInfo> matchedClassifiers, string fileIdentifier, CancellationToken cancellationToken)
+    private async Task GetPredictedClassifiers(XElement rootNode, HashSet<ClassifierInfo> matchedClassifiers, string fileIdentifier, string dataSource, CancellationToken cancellationToken)
     {
         var modelInputs = GetPredictionModelInputs(rootNode)!;
 
@@ -81,10 +81,11 @@ public class MLBasedEnricher : IEnricherService
 
         if (missingParentClassifiers.Count > 0)
         {
-            var predictedClassifiersLogText = $"Predicted classifiers for FileIdentifier : {fileIdentifier} | " +
-            $"Themes: { string.Join(", ", predictedThemes ?? []) } | " +
-            $"Categories: {string.Join(", ", predictedCategories ?? []) } | " +
-            $"SubCategories: {string.Join(", ", predictedSubCategories ?? []) }";
+            var predictedClassifiersLogText = $"Predicted classifiers for Datasource : {dataSource} | " +
+                $"FileIdentifier : {fileIdentifier} | " +
+                $"Themes: { string.Join(", ", predictedThemes ?? []) } | " +
+                $"Categories: {string.Join(", ", predictedCategories ?? []) } | " +
+                $"SubCategories: {string.Join(", ", predictedSubCategories ?? []) }";
 
             _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText}, Missing ParentIds : {missingparentIds}",
                 predictedClassifiersLogText,
