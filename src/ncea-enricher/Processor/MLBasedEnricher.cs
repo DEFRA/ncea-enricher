@@ -81,14 +81,10 @@ public class MLBasedEnricher : IEnricherService
 
         if (missingParentClassifiers.Count > 0)
         {
-            var themeIds = string.Join(", ", predictedThemes ?? []);
-            var categoryIds = string.Join(", ", predictedCategories ?? []);
-            var subcategoryIds = string.Join(", ", predictedSubCategories ?? []);
-
             var predictedClassifiersLogText = $"Predicted classifiers for FileIdentifier : {fileIdentifier} | " +
-            $"Themes: {themeIds} | " +
-            $"Categories: {categoryIds} | " +
-            $"SubCategories: {subcategoryIds}";
+            $"Themes: { string.Join(", ", predictedThemes ?? []) } | " +
+            $"Categories: {string.Join(", ", predictedCategories ?? []) } | " +
+            $"SubCategories: {string.Join(", ", predictedSubCategories ?? []) }";
 
             _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText}, Missing ParentIds : {missingparentIds}",
                 predictedClassifiersLogText,
