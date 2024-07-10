@@ -37,10 +37,8 @@ public class SynonymBasedEnricher : IEnricherService
         var rootNode = xDoc.Root!;
 
         var matchedClassifiers = new HashSet<ClassifierInfo>();
-        if (await _featureManager.IsEnabledAsync(FeatureFlags.SynonymBasedClassificationFeature))
-        {
-            await FindMatchingClassifiers(rootNode, matchedClassifiers, cancellationToken);
-        }       
+
+        await FindMatchingClassifiers(rootNode, matchedClassifiers, cancellationToken);
 
         _xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(rootNode, matchedClassifiers);
 

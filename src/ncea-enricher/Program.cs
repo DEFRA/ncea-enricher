@@ -148,7 +148,15 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<IClassifierVocabularyProvider, ClassifierVocabularyProvider>();
     builder.Services.Decorate<IClassifierVocabularyProvider, CachedClassifierVocabularyProvider>();
 
-    builder.Services.AddSingleton<IEnricherService, MLBasedEnricher>();
+    var isSynonymBasedClassificationEnabled = builder.Configuration.GetValue<bool>("FeatureManagement:EnableSynonymBasedClassification");
+    if (isSynonymBasedClassificationEnabled)
+    {
+        builder.Services.AddSingleton<IEnricherService, SynonymBasedEnricher>();
+    }
+    else
+    {
+        builder.Services.AddSingleton<IEnricherService, MLBasedEnricher>();
+    }
 }
 
 static async Task CreateServiceBusQueueIfNotExist(ServiceBusAdministrationClient servicebusAdminClient, string queueName)

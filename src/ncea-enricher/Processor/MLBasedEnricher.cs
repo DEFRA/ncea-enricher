@@ -42,10 +42,8 @@ public class MLBasedEnricher : IEnricherService
         var rootNode = xDoc.Root!;
 
         var matchedClassifiers = new HashSet<ClassifierInfo>();
-        if (await _featureManager.IsEnabledAsync(FeatureFlags.MLBasedClassificationFeature))
-        {
-            await GetPredictedClassifiers(rootNode, matchedClassifiers, fileIdentifier, dataSource, cancellationToken);
-        }
+
+        await GetPredictedClassifiers(rootNode, matchedClassifiers, fileIdentifier, dataSource, cancellationToken);
 
         _xmlNodeService.EnrichMetadataXmlWithNceaClassifiers(rootNode, matchedClassifiers);
 
