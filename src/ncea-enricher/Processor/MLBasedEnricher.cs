@@ -81,9 +81,9 @@ public class MLBasedEnricher : IEnricherService
         {
             var predictedClassifiersLogText = $"Predicted classifiers for Datasource : {dataSource} | " +
                 $"FileIdentifier : {fileIdentifier} | " +
-                $"Themes: {string.Join(", ", predictedThemes ?? [])} | " +
-                $"Categories: {string.Join(", ", predictedCategories ?? [])} | " +
-                $"SubCategories: {string.Join(", ", predictedSubCategories ?? [])}";
+                $"Themes: {string.Join(", ", predictedThemes != null ? predictedThemes.Select(x => x.Code) : [])} | " +
+                $"Categories: {string.Join(", ", predictedCategories.Select(x => x.Code))} | " +
+                $"SubCategories: {string.Join(", ", predictedSubCategories.Select(x => x.Code))}";
 
             _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText} | Missing ParentIds : {missingparentIds}",
                 predictedClassifiersLogText,
@@ -93,11 +93,11 @@ public class MLBasedEnricher : IEnricherService
 
     private void PredictSubCategories(string modelInputs, List<PredictedItem> predictedCategories, List<PredictedHierarchy> predictedThemeCategories, List<PredictedItem> predictedSubCategories)
     {
-        if (predictedCategories.Any())
+        if (predictedCategories.Count > 0)
         {
+            var subCategoryInput = JsonConvert.DeserializeObject<ModelInputSubCategory>(modelInputs)!;
             foreach (var predictedThemeCategory in predictedThemeCategories)
-            {
-                var subCategoryInput = JsonConvert.DeserializeObject<ModelInputSubCategory>(modelInputs)!;
+            {                
                 subCategoryInput.Theme = predictedThemeCategory.Theme;
                 subCategoryInput.CategoryL2 = predictedThemeCategory.Category;
 
@@ -117,9 +117,9 @@ public class MLBasedEnricher : IEnricherService
     {
         if (predictedThemes != null && predictedThemes.Any())
         {
+            var categoryInput = JsonConvert.DeserializeObject<ModelInputCategory>(modelInputs)!;
             foreach (var predictedTheme in predictedThemes)
-            {
-                var categoryInput = JsonConvert.DeserializeObject<ModelInputCategory>(modelInputs)!;
+            {                
                 categoryInput.Theme = predictedTheme.OriginalValue;
 
                 var categories = _classifierPredictionService.PredictCategory(TrainedModels.Category, categoryInput)
