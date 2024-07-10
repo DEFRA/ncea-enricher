@@ -118,9 +118,9 @@ public class MLBasedEnricher : IEnricherService
         if (predictedThemes != null && predictedThemes.Any())
         {
             var categoryInput = JsonConvert.DeserializeObject<ModelInputCategory>(modelInputs)!;
-            foreach (var predictedTheme in predictedThemes)
+            foreach (var predictedTheme in predictedThemes.Select(x => x.OriginalValue))
             {                
-                categoryInput.Theme = predictedTheme.OriginalValue;
+                categoryInput.Theme = predictedTheme;
 
                 var categories = _classifierPredictionService.PredictCategory(TrainedModels.Category, categoryInput)
                     .PredictedLabel!
@@ -129,7 +129,7 @@ public class MLBasedEnricher : IEnricherService
                 if (categories != null && categories.Any())
                 {
                     predictedCategories.AddRange(categories);
-                    predictedThemeCategories.AddRange(categories.Select(x => new PredictedHierarchy(predictedTheme.OriginalValue, x.OriginalValue, string.Empty)));
+                    predictedThemeCategories.AddRange(categories.Select(x => new PredictedHierarchy(predictedTheme, x.OriginalValue, string.Empty)));
                 }
             }
         }
