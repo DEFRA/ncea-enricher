@@ -57,50 +57,91 @@ public class MLBasedEnricher : IEnricherService
 
     private async Task GetPredictedClassifiers(XElement rootNode, HashSet<ClassifierInfo> matchedClassifiers, string fileIdentifier, string dataSource, CancellationToken cancellationToken)
     {
-        var modelInputs = GetPredictionModelInputs(rootNode)!;
-
         var classifierVocabulary = await _classifierVocabularyProvider.GetAll(cancellationToken);
 
+        var modelInputs = GetPredictionModelInputs(rootNode)!;
         var predictedThemes = _classifierPredictionService.PredictTheme(TrainedModels.Theme, JsonConvert.DeserializeObject<ModelInputTheme>(modelInputs)!)
             .PredictedLabel!
             .GetClassifierIds();
-        var predictedCategories = _classifierPredictionService.PredictCategory(TrainedModels.Category, JsonConvert.DeserializeObject<ModelInputCategory>(modelInputs)!)
-            .PredictedLabel!
-            .GetClassifierIds();
-        var predictedSubCategories = _classifierPredictionService.PredictSubCategory(TrainedModels.SubCategory, JsonConvert.DeserializeObject<ModelInputSubCategory>(modelInputs)!)
-            .PredictedLabel!
-            .GetClassifierIds();        
-        
+
+        var predictedCategories = new List<PredictedItem>();
+        var predictedThemeCategories = new List<PredictedHierarchy>();
+        PredictCategories(modelInputs, predictedThemes, predictedCategories, predictedThemeCategories);
+
+        var predictedSubCategories = new List<PredictedItem>();
+        PredictSubCategories(modelInputs, predictedCategories, predictedThemeCategories, predictedSubCategories);
+
         List<string> missingParentClassifiers = [];
 
         ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 1, predictedThemes, missingParentClassifiers);
         ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 2, predictedCategories, missingParentClassifiers);
         ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 3, predictedSubCategories, missingParentClassifiers);
 
-        if (missingParentClassifiers.Count > 0)
-        {
-            var predictedClassifiersLogText = $"Predicted classifiers for Datasource : {dataSource} | " +
+        var predictedClassifiersLogText = $"Predicted classifiers for Datasource : {dataSource} | " +
                 $"FileIdentifier : {fileIdentifier} | " +
-                $"Themes: { string.Join(", ", predictedThemes ?? []) } | " +
-                $"Categories: {string.Join(", ", predictedCategories ?? []) } | " +
-                $"SubCategories: {string.Join(", ", predictedSubCategories ?? []) }";
+                $"Themes: {string.Join(", ", predictedThemes != null ? predictedThemes.Select(x => x.Code) : [])} | " +
+                $"Categories: {string.Join(", ", predictedCategories.Select(x => x.Code))} | " +
+                $"SubCategories: {string.Join(", ", predictedSubCategories.Select(x => x.Code))}";
 
-            _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText} | Missing ParentIds : {missingparentIds}",
-                predictedClassifiersLogText,
-                string.Join(", ", missingParentClassifiers));
+        _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText} | Missing ParentIds : {missingparentIds}",
+            predictedClassifiersLogText,
+            string.Join(", ", missingParentClassifiers));
+    }
+
+    private void PredictSubCategories(string modelInputs, List<PredictedItem> predictedCategories, List<PredictedHierarchy> predictedThemeCategories, List<PredictedItem> predictedSubCategories)
+    {
+        if (predictedCategories.Count > 0)
+        {
+            var subCategoryInput = JsonConvert.DeserializeObject<ModelInputSubCategory>(modelInputs)!;
+            foreach (var predictedThemeCategory in predictedThemeCategories)
+            {                
+                subCategoryInput.Theme = !string.IsNullOrWhiteSpace(predictedThemeCategory.Theme) ? predictedThemeCategory.Theme : null;
+                subCategoryInput.CategoryL2 = !string.IsNullOrWhiteSpace(predictedThemeCategory.Category) ? predictedThemeCategory.Category : null;
+
+                var subCategories = _classifierPredictionService.PredictSubCategory(TrainedModels.SubCategory, subCategoryInput)
+                    .PredictedLabel!
+                    .GetClassifierIds();
+
+                if (subCategories != null && subCategories.Any())
+                {
+                    predictedSubCategories.AddRange(subCategories);
+                }
+            }
+        }
+    }
+
+    private void PredictCategories(string modelInputs, IEnumerable<PredictedItem>? predictedThemes, List<PredictedItem> predictedCategories, List<PredictedHierarchy> predictedThemeCategories)
+    {
+        if (predictedThemes != null && predictedThemes.Any())
+        {
+            var categoryInput = JsonConvert.DeserializeObject<ModelInputCategory>(modelInputs)!;
+            foreach (var predictedTheme in predictedThemes.Select(x => x.OriginalValue))
+            {                
+                categoryInput.Theme = !string.IsNullOrWhiteSpace(predictedTheme) ? predictedTheme : null;
+
+                var categories = _classifierPredictionService.PredictCategory(TrainedModels.Category, categoryInput)
+                    .PredictedLabel!
+                    .GetClassifierIds();
+
+                if (categories != null && categories.Any())
+                {
+                    predictedCategories.AddRange(categories);
+                    predictedThemeCategories.AddRange(categories.Select(x => new PredictedHierarchy(predictedTheme, x.OriginalValue, string.Empty)));
+                }
+            }
         }
     }
 
     private static void ConsolidatePredictedClassifiers(HashSet<ClassifierInfo> matchedClassifiers, 
         List<ClassifierInfo> classifierVocabulary, 
         int classifierLevel, 
-        IEnumerable<string>? predictedClassifierIds,
+        IEnumerable<PredictedItem>? predictedClassifierIds,
         List<string> missingParentClassifiers)
     {
         if (predictedClassifierIds != null && predictedClassifierIds.Any())
         {
             
-            var classifiers = classifierVocabulary.Where(x => x.Level == classifierLevel && predictedClassifierIds.Contains(x.Id));
+            var classifiers = classifierVocabulary.Where(x => x.Level == classifierLevel && predictedClassifierIds.Select(y => y.Code).Contains(x.Id));
             foreach (var classifier in classifiers)
             {
                 matchedClassifiers.Add(classifier);

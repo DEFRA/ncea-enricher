@@ -1,0 +1,304 @@
+<gmd:MD_Metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:mdc="https://github.com/DEFRA/ncea-geonetwork/tree/main/core-geonetwork/schemas/iso19139/src/main/plugin/iso19139/schema2007/mdc" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml/3.2">
+  <gmd:fileIdentifier>
+    <gco:CharacterString>312c3001-b3ae-47fc-b74f-e9471f9d8206</gco:CharacterString>
+  </gmd:fileIdentifier>
+  <gmd:language>
+    <gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/php/code_list.php" codeListValue="eng">eng</gmd:LanguageCode>
+  </gmd:language>
+  <gmd:hierarchyLevel>
+    <gmd:MD_ScopeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml#MD_ScopeCode" codeListValue="dataset">dataset</gmd:MD_ScopeCode>
+  </gmd:hierarchyLevel>
+  <gmd:contact>
+    <gmd:CI_ResponsibleParty>
+      <gmd:organisationName>
+        <gco:CharacterString>Digital and Data Solutions, JNCC</gco:CharacterString>
+      </gmd:organisationName>
+      <gmd:contactInfo>
+        <gmd:CI_Contact>
+          <gmd:address>
+            <gmd:CI_Address>
+              <gmd:electronicMailAddress>
+                <gco:CharacterString>data@jncc.gov.uk</gco:CharacterString>
+              </gmd:electronicMailAddress>
+            </gmd:CI_Address>
+          </gmd:address>
+        </gmd:CI_Contact>
+      </gmd:contactInfo>
+      <gmd:role>
+        <gmd:CI_RoleCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="pointOfContact">pointOfContact</gmd:CI_RoleCode>
+      </gmd:role>
+    </gmd:CI_ResponsibleParty>
+  </gmd:contact>
+  <gmd:dateStamp>
+    <gco:Date>2018-05-17</gco:Date>
+  </gmd:dateStamp>
+  <gmd:identificationInfo>
+    <gmd:MD_DataIdentification id="_312c3001-b3ae-47fc-b74f-e9471f9d8206">
+      <gmd:citation>
+        <gmd:CI_Citation>
+          <gmd:title>
+            <gco:CharacterString>At sea densities of Arctic skua during autumn migration</gco:CharacterString>
+          </gmd:title>
+          <gmd:date>
+            <gmd:CI_Date>
+              <gmd:date>
+                <gco:Date>2010</gco:Date>
+              </gmd:date>
+              <gmd:dateType>
+                <gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication">2010</gmd:CI_DateTypeCode>
+              </gmd:dateType>
+            </gmd:CI_Date>
+          </gmd:date>
+          <gmd:identifier>
+            <gmd:MD_Identifier>
+              <gmd:code>
+                <gco:CharacterString>312c3001-b3ae-47fc-b74f-e9471f9d8206</gco:CharacterString>
+              </gmd:code>
+            </gmd:MD_Identifier>
+          </gmd:identifier>
+        </gmd:CI_Citation>
+      </gmd:citation>
+      <gmd:abstract>
+        <gco:CharacterString>Krigged density surfaces for Arctic skua, in the autumn migration period . Covers UK waters and uses ESAS data.</gco:CharacterString>
+      </gmd:abstract>
+      <gmd:pointOfContact>
+        <gmd:CI_ResponsibleParty>
+          <gmd:organisationName>
+            <gco:CharacterString>Digital and Data Solutions, JNCC</gco:CharacterString>
+          </gmd:organisationName>
+          <gmd:contactInfo>
+            <gmd:CI_Contact>
+              <gmd:address>
+                <gmd:CI_Address>
+                  <gmd:electronicMailAddress>
+                    <gco:CharacterString>data@jncc.gov.uk</gco:CharacterString>
+                  </gmd:electronicMailAddress>
+                </gmd:CI_Address>
+              </gmd:address>
+            </gmd:CI_Contact>
+          </gmd:contactInfo>
+          <gmd:role>
+            <gmd:CI_RoleCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="owner">owner</gmd:CI_RoleCode>
+          </gmd:role>
+        </gmd:CI_ResponsibleParty>
+      </gmd:pointOfContact>
+      <gmd:descriptiveKeywords>
+        <gmd:MD_Keywords>
+          <gmd:keyword>
+            <gco:CharacterString>Marine</gco:CharacterString>
+          </gmd:keyword>
+          <gmd:keyword>
+            <gco:CharacterString>Seabird Surveys</gco:CharacterString>
+          </gmd:keyword>
+          <gmd:keyword>
+            <gco:CharacterString>autumn migration</gco:CharacterString>
+          </gmd:keyword>
+        </gmd:MD_Keywords>
+      </gmd:descriptiveKeywords>
+      <gmd:resourceConstraints>
+        <gmd:MD_LegalConstraints>
+          <gmd:accessConstraints>
+            <gmd:MD_RestrictionCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml#MD_RestrictionCode" codeListValue="otherRestrictions">otherRestrictions</gmd:MD_RestrictionCode>
+          </gmd:accessConstraints>
+          <gmd:otherConstraints>
+            <gco:CharacterString>none</gco:CharacterString>
+          </gmd:otherConstraints>
+          <gmd:useLimitation>
+            <gco:CharacterString>Licensed under the Open Government Licence v3.0, © JNCC</gco:CharacterString>
+          </gmd:useLimitation>
+        </gmd:MD_LegalConstraints>
+      </gmd:resourceConstraints>
+      <gmd:language>
+        <gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/php/code_list.php" codeListValue="eng">eng</gmd:LanguageCode>
+      </gmd:language>
+      <gmd:topicCategory>
+        <gmd:MD_TopicCategoryCode>biota</gmd:MD_TopicCategoryCode>
+      </gmd:topicCategory>
+      <gmd:extent>
+        <gmd:EX_Extent>
+          <gmd:geographicElement>
+            <gmd:EX_GeographicBoundingBox>
+              <gmd:westBoundLongitude>
+                <gco:Decimal>-8.65</gco:Decimal>
+              </gmd:westBoundLongitude>
+              <gmd:eastBoundLongitude>
+                <gco:Decimal>2.0</gco:Decimal>
+              </gmd:eastBoundLongitude>
+              <gmd:southBoundLatitude>
+                <gco:Decimal>49.77</gco:Decimal>
+              </gmd:southBoundLatitude>
+              <gmd:northBoundLatitude>
+                <gco:Decimal>60.84</gco:Decimal>
+              </gmd:northBoundLatitude>
+            </gmd:EX_GeographicBoundingBox>
+          </gmd:geographicElement>
+          <gmd:temporalElement>
+            <gmd:EX_TemporalExtent>
+              <gmd:extent>
+                <gml:TimePeriod>
+                  <gml:beginPosition>1980</gml:beginPosition>
+                  <gml:endPosition>2004</gml:endPosition>
+                </gml:TimePeriod>
+              </gmd:extent>
+            </gmd:EX_TemporalExtent>
+          </gmd:temporalElement>
+        </gmd:EX_Extent>
+      </gmd:extent>
+      <gmd:supplementalInformation>
+        <gco:CharacterString>Data must be used in conjunction with http://jncc.defra.gov.uk/page-5625</gco:CharacterString>
+      </gmd:supplementalInformation>
+    </gmd:MD_DataIdentification>
+  </gmd:identificationInfo>
+  <gmd:distributionInfo>
+    <gmd:MD_Distribution>
+      <gmd:distributionFormat>
+        <gmd:MD_Format>
+          <gmd:name>
+            <gco:CharacterString>ESRI Arc/View ShapeFile</gco:CharacterString>
+          </gmd:name>
+          <gmd:version>
+            <gco:CharacterString>Unknown</gco:CharacterString>
+          </gmd:version>
+        </gmd:MD_Format>
+      </gmd:distributionFormat>
+      <gmd:transferOptions>
+        <gmd:MD_DigitalTransferOptions>
+          <gmd:onLine>
+            <gmd:CI_OnlineResource>
+              <gmd:linkage>
+                <gmd:URL>http://data.jncc.gov.uk/data/312c3001-b3ae-47fc-b74f-e9471f9d8206-5670-ex1.zip</gmd:URL>
+              </gmd:linkage>
+              <gmd:name>
+                <gco:CharacterString>5670-ex1.zip</gco:CharacterString>
+              </gmd:name>
+            </gmd:CI_OnlineResource>
+          </gmd:onLine>
+        </gmd:MD_DigitalTransferOptions>
+      </gmd:transferOptions>
+    </gmd:MD_Distribution>
+  </gmd:distributionInfo>
+  <gmd:dataQualityInfo>
+    <gmd:DQ_DataQuality>
+      <gmd:scope>
+        <gmd:DQ_Scope>
+          <gmd:level>
+            <gmd:MD_ScopeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml#MD_ScopeCode" codeListValue="dataset" />
+          </gmd:level>
+        </gmd:DQ_Scope>
+      </gmd:scope>
+      <gmd:lineage>
+        <gmd:LI_Lineage>
+          <gmd:statement>
+            <gco:CharacterString>Density surface maps were created by modelling ESAS data, in order to identify regular areas of relative high densities of seabirds, at a 6km*6km grid. For more info see http://jncc.defra.gov.uk/page-5622</gco:CharacterString>
+          </gmd:statement>
+        </gmd:LI_Lineage>
+      </gmd:lineage>
+    </gmd:DQ_DataQuality>
+  </gmd:dataQualityInfo>
+  <mdc:NceaClassifierInfo>
+    <mdc:NC_Classifiers>
+      <mdc:Classifier>
+        <mdc:Name>
+          <gco:CharacterString>Natural asset</gco:CharacterString>
+        </mdc:Name>
+        <mdc:Code>
+          <gco:CharacterString>lvl1-001</gco:CharacterString>
+        </mdc:Code>
+        <mdc:NC_Classifiers>
+          <mdc:Classifier>
+            <mdc:Name>
+              <gco:CharacterString>Terrestrial and freshwater habitats</gco:CharacterString>
+            </mdc:Name>
+            <mdc:Code>
+              <gco:CharacterString>lv2-001</gco:CharacterString>
+            </mdc:Code>
+          </mdc:Classifier>
+          <mdc:Classifier>
+            <mdc:Name>
+              <gco:CharacterString>Ecosystem component</gco:CharacterString>
+            </mdc:Name>
+            <mdc:Code>
+              <gco:CharacterString>lv2-005</gco:CharacterString>
+            </mdc:Code>
+            <mdc:NC_Classifiers>
+              <mdc:Classifier>
+                <mdc:Name>
+                  <gco:CharacterString>Ecological community</gco:CharacterString>
+                </mdc:Name>
+                <mdc:Code>
+                  <gco:CharacterString>lv3-043</gco:CharacterString>
+                </mdc:Code>
+              </mdc:Classifier>
+            </mdc:NC_Classifiers>
+          </mdc:Classifier>
+        </mdc:NC_Classifiers>
+      </mdc:Classifier>
+      <mdc:Classifier>
+        <mdc:Name>
+          <gco:CharacterString>Ecosystem service or benefit</gco:CharacterString>
+        </mdc:Name>
+        <mdc:Code>
+          <gco:CharacterString>lvl1-002</gco:CharacterString>
+        </mdc:Code>
+        <mdc:NC_Classifiers>
+          <mdc:Classifier>
+            <mdc:Name>
+              <gco:CharacterString>Provisioning services</gco:CharacterString>
+            </mdc:Name>
+            <mdc:Code>
+              <gco:CharacterString>lv2-006</gco:CharacterString>
+            </mdc:Code>
+            <mdc:NC_Classifiers>
+              <mdc:Classifier>
+                <mdc:Name>
+                  <gco:CharacterString>Food</gco:CharacterString>
+                </mdc:Name>
+                <mdc:Code>
+                  <gco:CharacterString>lv3-049</gco:CharacterString>
+                </mdc:Code>
+              </mdc:Classifier>
+            </mdc:NC_Classifiers>
+          </mdc:Classifier>
+        </mdc:NC_Classifiers>
+      </mdc:Classifier>
+      <mdc:Classifier>
+        <mdc:Name>
+          <gco:CharacterString>Pressure</gco:CharacterString>
+        </mdc:Name>
+        <mdc:Code>
+          <gco:CharacterString>lvl1-004</gco:CharacterString>
+        </mdc:Code>
+        <mdc:NC_Classifiers>
+          <mdc:Classifier>
+            <mdc:Name>
+              <gco:CharacterString>Land and sea use change</gco:CharacterString>
+            </mdc:Name>
+            <mdc:Code>
+              <gco:CharacterString>lv2-015</gco:CharacterString>
+            </mdc:Code>
+            <mdc:NC_Classifiers>
+              <mdc:Classifier>
+                <mdc:Name>
+                  <gco:CharacterString>Abrasion/disturbance at the surface of the substratum</gco:CharacterString>
+                </mdc:Name>
+                <mdc:Code>
+                  <gco:CharacterString>lv3-093</gco:CharacterString>
+                </mdc:Code>
+              </mdc:Classifier>
+            </mdc:NC_Classifiers>
+          </mdc:Classifier>
+        </mdc:NC_Classifiers>
+      </mdc:Classifier>
+    </mdc:NC_Classifiers>
+  </mdc:NceaClassifierInfo>
+  <mdc:NceaIdentifiers>
+    <mdc:MasterReferenceID>
+      <mdc:CatalogueEntry>
+        <gco:CharacterString>Jncc_312c3001-b3ae-47fc-b74f-e9471f9d8206</gco:CharacterString>
+      </mdc:CatalogueEntry>
+      <mdc:SourceSystemReferenceID>
+        <gco:CharacterString>Jncc_312c3001-b3ae-47fc-b74f-e9471f9d8206</gco:CharacterString>
+      </mdc:SourceSystemReferenceID>
+    </mdc:MasterReferenceID>
+  </mdc:NceaIdentifiers>
+</gmd:MD_Metadata>

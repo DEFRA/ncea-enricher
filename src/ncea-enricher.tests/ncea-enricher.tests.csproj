@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="TestData\312c3001-b3ae-47fc-b74f-e9471f9d8206.xml" />
     <None Remove="TestData\ClassifierVocabulary.json" />
     <None Remove="TestData\fff8010e6a805ba79102d35dbdda4d93.xml" />
     <None Remove="TestData\MEDIN_Metadata_series_v3_1_2_example 1.xml" />
@@ -20,6 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>    
+    <EmbeddedResource Include="TestData\312c3001-b3ae-47fc-b74f-e9471f9d8206.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>    
     <EmbeddedResource Include="TestData\ClassifierVocabulary.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>    

@@ -50,7 +50,7 @@ public class MLBasedEnricherTests
         featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MdcValidationFeature)).ReturnsAsync(true);
         featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MLBasedClassificationFeature)).ReturnsAsync(true);
 
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "MEDIN_Metadata_series_v3_1_2_example 1.xml");
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "312c3001-b3ae-47fc-b74f-e9471f9d8206.xml");
         var xDoc = new XmlDocument();
         xDoc.Load(new StreamReader(filePath, Encoding.UTF8));
 
