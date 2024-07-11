@@ -77,18 +77,15 @@ public class MLBasedEnricher : IEnricherService
         ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 2, predictedCategories, missingParentClassifiers);
         ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 3, predictedSubCategories, missingParentClassifiers);
 
-        if (missingParentClassifiers.Count > 0)
-        {
-            var predictedClassifiersLogText = $"Predicted classifiers for Datasource : {dataSource} | " +
+        var predictedClassifiersLogText = $"Predicted classifiers for Datasource : {dataSource} | " +
                 $"FileIdentifier : {fileIdentifier} | " +
                 $"Themes: {string.Join(", ", predictedThemes != null ? predictedThemes.Select(x => x.Code) : [])} | " +
                 $"Categories: {string.Join(", ", predictedCategories.Select(x => x.Code))} | " +
                 $"SubCategories: {string.Join(", ", predictedSubCategories.Select(x => x.Code))}";
 
-            _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText} | Missing ParentIds : {missingparentIds}",
-                predictedClassifiersLogText,
-                string.Join(", ", missingParentClassifiers));
-        }
+        _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText} | Missing ParentIds : {missingparentIds}",
+            predictedClassifiersLogText,
+            string.Join(", ", missingParentClassifiers));
     }
 
     private void PredictSubCategories(string modelInputs, List<PredictedItem> predictedCategories, List<PredictedHierarchy> predictedThemeCategories, List<PredictedItem> predictedSubCategories)
@@ -98,8 +95,8 @@ public class MLBasedEnricher : IEnricherService
             var subCategoryInput = JsonConvert.DeserializeObject<ModelInputSubCategory>(modelInputs)!;
             foreach (var predictedThemeCategory in predictedThemeCategories)
             {                
-                subCategoryInput.Theme = predictedThemeCategory.Theme;
-                subCategoryInput.CategoryL2 = predictedThemeCategory.Category;
+                subCategoryInput.Theme = !string.IsNullOrWhiteSpace(predictedThemeCategory.Theme) ? predictedThemeCategory.Theme : null;
+                subCategoryInput.CategoryL2 = !string.IsNullOrWhiteSpace(predictedThemeCategory.Category) ? predictedThemeCategory.Category : null;
 
                 var subCategories = _classifierPredictionService.PredictSubCategory(TrainedModels.SubCategory, subCategoryInput)
                     .PredictedLabel!
@@ -120,7 +117,7 @@ public class MLBasedEnricher : IEnricherService
             var categoryInput = JsonConvert.DeserializeObject<ModelInputCategory>(modelInputs)!;
             foreach (var predictedTheme in predictedThemes.Select(x => x.OriginalValue))
             {                
-                categoryInput.Theme = predictedTheme;
+                categoryInput.Theme = !string.IsNullOrWhiteSpace(predictedTheme) ? predictedTheme : null;
 
                 var categories = _classifierPredictionService.PredictCategory(TrainedModels.Category, categoryInput)
                     .PredictedLabel!
