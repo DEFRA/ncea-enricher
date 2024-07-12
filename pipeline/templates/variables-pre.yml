@@ -1,0 +1,4 @@
+variables:
+- group: azureVariables-pre
+- group: enricherServiceVariables-pre
+- group: pipelineVariables
