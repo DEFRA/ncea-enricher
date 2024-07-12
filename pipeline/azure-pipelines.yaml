@@ -9,11 +9,15 @@ trigger:
 
 variables: 
   - template: templates/variables-global.yml
-  - name : azureServiceConnectionForAcr
+  - name : azureServiceConnectionForDevAcr
     value: AZR-NCE-DEV1
+  - name : azureServiceConnectionForPreAcr
+    value: AZR-NCE-PRE
   - name : deployToDev
     value: true
   - name : deployToTest
+    value: true
+  - name : deployToPre
     value: true
 
 stages:
@@ -30,28 +34,6 @@ stages:
       - template: steps-build-and-test.yaml
       - template: steps-build-and-push-docker-images.yaml
       - template: steps-package-and-push-helm-charts.yaml
-
-# - stage: 'sandbox'
-#   displayName: 'Deploy to Sandbox'
-#   dependsOn: Build
-#   condition:  and(succeeded(), eq(variables.isPullRequest, true))  
-#   jobs:
-#   - deployment: Deploy
-#     pool:
-#       vmImage: 'ubuntu-latest'
-#     variables:
-#       - template: templates/variables-sandbox.yml
-#       - name : aksServiceConnection
-#         value: aksServiceConn-AZR-NCE-SND1
-#     environment: sandbox 
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#             - template: steps-deploy-helm-charts.yaml
-#               parameters:
-#                 releaseName: ncea-enricher-sandbox
-#                 aksServiceConnection: aksServiceConn-AZR-NCE-SND1
 
 - stage: 'dev'
   displayName: 'Deploy to Dev'
@@ -92,3 +74,24 @@ stages:
               parameters:
                 releaseName: ncea-enricher-test
                 armServiceConnection: AZR-NCE-TST
+
+  - stage: 'pre'
+  displayName: 'Deploy to preprod'
+  dependsOn: test
+  condition: and(succeeded(), eq(variables.deployToPre, true))
+  jobs:
+  - deployment: Deploy
+    pool:
+      name: DEFRA-COMMON-ubuntu2204-SSV5
+    variables:
+      - template: templates/variables-pre.yml
+    environment: pre 
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - template: steps-import-docker-images.yaml
+            - template: steps-deploy-helm-charts.yaml
+              parameters:
+                releaseName: ncea-enricher-pre
+                armServiceConnection: AZR-NCE-PRE1
