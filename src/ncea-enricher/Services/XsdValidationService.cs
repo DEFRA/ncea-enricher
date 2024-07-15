@@ -15,7 +15,7 @@ public class XsdValidationService : IXmlValidationService
     private const string GmxNamespace = "http://www.isotc211.org/2005/gmx";
     private const string GmlNamespace = "http://www.opengis.net/gml/3.2";
     private const string GmlSchema = "https://schemas.opengis.net/gml/3.2.1/gml.xsd";
-    private const string MdcSchema = "https://github.com/DEFRA/ncea-geonetwork/tree/main/core-geonetwork/schemas/iso19139/src/main/plugin/iso19139/schema2007/mdc";
+    private const string MdcSchema = "https://ncea-search.azure.defra.cloud/assets/xml-schema/mdc";
 
     private List<string>? _errorList;
     private readonly XmlSchemaSet _schemas;
