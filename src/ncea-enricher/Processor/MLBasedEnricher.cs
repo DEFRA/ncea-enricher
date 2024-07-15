@@ -77,13 +77,13 @@ public class MLBasedEnricher : IEnricherService
         ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 2, predictedCategories, missingParentClassifiers);
         ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 3, predictedSubCategories, missingParentClassifiers);
 
-        var predictedClassifiersLogText = $"Predicted classifiers for Datasource : {dataSource} | " +
+        var predictedClassifiersLogText = $"ML Predicted classifiers for Datasource : {dataSource} | " +
                 $"FileIdentifier : {fileIdentifier} | " +
-                $"Themes: {string.Join(", ", predictedThemes != null ? predictedThemes.Select(x => x.Code) : [])} | " +
-                $"Categories: {string.Join(", ", predictedCategories.Select(x => x.Code))} | " +
-                $"SubCategories: {string.Join(", ", predictedSubCategories.Select(x => x.Code))}";
+                $"Themes : {string.Join(", ", predictedThemes != null ? predictedThemes.Select(x => x.Code) : [])} | " +
+                $"Categories : {string.Join(", ", predictedCategories.Select(x => x.Code))} | " +
+                $"SubCategories : {string.Join(", ", predictedSubCategories.Select(x => x.Code))}";
 
-        _logger.LogWarning("Classifier Integerity Issues detected : {predictedClassifiersLogText} | Missing ParentIds : {missingparentIds}",
+        _logger.LogWarning("{predictedClassifiersLogText} | Missing ParentIds : {missingparentIds}",
             predictedClassifiersLogText,
             string.Join(", ", missingParentClassifiers));
     }
