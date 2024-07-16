@@ -420,7 +420,7 @@ namespace Ncea.Classifier.Microservice.Clients
         public int Level { get; set; }
 
         [Newtonsoft.Json.JsonProperty("classifiers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ClassifierInfo> Classifiers { get; set; }
+        public System.Collections.Generic.ICollection<ClassifierInfo>? Classifiers { get; set; }
 
     }
 
