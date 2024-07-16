@@ -31,10 +31,13 @@ public class ClassifierVocabularyProvider : IClassifierVocabularyProvider
 
     private static void GetChildren(List<Models.ClassifierInfo> classifierList, ClassifierInfo parentClassifier)
     {
-        foreach (var classifier in parentClassifier.Classifiers)
+        if(parentClassifier.Classifiers != null)
         {
-            classifierList.Add(new Models.ClassifierInfo() { Id = classifier.Code, Name = classifier.Name, Level = classifier.Level, ParentId = parentClassifier.Code });
-            GetChildren(classifierList, classifier);
+            foreach (var classifier in parentClassifier.Classifiers)
+            {
+                classifierList.Add(new Models.ClassifierInfo() { Id = classifier.Code, Name = classifier.Name, Level = classifier.Level, ParentId = parentClassifier.Code });
+                GetChildren(classifierList, classifier);
+            }
         }
     }
 }
