@@ -4,7 +4,7 @@ namespace Ncea.Enricher.Services.Contracts;
 
 public interface IClassifierPredictionService
 {
-    ModelOutput PredictTheme(string modelName, ModelInputTheme inputData);
+    Task<ModelOutput> PredictTheme(ModelInputTheme inputData, CancellationToken cancellationToken);
     ModelOutput PredictCategory(string modelName, ModelInputCategory inputData);
     ModelOutput PredictSubCategory(string modelName, ModelInputSubCategory inputData);
 }

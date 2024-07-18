@@ -19,13 +19,13 @@ public class ClassifierPredictionServiceTests
     }
 
     [Fact]
-    public void GivenPredictTheme_WhenInputValuesAreNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
+    public async Task GivenPredictTheme_WhenInputValuesAreNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
         var input = new ModelInputTheme();
 
         //Act
-        var result = _classifierPredictionService.PredictTheme(TrainedModels.Theme, input);
+        var result = await _classifierPredictionService.PredictTheme(input, CancellationToken.None);
 
         //Assert
         result.Should().NotBeNull();
@@ -33,7 +33,7 @@ public class ClassifierPredictionServiceTests
     }
 
     [Fact]
-    public void GivenPredictTheme_WhenInputValuesAreNotNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
+    public async Task GivenPredictTheme_WhenInputValuesAreNotNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
         var input = new ModelInputTheme()
@@ -48,7 +48,7 @@ public class ClassifierPredictionServiceTests
         };
 
         //Act
-        var result = _classifierPredictionService.PredictTheme(TrainedModels.Theme, input);
+        var result = await _classifierPredictionService.PredictTheme(input, CancellationToken.None);
 
         //Assert
         result.Should().NotBeNull();

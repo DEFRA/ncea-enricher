@@ -54,6 +54,10 @@ internal static class ServiceProviderForTests
         serviceCollection.AddSingleton<IClassifierPredictionService, ClassifierPredictionService>();
 
         serviceCollection.AddPredictionEnginePool<ModelInputTheme, ModelOutput>()
+            .FromFile(modelName: TrainedModels.Asset, filePath: Path.Combine("MLTrainedModels", "AssetTrainedModel.zip"), watchForChanges: false)
+            .FromFile(modelName: TrainedModels.Preassure, filePath: Path.Combine("MLTrainedModels", "PressureTrainedModel.zip"), watchForChanges: false)
+            .FromFile(modelName: TrainedModels.Benefit, filePath: Path.Combine("MLTrainedModels", "BenefitTrainedModel.zip"), watchForChanges: false)
+            .FromFile(modelName: TrainedModels.Valuation, filePath: Path.Combine("MLTrainedModels", "ValuationTrainedModel.zip"), watchForChanges: false)
             .FromFile(modelName: TrainedModels.Theme, filePath: Path.Combine("MLTrainedModels", "ThemeTrainedModel.zip"), watchForChanges: false);
 
         serviceCollection.AddPredictionEnginePool<ModelInputCategory, ModelOutput>()

@@ -60,9 +60,11 @@ public class MLBasedEnricher : IEnricherService
         var classifierVocabulary = await _classifierVocabularyProvider.GetAll(cancellationToken);
 
         var modelInputs = GetPredictionModelInputs(rootNode)!;
-        var predictedThemes = _classifierPredictionService.PredictTheme(TrainedModels.Theme, JsonConvert.DeserializeObject<ModelInputTheme>(modelInputs)!)
-            .PredictedLabel!
-            .GetClassifierIds();
+
+        var predictedThemesList = await _classifierPredictionService.PredictTheme(JsonConvert.DeserializeObject<ModelInputTheme>(modelInputs)!, cancellationToken);
+        var predictedThemes = predictedThemesList
+                              .PredictedLabel!
+                              .GetClassifierIds();
 
         var predictedCategories = new List<PredictedItem>();
         var predictedThemeCategories = new List<PredictedHierarchy>();
