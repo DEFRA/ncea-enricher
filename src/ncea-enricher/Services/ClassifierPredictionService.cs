@@ -3,6 +3,7 @@ using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Constants;
 using System.Diagnostics.CodeAnalysis;
+using Ncea.Enricher.Models;
 
 namespace Ncea.Enricher.Services;
 
@@ -24,40 +25,16 @@ public class ClassifierPredictionService : IClassifierPredictionService
         _vocabularyProvider = vocabularyProvider;
     }
 
-    [ExcludeFromCodeCoverage]
     public async Task<ModelOutput> PredictTheme(ModelInputTheme inputData, CancellationToken cancellationToken)
     {
-        var assetPrediction = _themePredictionEnginePool.Predict(TrainedModels.Asset, inputData);
-        var pressurePrediction = _themePredictionEnginePool.Predict(TrainedModels.Preassure, inputData);
-        var benefitPrediction = _themePredictionEnginePool.Predict(TrainedModels.Benefit, inputData);
-        var valuationPrediction = _themePredictionEnginePool.Predict(TrainedModels.Valuation, inputData);
-
         var allVocabulary = await _vocabularyProvider.GetAll(cancellationToken);
         var themes = allVocabulary.Where(x => x.Level == 1);
         var themeModelList = new List<string>();
 
-        if (assetPrediction.PredictedLabel == "1") {
-            var asset = themes.FirstOrDefault(x => x.Id == Themes.Asset);
-            themeModelList.Add($"{asset!.Id} {asset!.Name}");
-        }
-
-        if (pressurePrediction.PredictedLabel == "1")
-        {
-            var pressure = themes.FirstOrDefault(x => x.Id == Themes.Preassure);
-            themeModelList.Add($"{pressure!.Id} {pressure!.Name}");
-        }
-
-        if (benefitPrediction.PredictedLabel == "1")
-        {
-            var benefit = themes.FirstOrDefault(x => x.Id == Themes.Benefit);
-            themeModelList.Add($"{benefit!.Id} {benefit!.Name}");
-        }
-
-        if (valuationPrediction.PredictedLabel == "1")
-        {
-            var valuation = themes.FirstOrDefault(x => x.Id == Themes.Valuation);
-            themeModelList.Add($"{valuation!.Id} {valuation!.Name}");
-        }
+        PredictTheme(TrainedModels.Asset, Themes.Asset, inputData, themes, themeModelList);
+        PredictTheme(TrainedModels.Preassure, Themes.Preassure, inputData, themes, themeModelList);
+        PredictTheme(TrainedModels.Benefit, Themes.Benefit, inputData, themes, themeModelList);
+        PredictTheme(TrainedModels.Valuation, Themes.Valuation, inputData, themes, themeModelList);
 
         string themeModelListStr = string.Empty;
         if (themeModelList.Count > 0)
@@ -69,6 +46,16 @@ public class ClassifierPredictionService : IClassifierPredictionService
         {
             var themePrediction = _themePredictionEnginePool.Predict(TrainedModels.Theme, inputData);
             return themePrediction;
+        }
+    }
+
+    private void PredictTheme(string themeModel, string themeName, ModelInputTheme inputData, IEnumerable<ClassifierInfo> themes, List<string> themeModelList)
+    {
+        var assetPrediction = _themePredictionEnginePool.Predict(themeModel, inputData);
+        if (assetPrediction.PredictedLabel == "1")
+        {
+            var theme = themes.FirstOrDefault(x => x.Id == themeName);
+            themeModelList.Add($"{theme!.Id} {theme!.Name}");
         }
     }
 
