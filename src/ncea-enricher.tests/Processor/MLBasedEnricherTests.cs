@@ -82,7 +82,7 @@ public class MLBasedEnricherTests
         featureManagerMock.Setup(x => x.IsEnabledAsync(FeatureFlags.MLBasedClassificationFeature)).ReturnsAsync(true);
 
         var predictionServiceMock = new Mock<IClassifierPredictionService>();
-        predictionServiceMock.Setup(x => x.PredictTheme(It.IsAny<string>(), It.IsAny<ModelInputTheme>())).Returns(new ModelOutput());
+        predictionServiceMock.Setup(x => x.PredictTheme(It.IsAny<ModelInputTheme>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(new ModelOutput()));
         predictionServiceMock.Setup(x => x.PredictCategory(It.IsAny<string>(), It.IsAny<ModelInputCategory>())).Returns(new ModelOutput());
         predictionServiceMock.Setup(x => x.PredictSubCategory(It.IsAny<string>(), It.IsAny<ModelInputSubCategory>())).Returns(new ModelOutput());
 

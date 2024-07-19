@@ -11,9 +11,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="MLTrainedModels\AssetTrainedModel.zip" />
+    <None Remove="MLTrainedModels\BenefitTrainedModel.zip" />
     <None Remove="MLTrainedModels\CategoryTrainedModel.zip" />
+    <None Remove="MLTrainedModels\PressureTrainedModel.zip" />
     <None Remove="MLTrainedModels\SubCategoryTrainedModel.zip" />
     <None Remove="MLTrainedModels\ThemeTrainedModel.zip" />
+    <None Remove="MLTrainedModels\ValuationTrainedModel.zip" />
     <None Remove="Schema\gco\basicTypes.xsd" />
     <None Remove="Schema\gco\gco.xsd" />
     <None Remove="Schema\gco\gcoBase.xsd" />
@@ -23,13 +27,25 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="MLTrainedModels\AssetTrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MLTrainedModels\BenefitTrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="MLTrainedModels\CategoryTrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MLTrainedModels\PressureTrainedModel.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="MLTrainedModels\SubCategoryTrainedModel.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="MLTrainedModels\ThemeTrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MLTrainedModels\ValuationTrainedModel.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Schema\gco\basicTypes.xsd">

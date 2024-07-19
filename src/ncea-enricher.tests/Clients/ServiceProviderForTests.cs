@@ -53,14 +53,19 @@ internal static class ServiceProviderForTests
 
         serviceCollection.AddSingleton<IClassifierPredictionService, ClassifierPredictionService>();
 
+        var trainedModelDirectory = "MLTrainedModels";
         serviceCollection.AddPredictionEnginePool<ModelInputTheme, ModelOutput>()
-            .FromFile(modelName: TrainedModels.Theme, filePath: Path.Combine("MLTrainedModels", "ThemeTrainedModel.zip"), watchForChanges: false);
+            .FromFile(modelName: TrainedModels.Asset, filePath: Path.Combine(trainedModelDirectory, "AssetTrainedModel.zip"), watchForChanges: false)
+            .FromFile(modelName: TrainedModels.Preassure, filePath: Path.Combine(trainedModelDirectory, "PressureTrainedModel.zip"), watchForChanges: false)
+            .FromFile(modelName: TrainedModels.Benefit, filePath: Path.Combine(trainedModelDirectory, "BenefitTrainedModel.zip"), watchForChanges: false)
+            .FromFile(modelName: TrainedModels.Valuation, filePath: Path.Combine(trainedModelDirectory, "ValuationTrainedModel.zip"), watchForChanges: false)
+            .FromFile(modelName: TrainedModels.Theme, filePath: Path.Combine(trainedModelDirectory, "ThemeTrainedModel.zip"), watchForChanges: false);
 
         serviceCollection.AddPredictionEnginePool<ModelInputCategory, ModelOutput>()
-            .FromFile(modelName: TrainedModels.Category, filePath: Path.Combine("MLTrainedModels", "CategoryTrainedModel.zip"), watchForChanges: false);
+            .FromFile(modelName: TrainedModels.Category, filePath: Path.Combine(trainedModelDirectory, "CategoryTrainedModel.zip"), watchForChanges: false);
 
         serviceCollection.AddPredictionEnginePool<ModelInputSubCategory, ModelOutput>()
-            .FromFile(modelName: TrainedModels.SubCategory, filePath: Path.Combine("MLTrainedModels", "SubCategoryTrainedModel.zip"), watchForChanges: false);
+            .FromFile(modelName: TrainedModels.SubCategory, filePath: Path.Combine(trainedModelDirectory, "SubCategoryTrainedModel.zip"), watchForChanges: false);
 
         serviceCollection.AddMemoryCache();
 
