@@ -51,8 +51,8 @@ public class ClassifierPredictionService : IClassifierPredictionService
 
     private void PredictTheme(string themeModel, string themeName, ModelInputTheme inputData, IEnumerable<ClassifierInfo> themes, List<string> themeModelList)
     {
-        var assetPrediction = _themePredictionEnginePool.Predict(themeModel, inputData);
-        if (assetPrediction.PredictedLabel == "1")
+        var themePrediction = _themePredictionEnginePool.Predict(themeModel, inputData);
+        if (themePrediction.PredictedLabel == "1")
         {
             var theme = themes.FirstOrDefault(x => x.Id == themeName);
             themeModelList.Add($"{theme!.Id} {theme!.Name}");
