@@ -170,18 +170,19 @@ static async Task CreateServiceBusQueueIfNotExist(ServiceBusAdministrationClient
 
 static void ConfigureMachineLearningModels(HostApplicationBuilder builder)
 {
+    var trainedModelDirectory = "MLTrainedModels";
     builder.Services.AddPredictionEnginePool<ModelInputTheme, ModelOutput>()
-    .FromFile(modelName: TrainedModels.Asset, filePath: Path.Combine("MLTrainedModels", "AssetTrainedModel.zip"), watchForChanges: false)
-    .FromFile(modelName: TrainedModels.Preassure, filePath: Path.Combine("MLTrainedModels", "PressureTrainedModel.zip"), watchForChanges: false)
-    .FromFile(modelName: TrainedModels.Benefit, filePath: Path.Combine("MLTrainedModels", "BenefitTrainedModel.zip"), watchForChanges: false)
-    .FromFile(modelName: TrainedModels.Valuation, filePath: Path.Combine("MLTrainedModels", "ValuationTrainedModel.zip"), watchForChanges: false)
-    .FromFile(modelName: TrainedModels.Theme, filePath: Path.Combine("MLTrainedModels", "ThemeTrainedModel.zip"), watchForChanges: false);
+    .FromFile(modelName: TrainedModels.Asset, filePath: Path.Combine(trainedModelDirectory, "AssetTrainedModel.zip"), watchForChanges: false)
+    .FromFile(modelName: TrainedModels.Preassure, filePath: Path.Combine(trainedModelDirectory, "PressureTrainedModel.zip"), watchForChanges: false)
+    .FromFile(modelName: TrainedModels.Benefit, filePath: Path.Combine(trainedModelDirectory, "BenefitTrainedModel.zip"), watchForChanges: false)
+    .FromFile(modelName: TrainedModels.Valuation, filePath: Path.Combine(trainedModelDirectory, "ValuationTrainedModel.zip"), watchForChanges: false)
+    .FromFile(modelName: TrainedModels.Theme, filePath: Path.Combine(trainedModelDirectory, "ThemeTrainedModel.zip"), watchForChanges: false);
 
     builder.Services.AddPredictionEnginePool<ModelInputCategory, ModelOutput>()
-    .FromFile(modelName: TrainedModels.Category, filePath: Path.Combine("MLTrainedModels", "CategoryTrainedModel.zip"), watchForChanges: false);
+    .FromFile(modelName: TrainedModels.Category, filePath: Path.Combine(trainedModelDirectory, "CategoryTrainedModel.zip"), watchForChanges: false);
 
     builder.Services.AddPredictionEnginePool<ModelInputSubCategory, ModelOutput>()
-    .FromFile(modelName: TrainedModels.SubCategory, filePath: Path.Combine("MLTrainedModels", "SubCategoryTrainedModel.zip"), watchForChanges: false);
+    .FromFile(modelName: TrainedModels.SubCategory, filePath: Path.Combine(trainedModelDirectory, "SubCategoryTrainedModel.zip"), watchForChanges: false);
 }
 
 [ExcludeFromCodeCoverage]
