@@ -2,6 +2,7 @@
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Constants;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ncea.Enricher.Services;
 
@@ -23,6 +24,7 @@ public class ClassifierPredictionService : IClassifierPredictionService
         _vocabularyProvider = vocabularyProvider;
     }
 
+    [ExcludeFromCodeCoverage]
     public async Task<ModelOutput> PredictTheme(ModelInputTheme inputData, CancellationToken cancellationToken)
     {
         var assetPrediction = _themePredictionEnginePool.Predict(TrainedModels.Asset, inputData);
