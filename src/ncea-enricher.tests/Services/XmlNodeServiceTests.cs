@@ -332,7 +332,7 @@ public class XmlNodeServiceTests
         nsMgr.AddNamespace("gmd", "http://www.isotc211.org/2005/gmd");
         nsMgr.AddNamespace("gco", "http://www.isotc211.org/2005/gco");
         nsMgr.AddNamespace("gmx", "http://www.isotc211.org/2005/gmx");
-        nsMgr.AddNamespace("mdc", "https://ncea-search.azure.defra.cloud/assets/xml-schema/mdc");
+        nsMgr.AddNamespace("mdc", "https://ncea-search.azure.defra.cloud/mdc");
 
         return nsMgr;
     }
