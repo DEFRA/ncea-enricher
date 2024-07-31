@@ -80,10 +80,10 @@ public class MLBasedEnricher : IEnricherService
         ConsolidatePredictedClassifiers(matchedClassifiers, classifierVocabulary, 3, predictedSubCategories, missingParentClassifiers);
 
         var predictedClassifiersLogText = $"ML Predicted classifiers for Datasource : {dataSource} | " +
-                $"FileIdentifier : {fileIdentifier} | " +
-                $"Themes : {string.Join(", ", predictedThemes != null ? predictedThemes.Select(x => x.Code) : [])} | " +
-                $"Categories : {string.Join(", ", predictedCategories.Select(x => x.Code))} | " +
-                $"SubCategories : {string.Join(", ", predictedSubCategories.Select(x => x.Code))}";
+                $"FileIdentifier :{fileIdentifier} | " +
+                $"Themes :{string.Join(",", predictedThemes != null ? predictedThemes.Select(x => x.OriginalValue).Distinct() : [])} | " +
+                $"Categories :{string.Join(",", predictedCategories.Select(x => x.OriginalValue).Distinct())} | " +
+                $"SubCategories :{string.Join(",", predictedSubCategories.Select(x => x.OriginalValue).Distinct())}";
 
         _logger.LogWarning("{predictedClassifiersLogText} | Missing ParentIds : {missingparentIds}",
             predictedClassifiersLogText,
