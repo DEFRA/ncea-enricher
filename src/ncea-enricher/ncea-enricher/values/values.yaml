@@ -29,10 +29,10 @@ securityContext: {}
 #resources: {}
 resources:
   requests:
-    memory: "50Mi"
+    memory: "250Mi"
     cpu: "10m"
   limits:
-    memory: "250Mi"
+    memory: "500Mi"
     cpu: "75m"
 
 autoscaling:
