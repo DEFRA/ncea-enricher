@@ -70,7 +70,7 @@ public class XmlNodeService : IXmlNodeService
             if (elements != null && elements.Any())
             {
                 var values = elements.Select(x => x.Value).ToList();
-                return string.Join(", ", values);
+                return string.Join(",", values);
             }
         }
         else

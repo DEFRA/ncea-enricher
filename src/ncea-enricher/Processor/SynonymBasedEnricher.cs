@@ -70,17 +70,8 @@ public class SynonymBasedEnricher : IEnricherService
         var searchableFields = _fieldConfigurations.GetFieldsForClassification();
         foreach (var searchableField in searchableFields)
         {
-            var fieldName = searchableField.Name.ToString();
             var fieldValue = _xmlNodeService.GetNodeValues(searchableField, rootNode);
-            if (!searchableFieldValues.ContainsKey(fieldName))
-            {
-                searchableFieldValues.Add(fieldName, fieldValue);
-            }
-            else
-            {
-                var oldValue = searchableFieldValues[fieldName];
-                searchableFieldValues[fieldName] = !string.IsNullOrWhiteSpace(oldValue) ? string.Join(", ", oldValue, fieldValue) : fieldValue;
-            }
+            searchableFieldValues.Add(searchableField.Name.ToString(), fieldValue);
         }
         var metadata = searchableFieldValues.Where(x => !string.IsNullOrEmpty(x.Value)).Select(x => x.Value).ToList();
         return metadata;
