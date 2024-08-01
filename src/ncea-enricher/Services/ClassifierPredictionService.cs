@@ -2,8 +2,8 @@
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Constants;
-using System.Diagnostics.CodeAnalysis;
 using Ncea.Enricher.Models;
+using Ncea.Enricher.Extensions;
 
 namespace Ncea.Enricher.Services;
 
@@ -37,16 +37,21 @@ public class ClassifierPredictionService : IClassifierPredictionService
         PredictTheme(TrainedModels.Valuation, Themes.Valuation, inputData, themes, themeModelList);
 
         string themeModelListStr = string.Empty;
-        if (themeModelList.Count > 0)
-        {
-            themeModelListStr = string.Join(",", themeModelList);
-            return new ModelOutput() { PredictedLabel = themeModelListStr };
-        }
-        else
+
+        if (themeModelList.Count == 0)
         {
             var themePrediction = _themePredictionEnginePool.Predict(TrainedModels.Theme, inputData);
-            return themePrediction;
+            var predictedThemes = themePrediction.PredictedLabel!.GetClassifierIds();
+
+            foreach(var predictedTheme in predictedThemes!)
+            {
+                var theme = themes.FirstOrDefault(x => x.Id == predictedTheme.Code);
+                themeModelList.Add($"{theme!.Id} {theme!.Name}");
+            }
         }
+
+        themeModelListStr = string.Join(",", themeModelList);
+        return new ModelOutput() { PredictedLabel = themeModelListStr };
     }
 
     private void PredictTheme(string themeModel, string themeName, ModelInputTheme inputData, IEnumerable<ClassifierInfo> themes, List<string> themeModelList)
