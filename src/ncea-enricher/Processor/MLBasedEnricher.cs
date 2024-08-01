@@ -167,8 +167,17 @@ public class MLBasedEnricher : IEnricherService
         var classifierFields = _fieldConfigurations.GetFieldsForClassification();
         foreach (var classifierField in classifierFields)
         {
+            var fieldName = classifierField.Name.ToString();
             var fieldValue = _xmlNodeService.GetNodeValues(classifierField, rootNode);
-            fieldValues.Add(classifierField.Name.ToString(), fieldValue);
+            if (!fieldValues.ContainsKey(fieldName))
+            {
+                fieldValues.Add(fieldName, fieldValue);
+            }
+            else
+            {
+                var oldValue = fieldValues[fieldName];
+                fieldValues[fieldName] = !string.IsNullOrWhiteSpace(oldValue) ? string.Join(", ", oldValue, fieldValue) : fieldValue;
+            }
         }
         return JsonConvert.SerializeObject(fieldValues);
     }
