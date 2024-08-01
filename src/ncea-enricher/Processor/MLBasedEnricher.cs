@@ -170,6 +170,6 @@ public class MLBasedEnricher : IEnricherService
             var fieldValue = _xmlNodeService.GetNodeValues(classifierField, rootNode);
             fieldValues.Add(classifierField.Name.ToString(), fieldValue);
         }
-        return JsonConvert.SerializeObject(fieldValues);        
+        return JsonConvert.SerializeObject(fieldValues);
     }
 }
