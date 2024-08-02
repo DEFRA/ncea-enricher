@@ -44,7 +44,7 @@ internal static class ServiceProviderForTests
         var classifierVocabulary = JsonConvert.DeserializeObject<List<ClassifierInfo>>(File.ReadAllText(classifierVocabularyFilePath));
 
         var classifierMicroserviceClientMock = new Mock<INceaClassifierMicroserviceClient>();
-        classifierMicroserviceClientMock.Setup(s => s.VocabularyAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+        classifierMicroserviceClientMock.Setup(s => s.VocabularyAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(classifierVocabulary);
 
         serviceCollection.AddSingleton<IBlobService>(BlobServiceForTests.Get());

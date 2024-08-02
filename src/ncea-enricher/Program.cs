@@ -21,6 +21,9 @@ using Microsoft.Extensions.ML;
 using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Constants;
 using Ncea.Classifier.Microservice.Clients;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -31,12 +34,10 @@ var configuration = new ConfigurationBuilder()
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<Worker>();
-builder.Configuration.AddJsonFile("appsettings-fieldconfigurations.json");
 
 builder.Services.AddHealthChecks().AddCheck<HealthCheck>("custom_hc");
 builder.Services.AddHostedService<TcpHealthProbeService>();
 
-builder.Services.AddHttpClient();
 builder.Services.AddFeatureManagement(configuration.GetSection("FeatureManagement"));
 
 ConfigureKeyVault(configuration, builder);
@@ -135,10 +136,13 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<IXmlValidationService, XPathValidationService>();
     builder.Services.AddSingleton<IClassifierPredictionService, ClassifierPredictionService>();
 
-    builder.Services.AddHttpClient<INceaClassifierMicroserviceClient, NceaClassifierMicroserviceClient>(client =>
+    builder.Services.AddTokenAcquisition(isTokenAcquisitionSingleton: true)
+    .Configure<MicrosoftIdentityApplicationOptions>(builder.Configuration.GetSection("AzureAd"))
+    .AddInMemoryTokenCaches()
+    .AddHttpClient<INceaClassifierMicroserviceClient, NceaClassifierMicroserviceClient>(client =>
     {
         client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ClassifierApiBaseUri")!);
-    });    
+    });
 
     builder.Services.AddMemoryCache();
 

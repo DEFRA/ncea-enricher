@@ -6,19 +6,17 @@ namespace Ncea.Enricher.Services;
 
 public class ClassifierVocabularyProvider : IClassifierVocabularyProvider
 {
-    private readonly string _apiKey;
     private readonly INceaClassifierMicroserviceClient _classifierApiClient;
 
-    public ClassifierVocabularyProvider(INceaClassifierMicroserviceClient classifierApiClient, IConfiguration configuration)
+    public ClassifierVocabularyProvider(INceaClassifierMicroserviceClient classifierApiClient)
     {
-        _apiKey = configuration.GetValue<string>(ApiKeyParameters.ApiKeyName)!;
         _classifierApiClient = classifierApiClient;
     }
 
     public async Task<List<Models.ClassifierInfo>> GetAll(CancellationToken cancellationToken)
     {
         var classifierList = new List<Models.ClassifierInfo>();
-        var classifiers = await _classifierApiClient.VocabularyAsync(_apiKey, cancellationToken);
+        var classifiers = await _classifierApiClient.VocabularyAsync(cancellationToken);
 
         foreach(var themeClassifier in classifiers)
         {

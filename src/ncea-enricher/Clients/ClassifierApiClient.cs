@@ -35,21 +35,21 @@ namespace Ncea.Classifier.Microservice.Clients
     {
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ClassifierInfo>> VocabularyAsync(object x_API_Key);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ClassifierInfo>> VocabularyAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ClassifierInfo>> VocabularyAsync(object x_API_Key, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ClassifierInfo>> VocabularyAsync(System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<GuidedSearchClassifiersWithPageContent>> ClassifiersAsync(int level, string parents, object x_API_Key);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<GuidedSearchClassifiersWithPageContent>> ClassifiersAsync(int level, string parents);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<GuidedSearchClassifiersWithPageContent>> ClassifiersAsync(int level, string parents, object x_API_Key, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<GuidedSearchClassifiersWithPageContent>> ClassifiersAsync(int level, string parents, System.Threading.CancellationToken cancellationToken);
 
     }
 
@@ -83,26 +83,22 @@ namespace Ncea.Classifier.Microservice.Clients
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ClassifierInfo>> VocabularyAsync(object x_API_Key)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ClassifierInfo>> VocabularyAsync()
         {
-            return VocabularyAsync(x_API_Key, System.Threading.CancellationToken.None);
+            return VocabularyAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ClassifierInfo>> VocabularyAsync(object x_API_Key, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ClassifierInfo>> VocabularyAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-
-                    if (x_API_Key == null)
-                        throw new System.ArgumentNullException("x_API_Key");
-                    request_.Headers.TryAddWithoutValidation("X-API-Key", ConvertToString(x_API_Key, System.Globalization.CultureInfo.InvariantCulture));
+                {                    
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
 
@@ -185,15 +181,15 @@ namespace Ncea.Classifier.Microservice.Clients
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<GuidedSearchClassifiersWithPageContent>> ClassifiersAsync(int level, string parents, object x_API_Key)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<GuidedSearchClassifiersWithPageContent>> ClassifiersAsync(int level, string parents)
         {
-            return ClassifiersAsync(level, parents, x_API_Key, System.Threading.CancellationToken.None);
+            return ClassifiersAsync(level, parents, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<GuidedSearchClassifiersWithPageContent>> ClassifiersAsync(int level, string parents, object x_API_Key, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<GuidedSearchClassifiersWithPageContent>> ClassifiersAsync(int level, string parents, System.Threading.CancellationToken cancellationToken)
         {
             if (level == null)
                 throw new System.ArgumentNullException("level");
@@ -203,11 +199,7 @@ namespace Ncea.Classifier.Microservice.Clients
             try
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-
-                    if (x_API_Key == null)
-                        throw new System.ArgumentNullException("x_API_Key");
-                    request_.Headers.TryAddWithoutValidation("X-API-Key", ConvertToString(x_API_Key, System.Globalization.CultureInfo.InvariantCulture));
+                {                    
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
 
