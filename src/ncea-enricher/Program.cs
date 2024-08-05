@@ -144,6 +144,8 @@ static void ConfigureServices(HostApplicationBuilder builder)
         client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ClassifierApiBaseUri")!);
     });
 
+    builder.Services.AddDownstreamApi("ClassifierApi", builder.Configuration.GetSection("ClassifierApi"));
+
     builder.Services.AddMemoryCache();
 
     builder.Services.AddSingleton<ISynonymsProvider, SynonymsProvider>();
