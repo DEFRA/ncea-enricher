@@ -1,24 +1,24 @@
-﻿using Ncea.Classifier.Microservice.Clients;
-using Ncea.Enricher.Constants;
+﻿using Microsoft.Identity.Abstractions;
+using Ncea.Classifier.Microservice.Clients;
 using Ncea.Enricher.Services.Contracts;
 
 namespace Ncea.Enricher.Services;
 
 public class ClassifierVocabularyProvider : IClassifierVocabularyProvider
 {
-    private readonly INceaClassifierMicroserviceClient _classifierApiClient;
+    private readonly IDownstreamApi _downstreamApi;
 
-    public ClassifierVocabularyProvider(INceaClassifierMicroserviceClient classifierApiClient)
+    public ClassifierVocabularyProvider(IDownstreamApi downstreamApi)
     {
-        _classifierApiClient = classifierApiClient;
+        _downstreamApi = downstreamApi;
     }
 
     public async Task<List<Models.ClassifierInfo>> GetAll(CancellationToken cancellationToken)
     {
         var classifierList = new List<Models.ClassifierInfo>();
-        var classifiers = await _classifierApiClient.VocabularyAsync(cancellationToken);
+        var classifiers = await _downstreamApi.GetForAppAsync<ICollection<ClassifierInfo>>(serviceName: "ClassifierApi", cancellationToken: cancellationToken);
 
-        foreach(var themeClassifier in classifiers)
+        foreach(var themeClassifier in classifiers!)
         {
             classifierList.Add(new Models.ClassifierInfo() { Id = themeClassifier.Code, Name = themeClassifier.Name, Level = themeClassifier.Level });
             GetChildren(classifierList, themeClassifier);

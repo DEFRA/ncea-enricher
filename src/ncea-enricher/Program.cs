@@ -20,7 +20,6 @@ using Ncea.Enricher.Enums;
 using Microsoft.Extensions.ML;
 using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Constants;
-using Ncea.Classifier.Microservice.Clients;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
@@ -45,6 +44,7 @@ ConfigureBlobStorage(configuration, builder);
 ConfigureLogging(builder);
 await ConfigureServiceBusQueue(configuration, builder);
 ConfigureFileShareClient(configuration);
+ConfigureClassifierApi(builder);
 ConfigureServices(builder);
 ConfigureMachineLearningModels(builder);
 
@@ -125,6 +125,24 @@ static void ConfigureLogging(HostApplicationBuilder builder)
     });
 }
 
+static void ConfigureClassifierApi(HostApplicationBuilder builder)
+{
+    var azureAdSection = builder.Configuration.GetSection("AzureAd");
+    var clientId = builder.Configuration.GetValue<string>("daemon-app-clientid")!;
+    azureAdSection.GetSection("ClientId").Value = clientId;
+    azureAdSection.GetSection("ClientCredentials:0:ClientSecret").Value = builder.Configuration.GetValue<string>("daemon-app-secret");
+
+    builder.Services.AddTokenAcquisition(isTokenAcquisitionSingleton: true)
+        .Configure<MicrosoftIdentityApplicationOptions>(builder.Configuration.GetSection("AzureAd"))
+        .AddInMemoryTokenCaches()
+        .AddHttpClient();
+
+    var classifierApiSection = builder.Configuration.GetSection("ClassifierApi");
+    var apiScope = $"api://{clientId}/.default";
+    classifierApiSection.GetSection("Scopes:0").Value = apiScope;
+    builder.Services.AddDownstreamApi("ClassifierApi", builder.Configuration.GetSection("ClassifierApi"));
+}
+
 static void ConfigureServices(HostApplicationBuilder builder)
 {
     builder.Services.AddSingleton<IApiClient, ApiClient>();
@@ -135,16 +153,6 @@ static void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<IXmlNodeService, XmlNodeService>();
     builder.Services.AddSingleton<IXmlValidationService, XPathValidationService>();
     builder.Services.AddSingleton<IClassifierPredictionService, ClassifierPredictionService>();
-
-    builder.Services.AddTokenAcquisition(isTokenAcquisitionSingleton: true)
-    .Configure<MicrosoftIdentityApplicationOptions>(builder.Configuration.GetSection("AzureAd"))
-    .AddInMemoryTokenCaches()
-    .AddHttpClient<INceaClassifierMicroserviceClient, NceaClassifierMicroserviceClient>(client =>
-    {
-        client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ClassifierApiBaseUri")!);
-    });
-
-    builder.Services.AddDownstreamApi("ClassifierApi", builder.Configuration.GetSection("ClassifierApi"));
 
     builder.Services.AddMemoryCache();
 

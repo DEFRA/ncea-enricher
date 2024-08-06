@@ -11,6 +11,7 @@ using Ncea.Enricher.Models.ML;
 using Microsoft.Extensions.ML;
 using Newtonsoft.Json;
 using Ncea.Enricher.Infrastructure.Contracts;
+using Microsoft.Identity.Abstractions;
 
 namespace Ncea.Enricher.Tests.Clients;
 
@@ -43,13 +44,17 @@ internal static class ServiceProviderForTests
         var classifierVocabularyFilePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "ClassifierVocabulary.json");
         var classifierVocabulary = JsonConvert.DeserializeObject<List<ClassifierInfo>>(File.ReadAllText(classifierVocabularyFilePath));
 
-        var classifierMicroserviceClientMock = new Mock<INceaClassifierMicroserviceClient>();
-        classifierMicroserviceClientMock.Setup(s => s.VocabularyAsync(It.IsAny<CancellationToken>()))
+        //var classifierMicroserviceClientMock = new Mock<INceaClassifierMicroserviceClient>();
+        //classifierMicroserviceClientMock.Setup(s => s.VocabularyAsync(It.IsAny<CancellationToken>()))
+        //    .ReturnsAsync(classifierVocabulary);
+
+        var downstreamApiMock = new Mock<IDownstreamApi>();
+        downstreamApiMock.Setup(s => s.GetForAppAsync<ICollection<ClassifierInfo>>("ClassifierApi", null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(classifierVocabulary);
 
         serviceCollection.AddSingleton<IBlobService>(BlobServiceForTests.Get());
 
-        serviceCollection.AddSingleton(classifierMicroserviceClientMock.Object);
+        serviceCollection.AddSingleton(downstreamApiMock.Object);
 
         serviceCollection.AddSingleton<IClassifierPredictionService, ClassifierPredictionService>();
 
