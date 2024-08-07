@@ -127,8 +127,11 @@ static void ConfigureLogging(HostApplicationBuilder builder)
 
 static void ConfigureClassifierApi(HostApplicationBuilder builder)
 {
-    var azureAdSection = builder.Configuration.GetSection("AzureAd");
     var clientId = builder.Configuration.GetValue<string>("daemon-app-clientid")!;
+    var classifierApiClientId = builder.Configuration.GetValue<string>("classifier-app-api-clientid")!;
+
+    var azureAdSection = builder.Configuration.GetSection("AzureAd");
+    
     azureAdSection.GetSection("ClientId").Value = clientId;
     azureAdSection.GetSection("ClientCredentials:0:ClientSecret").Value = builder.Configuration.GetValue<string>("daemon-app-secret");
 
@@ -138,7 +141,7 @@ static void ConfigureClassifierApi(HostApplicationBuilder builder)
         .AddHttpClient();
 
     var classifierApiSection = builder.Configuration.GetSection("ClassifierApi");
-    var apiScope = $"api://{clientId}/.default";
+    var apiScope = $"api://{classifierApiClientId}/.default";
     classifierApiSection.GetSection("Scopes:0").Value = apiScope;
     builder.Services.AddDownstreamApi("ClassifierApi", builder.Configuration.GetSection("ClassifierApi"));
 }
