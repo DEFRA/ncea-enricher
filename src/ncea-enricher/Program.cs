@@ -129,20 +129,21 @@ static void ConfigureClassifierApi(HostApplicationBuilder builder)
 {
     var clientId = builder.Configuration.GetValue<string>("daemon-app-clientid")!;
     var classifierApiClientId = builder.Configuration.GetValue<string>("classifier-app-api-clientid")!;
+    var apiScope = $"api://{classifierApiClientId}/.default";
 
-    var azureAdSection = builder.Configuration.GetSection("AzureAd");
-    
+    var azureAdSection = builder.Configuration.GetSection("AzureAd");    
     azureAdSection.GetSection("ClientId").Value = clientId;
     azureAdSection.GetSection("ClientCredentials:0:ClientSecret").Value = builder.Configuration.GetValue<string>("daemon-app-secret");
 
-    builder.Services.AddTokenAcquisition(isTokenAcquisitionSingleton: true)
-        .Configure<MicrosoftIdentityApplicationOptions>(builder.Configuration.GetSection("AzureAd"))
-        .AddInMemoryTokenCaches()
-        .AddHttpClient();
-
-    var classifierApiSection = builder.Configuration.GetSection("ClassifierApi");
-    var apiScope = $"api://{classifierApiClientId}/.default";
+    var classifierApiSection = builder.Configuration.GetSection("ClassifierApi");    
     classifierApiSection.GetSection("Scopes:0").Value = apiScope;
+    classifierApiSection.GetSection("BaseUrl").Value = builder.Configuration.GetValue<string>("ClassifierApiBaseUri");
+
+    builder.Services.AddTokenAcquisition(isTokenAcquisitionSingleton: true)
+    .Configure<MicrosoftIdentityApplicationOptions>(builder.Configuration.GetSection("AzureAd"))
+    .AddInMemoryTokenCaches()
+    .AddHttpClient();
+
     builder.Services.AddDownstreamApi("ClassifierApi", builder.Configuration.GetSection("ClassifierApi"));
 }
 
