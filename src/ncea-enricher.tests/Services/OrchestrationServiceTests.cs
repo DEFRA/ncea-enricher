@@ -11,6 +11,7 @@ using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
+using Ncea.Harvester.Services.Contracts;
 using System.Reflection;
 using System.Xml.Schema;
 
@@ -19,9 +20,11 @@ namespace Ncea.Enricher.Tests.Services;
 public class OrchestrationServiceTests
 {
     private Mock<IEnricherService> _enricherServiceMock;
+    private Mock<IBackUpService> _backupServiceMock;
     public OrchestrationServiceTests()
     {
         _enricherServiceMock = new Mock<IEnricherService>();
+        _backupServiceMock = new Mock<IBackUpService>();
     }
 
     [Fact]
@@ -37,6 +40,7 @@ public class OrchestrationServiceTests
         var blobService = BlobServiceForTests.GetMdcXml();
 
         var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -61,6 +65,7 @@ public class OrchestrationServiceTests
         var blobService = BlobServiceForTests.GetMdcXml();
 
         var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -107,7 +112,7 @@ public class OrchestrationServiceTests
         blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(blobContent);
         
-        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\"}";
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\",\"MessageType\":\"Metadata\"}";
         
         var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(messageBody), messageId: "messageId");
         var mockReceiver = new Mock<ServiceBusReceiver>();
@@ -118,6 +123,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -167,6 +173,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -201,6 +208,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -297,7 +305,7 @@ public class OrchestrationServiceTests
         blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(blobContent);
 
-        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\"}";
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\",\"MessageType\":\"Metadata\"}";
 
         List<KeyValuePair<string, string?>> lstProps =
         [
@@ -321,6 +329,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(config,
+            _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -381,6 +390,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(config,
+            _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -417,7 +427,7 @@ public class OrchestrationServiceTests
         blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(blobContent);
 
-        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\"}";
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\",\"MessageType\":\"Metadata\"}";
 
 
         List<KeyValuePair<string, string?>> lstProps =
@@ -442,6 +452,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(config,
+            _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -478,7 +489,7 @@ public class OrchestrationServiceTests
         blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(blobContent);
 
-        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\"}";
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\",\"MessageType\":\"Metadata\"}";
 
         List<KeyValuePair<string, string?>> lstProps =
         [
@@ -502,6 +513,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(config,
+            _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -528,6 +540,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -562,6 +575,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -597,6 +611,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -628,6 +643,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -662,6 +678,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
@@ -688,6 +705,7 @@ public class OrchestrationServiceTests
 
         // Act
         var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
