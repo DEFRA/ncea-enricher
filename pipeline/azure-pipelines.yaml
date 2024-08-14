@@ -27,7 +27,7 @@ stages:
   - job: 'Build'
     displayName: 'Build job'
     pool:
-      name: DEFRA-COMMON-ubuntu2204-SSV5
+      name: DEFRA-COMMON-ubuntu2204-SSV3
     variables:
       - template: templates/variables-build.yml      
     steps:

@@ -1,10 +1,8 @@
 steps:
 
   - task: UseDotNet@2
-    displayName: 'Install .NET Core SDK'
     inputs:
-      version: 8.x
-      includePreviewVersions: true # Required for preview versions
+      version: '8.x'
 
   - task: SonarCloudPrepare@1
     displayName: 'Prepare analysis on SonarCloud'
