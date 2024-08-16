@@ -16,12 +16,10 @@ public class BackUpServiceTests
 {
     private readonly BackUpService _backupService;
     private readonly IConfiguration _configuration;
-    private readonly Mock<IBlobService> _blobServiceMock;
     private readonly Mock<ILogger<BackUpService>> _loggerMock;
 
     public BackUpServiceTests()
     {
-        _blobServiceMock = new Mock<IBlobService>();
         _loggerMock = new Mock<ILogger<BackUpService>>();
         _loggerMock.Setup(x => x.Log(
                 LogLevel.Error,
@@ -40,7 +38,7 @@ public class BackUpServiceTests
         _configuration = new ConfigurationBuilder()
                             .AddInMemoryCollection(lstProps)
                             .Build();
-        _backupService = new BackUpService(_configuration, _blobServiceMock.Object, _loggerMock.Object);
+        _backupService = new BackUpService(_configuration, _loggerMock.Object);
         
     }
 

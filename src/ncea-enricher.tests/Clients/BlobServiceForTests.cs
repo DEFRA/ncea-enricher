@@ -3,6 +3,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Moq;
 using Ncea.Enricher.Infrastructure;
+using Ncea.Enricher.Infrastructure.Models.Requests;
 
 namespace Ncea.Enricher.Tests.Clients;
 
@@ -25,7 +26,7 @@ public static class BlobServiceForTests
 
         mockBlobServiceClient.Setup(x => x.GetBlobContainerClient(It.IsAny<string>())).Returns(mockBlobContainerClient.Object);
         mockBlobContainerClient.Setup(x => x.GetBlobClient(It.IsAny<string>())).Returns(mockBlobClient.Object);
-        
+
         var service = new BlobService(mockBlobServiceClient.Object);
         return service;
     }
@@ -97,7 +98,6 @@ public static class BlobServiceForTests
 
         mockBlobServiceClient.Setup(x => x.GetBlobContainerClient(It.IsAny<string>())).Returns(mockBlobContainerClient.Object);
         mockBlobContainerClient.Setup(x => x.GetBlobClient(It.IsAny<string>())).Returns(mockBlobClient.Object);
-
         var service = new BlobService(mockBlobServiceClient.Object);
         return service;
     }

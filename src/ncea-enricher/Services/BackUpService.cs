@@ -11,13 +11,11 @@ namespace Ncea.Enricher.Services;
 public class BackUpService : IBackUpService
 {
     private readonly string _fileSharePath;
-    private readonly IBlobService _blobService;
     private readonly ILogger _logger;
 
-    public BackUpService(IConfiguration configuration, IBlobService blobService, ILogger<BackUpService> logger)
+    public BackUpService(IConfiguration configuration, ILogger<BackUpService> logger)
     {
         _fileSharePath = configuration.GetValue<string>("FileShareName")!;
-        _blobService = blobService;
         _logger = logger;
     }
 

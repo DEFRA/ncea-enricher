@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Azure.Messaging.ServiceBus;
+using Azure.Storage.Blobs;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -90,7 +91,214 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public async Task ProcessMessagesAsync_WhenEnrichedMetadataContentIsNotEmpty_ThenCompleteThaTaskSucessfully()
+    public void ProcessMessagesAsync_WhenMessageTypeIsStart_ThenCompleteThaTaskSucessfully()
+    {
+        // Arrange
+        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IOrchestrationService> mockOrchestrationService,
+                            out Mock<ILogger<OrchestrationService>> loggerMock,
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+
+        var blobContent = string.Empty;
+
+        var blobServiceMock = new Mock<IBlobService>();
+        blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(blobContent);
+
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\",\"MessageType\":\"Start\"}";
+
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(messageBody), messageId: "messageId");
+        var mockReceiver = new Mock<ServiceBusReceiver>();
+        var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
+        var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
+        mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _backupServiceMock.Setup(x => x.CreateDirectory(It.IsNotNull<string>())).Verifiable();
+
+        // Act
+        var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
+            blobServiceMock.Object,
+            mockServiceBusProcessorFactory.Object,
+            _enricherServiceMock.Object,
+            loggerMock.Object);
+
+        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
+
+        // Assert
+        _backupServiceMock.Verify(x => x.CreateDirectory(It.IsNotNull<string>()), Times.Once);
+        loggerMock.Verify(
+            m => m.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Exactly(1),
+            It.IsAny<string>()
+        );
+    }
+
+    [Fact]
+    public void ProcessMessagesAsync_WhenMessageTypeIsEnd_ThenCompleteThaTaskSucessfully()
+    {
+        // Arrange
+        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IOrchestrationService> mockOrchestrationService,
+                            out Mock<ILogger<OrchestrationService>> loggerMock,
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+
+        var blobContent = string.Empty;
+
+        var blobServiceMock = new Mock<IBlobService>();
+        blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(blobContent);
+
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\",\"MessageType\":\"End\"}";
+
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(messageBody), messageId: "messageId");
+        var mockReceiver = new Mock<ServiceBusReceiver>();
+        var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
+        var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
+        mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _backupServiceMock.Setup(x => x.MoveFiles(It.IsNotNull<string>(), It.IsNotNull<string>())).Verifiable();
+
+        // Act
+        var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
+            blobServiceMock.Object,
+            mockServiceBusProcessorFactory.Object,
+            _enricherServiceMock.Object,
+            loggerMock.Object);
+
+        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
+
+        // Assert
+        _backupServiceMock.Verify(x => x.MoveFiles(It.IsNotNull<string>(), It.IsNotNull<string>()), Times.Exactly(2));
+        loggerMock.Verify(
+            m => m.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Exactly(1),
+            It.IsAny<string>()
+        );
+    }
+
+    [Fact]
+    public async Task ProcessMessagesAsync_WhenEnrichedMetadataContentIsNotEmpty_ThenCompleteTheTaskSucessfully()
+    {
+        // Arrange
+        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IOrchestrationService> mockOrchestrationService,
+                            out Mock<ILogger<OrchestrationService>> loggerMock,
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+
+        var blobContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                        "<gmd:MD_Metadata " +
+                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
+                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
+                        "<gmd:fileIdentifier>" +
+                        "<gco:CharacterString>Marine_Scotland_FishDAC_1740</gco:CharacterString>" +
+                        "</gmd:fileIdentifier>" +
+                        "</gmd:MD_Metadata>";
+
+        var blobServiceMock = new Mock<IBlobService>();
+        blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(blobContent);
+        blobServiceMock.Setup(x => x.DeleteBlobAsync(It.IsAny<DeleteBlobRequest>(), It.IsAny<CancellationToken>())).Verifiable();
+
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\",\"MessageType\":\"Metadata\"}";
+        
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(messageBody), messageId: "messageId");
+        var mockReceiver = new Mock<ServiceBusReceiver>();
+        var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
+        var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
+        mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _enricherServiceMock.Setup(x => x.Enrich(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(blobContent));
+        // Act
+        var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
+            blobServiceMock.Object,
+            mockServiceBusProcessorFactory.Object,
+            _enricherServiceMock.Object,
+            loggerMock.Object);
+
+        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
+
+        // Assert
+        blobServiceMock.Verify(x => x.DeleteBlobAsync(It.IsAny<DeleteBlobRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        loggerMock.Verify(
+            m => m.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Exactly(1),
+            It.IsAny<string>()
+        );
+        //await Assert.ThrowsAsync<ArgumentException>(() => task!);
+    }
+
+    [Fact]
+    public async Task ProcessMessagesAsync_WhenFileIdentifierIsEmpty_ThenErrorIsThrown()
+    {
+        // Arrange
+        OrchestrationServiceForTests.Get(out IConfiguration configuration,
+                            out Mock<IAzureClientFactory<ServiceBusProcessor>> mockServiceBusProcessorFactory,
+                            out Mock<IOrchestrationService> mockOrchestrationService,
+                            out Mock<ILogger<OrchestrationService>> loggerMock,
+                            out Mock<ServiceBusProcessor> mockServiceBusProcessor);
+
+        var blobContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                        "<gmd:MD_Metadata " +
+                        "xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" " +
+                        "xmlns:gco=\"http://www.isotc211.org/2005/gco\"> " +
+                        "<gmd:fileIdentifier>" +
+                        "<gco:CharacterString></gco:CharacterString>" +
+                        "</gmd:fileIdentifier>" +
+                        "</gmd:MD_Metadata>";
+
+        var blobServiceMock = new Mock<IBlobService>();
+        blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(blobContent);
+        blobServiceMock.Setup(x => x.DeleteBlobAsync(It.IsAny<DeleteBlobRequest>(), It.IsAny<CancellationToken>())).Verifiable();
+
+        var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\",\"MessageType\":\"Metadata\"}";
+
+        var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(messageBody), messageId: "messageId");
+        var mockReceiver = new Mock<ServiceBusReceiver>();
+        var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
+        var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
+        mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _enricherServiceMock.Setup(x => x.Enrich(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(blobContent));
+        // Act
+        var service = new OrchestrationService(configuration,
+            _backupServiceMock.Object,
+            blobServiceMock.Object,
+            mockServiceBusProcessorFactory.Object,
+            _enricherServiceMock.Object,
+            loggerMock.Object);
+
+        var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+        var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
+
+        // Assert
+        await Assert.ThrowsAsync<EnricherArgumentException>(() => task!);
+    }
+
+    [Fact]
+    public async Task ProcessMessagesAsync_WhenEnrichedMetadataContentIsEmpty_ThenMessageIsAbandoned()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
@@ -111,9 +319,9 @@ public class OrchestrationServiceTests
         var blobServiceMock = new Mock<IBlobService>();
         blobServiceMock.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(blobContent);
-        
+
         var messageBody = "{ \"FileIdentifier\":\"\",\"DataSource\":\"Medin\",\"MessageType\":\"Metadata\"}";
-        
+
         var receivedMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(body: new BinaryData(messageBody), messageId: "messageId");
         var mockReceiver = new Mock<ServiceBusReceiver>();
         var processMessageEventArgs = new ProcessMessageEventArgs(receivedMessage, It.IsAny<ServiceBusReceiver>(), It.IsAny<CancellationToken>());
@@ -562,7 +770,10 @@ public class OrchestrationServiceTests
                             out Mock<IOrchestrationService> mockOrchestrationService,
                             out Mock<ILogger<OrchestrationService>> loggerMock,
                             out Mock<ServiceBusProcessor> mockServiceBusProcessor);
-        var blobService = BlobServiceForTests.GetMdcXml();
+        var blobService = new Mock<IBlobService>();
+        blobService.Setup(x => x.DeleteBlobAsync(It.IsAny<DeleteBlobRequest>(), It.IsAny<CancellationToken>())).Verifiable();
+        blobService.Setup(x => x.GetContentAsync(It.IsAny<GetBlobContentRequest>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(It.IsNotNull<string>()));
+
 
         var message = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                         "<gmd:MD_Metadata " +
@@ -576,7 +787,7 @@ public class OrchestrationServiceTests
         // Act
         var service = new OrchestrationService(configuration,
             _backupServiceMock.Object,
-            blobService,
+            blobService.Object,
             mockServiceBusProcessorFactory.Object,
             _enricherServiceMock.Object,
             loggerMock.Object);
@@ -585,7 +796,7 @@ public class OrchestrationServiceTests
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { message, "medin" }));
         if (task != null) await task;
 
-        // Assert
+        // Assert  
         Assert.True(task?.IsCompleted);
     }
 
