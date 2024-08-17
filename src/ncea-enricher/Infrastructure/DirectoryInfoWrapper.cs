@@ -1,7 +1,9 @@
 ﻿using Ncea.Enricher.Infrastructure.Contracts;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ncea.Enricher.Infrastructure
 {
+    [ExcludeFromCodeCoverage]
     public class DirectoryInfoWrapper : IDirectoryInfoWrapper
     {
         public DirectoryInfoWrapper GetDirectoryInfo(string dirPath)
