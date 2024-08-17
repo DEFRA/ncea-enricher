@@ -16,6 +16,7 @@ public class BackUpServiceTests
 {
     private readonly BackUpService _backupService;
     private readonly IConfiguration _configuration;
+    private readonly IDirectoryInfo _directoryInfo;
     private readonly Mock<ILogger<BackUpService>> _loggerMock;
 
     public BackUpServiceTests()
@@ -38,7 +39,7 @@ public class BackUpServiceTests
         _configuration = new ConfigurationBuilder()
                             .AddInMemoryCollection(lstProps)
                             .Build();
-        _backupService = new BackUpService(_configuration, _loggerMock.Object);
+        _backupService = new BackUpService(_loggerMock.Object);
         
     }
 
@@ -46,14 +47,14 @@ public class BackUpServiceTests
     public void MoveFilesn_WhenSourceDirectory_NotExist_ThrowAnException()
     {
         //Arrange
-        //var dataSourceName = string.Empty;
-        //var _fileInfoMock = new Mock<System.IO.Abstractions.IFileInfo>();
-        //var _srcDirectoryInfoMock = GetDirectoryInfo(@"\\test-fileshare\SourceDirectory", false, _fileInfoMock);
-        //var _trgDirectoryInfoMock = GetDirectoryInfo(@"\\test-fileshare\targetDirectory", true, _fileInfoMock);
-
+        var srcDirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        srcDirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
+        var trgDirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        trgDirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
+        trgDirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
 
         //Act
-        _backupService.MoveFiles(@"\\test-fileshare\SourceDirectory", @"\\test-fileshare\targetDirectory");
+        _backupService.MoveFiles(srcDirInfoWrapperMock.Object, trgDirInfoWrapperMock.Object);
 
         //Assert
         _loggerMock.Verify(
@@ -68,80 +69,92 @@ public class BackUpServiceTests
         );
     }
 
-    //[Fact]
-    //public void MoveFilesn_When_SourceDirectory_Exist_TargetDirectory_NotExist()
-    //{
-    //    //Arrange
-    //    var dataSourceName = string.Empty;
-    //    var _fileInfoMock = new Mock<System.IO.Abstractions.IFileInfo>();
-    //    var _srcDirectoryInfoMock = GetDirectoryInfo(@"\\test-fileshare\SourceDirectory", true, _fileInfoMock);
-    //    var _trgDirectoryInfoMock = GetDirectoryInfo(@"\\test-fileshare\targetDirectory", false, _fileInfoMock);
+    [Fact]
+    public void MoveFilesn_When_SourceDirectory_Exist_TargetDirectory_NotExist()
+    {
+        //Arrange
+        var srcDirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        srcDirInfoWrapperMock.Setup(x => x.Exists).Returns(true);
+        srcDirInfoWrapperMock.Setup(x => x.MoveTo(It.IsNotNull<string>())).Verifiable();
+        var trgDirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        trgDirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
+        trgDirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
 
 
-    //    //Act
-    //    _backupService.MoveFiles(@"\\test-fileshare\SourceDirectory", @"\\test-fileshare\targetDirectory");
+        //Act
+        _backupService.MoveFiles(srcDirInfoWrapperMock.Object, trgDirInfoWrapperMock.Object);
 
-    //    //Assert
-    //    _trgDirectoryInfoMock.Verify(x => x.Create(), Times.Once);
-    //    _srcDirectoryInfoMock.Verify(x => x.MoveTo(It.IsNotNull<string>()), Times.Once);
-    //}
+        //Assert
+        trgDirInfoWrapperMock.Verify(x => x.Create(), Times.Once);
+        srcDirInfoWrapperMock.Verify(x => x.MoveTo(It.IsAny<string>()), Times.Once);
+    }
 
-    //[Fact]
-    //public void MoveFilesn_When_SourceDirectory_Exist_TargetDirectory_Exist()
-    //{
-    //    //Arrange
-    //    var dataSourceName = string.Empty;
-    //    var _fileInfoMock = new Mock<System.IO.Abstractions.IFileInfo>();
-    //    var _srcDirectoryInfoMock = GetDirectoryInfo(@"\\test-fileshare\SourceDirectory", true, _fileInfoMock);
-    //    var _trgDirectoryInfoMock = GetDirectoryInfo(@"\\test-fileshare\targetDirectory", true, _fileInfoMock);
-
-
-    //    //Act
-    //    _backupService.MoveFiles(@"\\test-fileshare\SourceDirectory", @"\\test-fileshare\targetDirectory");
-
-    //    //Assert
-    //    _trgDirectoryInfoMock.Verify(x => x.GetFiles(), Times.Once);
-    //    _fileInfoMock.Verify(x => x.Delete(), Times.Once);
-    //    _srcDirectoryInfoMock.Verify(x => x.MoveTo(It.IsNotNull<string>()), Times.Once);
-    //}
-
-    //[Fact]
-    //public void CreateDirectory_When_Directory_Exist()
-    //{
-    //    //Arrange
-    //    var dataSourceName = string.Empty;
-    //    var _fileInfoMock = new Mock<System.IO.Abstractions.IFileInfo>();
-    //    var _directoryInfoMock = GetDirectoryInfo(It.IsNotNull<string>(), true, _fileInfoMock);
+    [Fact]
+    public void MoveFilesn_When_SourceDirectory_Exist_TargetDirectory_Exist()
+    {
+        //Arrange
+        var srcDirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        srcDirInfoWrapperMock.Setup(x => x.Exists).Returns(true);
+        srcDirInfoWrapperMock.Setup(x => x.GetFiles()).Verifiable();
+        srcDirInfoWrapperMock.Setup(x => x.MoveTo(It.IsNotNull<string>())).Verifiable();
+        var trgDirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        trgDirInfoWrapperMock.Setup(x => x.Exists).Returns(true);
+        trgDirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
 
 
-    //    //Act
-    //    _backupService.CreateDirectory(@"targetDirectory");
+        //Act
+        _backupService.MoveFiles(srcDirInfoWrapperMock.Object, trgDirInfoWrapperMock.Object);
 
-    //    //Assert
-    //    _directoryInfoMock.Verify(x => x.Create(), Times.Never);
-    //}
+        //Assert
+        trgDirInfoWrapperMock.Verify(x => x.GetFiles(), Times.Once);
+        srcDirInfoWrapperMock.Verify(x => x.MoveTo(It.IsAny<string>()), Times.Once);
+    }
 
-    //[Fact]
-    //public void CreateDirectory_When_Directory_NotExist()
-    //{
-    //    //Arrange
-    //    var dataSourceName = string.Empty;
-    //    var _fileInfoMock = new Mock<System.IO.Abstractions.IFileInfo>();
-    //    var _directoryInfoMock = GetDirectoryInfo(It.IsNotNull<string>(), false, _fileInfoMock);
+    [Fact]
+    public void CreateDirectory_When_Directory_NotExist_Create_Once()
+    {
+        //Arrange
+        var dataSourceName = string.Empty;
+        var _fileInfoMock = new Mock<System.IO.Abstractions.IFileInfo>();
+        var dirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        dirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
+        dirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
 
-    //    //Act
-    //    _backupService.CreateDirectory(@"targetDirectory");
+        //Act
+        _backupService.CreateDirectory(dirInfoWrapperMock.Object);
 
-    //    //Assert
-    //    _directoryInfoMock.Verify(x => x.Create(), Times.Once);
-    //}
+        //Assert
+        dirInfoWrapperMock.Verify(x => x.Create(), Times.Once);
+    }
+
+    [Fact]
+    public void CreateDirectory_When_Directory_Exist()
+    {
+        //Arrange
+        var dataSourceName = string.Empty;
+        var _fileInfoMock = new Mock<System.IO.Abstractions.IFileInfo>();
+        var dirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        dirInfoWrapperMock.Setup(x => x.Exists).Returns(true);
+        dirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
+
+        //Act
+        _backupService.CreateDirectory(dirInfoWrapperMock.Object);
+
+        //Assert
+        dirInfoWrapperMock.Verify(x => x.Exists, Times.Once);
+        dirInfoWrapperMock.Verify(x => x.Create(), Times.Never);
+    }
 
     [Fact]
     public void CreateDirectory_When_DirectoryName_IsNull()
     {
         //Arrange
+        var dirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        dirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
+        dirInfoWrapperMock.Setup(x => x.Create()).Throws<Exception>();
+
         //Act
-        _backupService.CreateDirectory(null!);
+        _backupService.CreateDirectory(dirInfoWrapperMock.Object);
 
         //Assert
         _loggerMock.Verify(
@@ -156,7 +169,7 @@ public class BackUpServiceTests
         );
     }
 
-    private Mock<IDirectoryInfo> GetDirectoryInfo(string directoryPath, bool isDirectoryExisting, Mock<System.IO.Abstractions.IFileInfo> _fileInfoMock)
+    private static Mock<IDirectoryInfo> GetDirectoryInfo(string directoryPath, bool isDirectoryExisting, Mock<System.IO.Abstractions.IFileInfo> _fileInfoMock)
     {
         Mock<IDirectoryInfo> _directoryInfoMock = new Mock<IDirectoryInfo>();
         _directoryInfoMock.Setup(x => x.Exists).Returns(isDirectoryExisting);

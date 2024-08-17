@@ -94,6 +94,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Scrutor" Version="4.2.2" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="21.0.29" />
   </ItemGroup>
 
   <ItemGroup>

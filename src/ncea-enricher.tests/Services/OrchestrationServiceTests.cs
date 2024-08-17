@@ -22,10 +22,12 @@ public class OrchestrationServiceTests
 {
     private Mock<IEnricherService> _enricherServiceMock;
     private Mock<IBackUpService> _backupServiceMock;
+    private Mock<IDirectoryInfoWrapper> _directoryInfoWrapperMock;
     public OrchestrationServiceTests()
     {
         _enricherServiceMock = new Mock<IEnricherService>();
         _backupServiceMock = new Mock<IBackUpService>();
+        _directoryInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
     }
 
     [Fact]
@@ -44,7 +46,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         // Act
@@ -69,7 +71,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var args = new ProcessErrorEventArgs(new Exception("test-exception"), It.IsAny<ServiceBusErrorSource>(),
@@ -114,21 +116,21 @@ public class OrchestrationServiceTests
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
         mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        _backupServiceMock.Setup(x => x.CreateDirectory(It.IsNotNull<string>())).Verifiable();
+        _backupServiceMock.Setup(x => x.CreateDirectory(It.IsNotNull<IDirectoryInfoWrapper>())).Verifiable();
 
         // Act
         var service = new OrchestrationService(configuration,
             _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
 
         // Assert
-        _backupServiceMock.Verify(x => x.CreateDirectory(It.IsNotNull<string>()), Times.Once);
+        _backupServiceMock.Verify(x => x.CreateDirectory(It.IsAny<IDirectoryInfoWrapper>()), Times.Once);
         loggerMock.Verify(
             m => m.Log(
                 LogLevel.Information,
@@ -165,21 +167,21 @@ public class OrchestrationServiceTests
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
         mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        _backupServiceMock.Setup(x => x.MoveFiles(It.IsNotNull<string>(), It.IsNotNull<string>())).Verifiable();
+        _backupServiceMock.Setup(x => x.MoveFiles(It.IsNotNull<IDirectoryInfoWrapper>(), It.IsNotNull<IDirectoryInfoWrapper>())).Verifiable();
 
         // Act
         var service = new OrchestrationService(configuration,
             _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
 
         // Assert
-        _backupServiceMock.Verify(x => x.MoveFiles(It.IsNotNull<string>(), It.IsNotNull<string>()), Times.Exactly(2));
+        _backupServiceMock.Verify(x => x.MoveFiles(It.IsAny<IDirectoryInfoWrapper>(), It.IsAny<IDirectoryInfoWrapper>()), Times.Exactly(2));
         loggerMock.Verify(
             m => m.Log(
                 LogLevel.Information,
@@ -193,7 +195,7 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public async Task ProcessMessagesAsync_WhenEnrichedMetadataContentIsNotEmpty_ThenCompleteTheTaskSucessfully()
+    public void ProcessMessagesAsync_WhenEnrichedMetadataContentIsNotEmpty_ThenCompleteTheTaskSucessfully()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,
@@ -229,7 +231,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -247,7 +249,6 @@ public class OrchestrationServiceTests
             Times.Exactly(1),
             It.IsAny<string>()
         );
-        //await Assert.ThrowsAsync<ArgumentException>(() => task!);
     }
 
     [Fact]
@@ -287,7 +288,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -334,7 +335,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -384,7 +385,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -419,7 +420,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -479,7 +480,7 @@ public class OrchestrationServiceTests
     //    var service = new OrchestrationService(config,
     //        blobServiceMock.Object,
     //        mockServiceBusProcessorFactory.Object,
-    //        _enricherServiceMock.Object,
+    //        _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
     //        loggerMock.Object);
 
     //    var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -540,7 +541,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -601,7 +602,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -663,7 +664,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -724,7 +725,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobServiceMock.Object,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -751,7 +752,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("SaveEnrichedXmlAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -789,7 +790,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobService.Object,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("SaveEnrichedXmlAsync", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -825,7 +826,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var GetFileIdentifierMethod = typeof(OrchestrationService).GetMethod("GetFileIdentifier", BindingFlags.NonPublic | BindingFlags.Static);
@@ -857,7 +858,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
         var GetFileIdentifierMethod = typeof(OrchestrationService).GetMethod("GetFileIdentifier", BindingFlags.NonPublic | BindingFlags.Static);
@@ -892,7 +893,7 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
         var GenerateStreamFromStringMethod = typeof(OrchestrationService).GetMethod("GenerateStreamFromString", BindingFlags.NonPublic | BindingFlags.Static);
         var fileStream = (Stream?)(GenerateStreamFromStringMethod?.Invoke(service, new object[] { message }));
@@ -919,7 +920,8 @@ public class OrchestrationServiceTests
             _backupServiceMock.Object,
             blobService,
             mockServiceBusProcessorFactory.Object,
-            _enricherServiceMock.Object,
+            _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
+
             loggerMock.Object);
         var GenerateStreamFromStringMethod = typeof(OrchestrationService).GetMethod("GenerateStreamFromString", BindingFlags.NonPublic | BindingFlags.Static);
         var fileStream = (Stream?)(GenerateStreamFromStringMethod?.Invoke(service, new object[] { message }));

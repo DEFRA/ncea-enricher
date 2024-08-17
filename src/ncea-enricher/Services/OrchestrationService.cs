@@ -19,6 +19,7 @@ using System.Text.Json.Serialization;
 using Ncea.Enricher.Enums;
 using Ncea.Harvester.Services.Contracts;
 using Microsoft.Azure.Amqp.Framing;
+using System.IO.Abstractions;
 
 namespace Ncea.Enricher.Services;
 
@@ -31,6 +32,7 @@ public class OrchestrationService : IOrchestrationService
     private readonly IBlobService _blobService;
     private readonly ServiceBusProcessor _processor;
     private readonly IEnricherService _mdcEnricherSerivice;
+    private readonly IDirectoryInfoWrapper _directoryInfoWrapper;
     private readonly ILogger<OrchestrationService> _logger;
     private static readonly JsonSerializerOptions _serializerOptions = new()
     {
@@ -44,6 +46,7 @@ public class OrchestrationService : IOrchestrationService
         IBlobService blobService,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
         IEnricherService mdcEnricherSerivice,
+        IDirectoryInfoWrapper directoryInfoWrapper,
         ILogger<OrchestrationService> logger)
     {
         var mapperQueueName = configuration.GetValue<string>("MapperQueueName");
@@ -54,6 +57,7 @@ public class OrchestrationService : IOrchestrationService
         _mdcEnricherSerivice = mdcEnricherSerivice;
         _backupService = backupService;
         _blobService = blobService;
+        _directoryInfoWrapper = directoryInfoWrapper;
         _logger = logger;
     }
 
@@ -76,24 +80,28 @@ public class OrchestrationService : IOrchestrationService
                 throw new ArgumentException("Mappeed-queue message body should not be empty");
             }
 
-            var enricherDirectory = dataSource;
-            var backupEnricherDirectory = $"{dataSource}-backup";
-            var newEnricherDirectory = $"{dataSource}-new";
             var body = Encoding.UTF8.GetString(args.Message.Body);
             var mdcMappedRecord = JsonSerializer.Deserialize<MdcMappedRecordMessage>(body, _serializerOptions)!;
             dataSource = mdcMappedRecord.DataSource.ToString();
+            var enricherDirectoryPath = Path.Combine(_fileShareName, dataSource);
+            var backupEnricherDirectoryPath = Path.Combine(_fileShareName, $"{dataSource}-backup");
+            var newEnricherDirectoryPath = Path.Combine(_fileShareName, $"{dataSource}-new");
+            var newEnricherDirectoryInfo = _directoryInfoWrapper.GetDirectoryInfo(newEnricherDirectoryPath);
+            var enricherDirectoryInfo = _directoryInfoWrapper.GetDirectoryInfo(enricherDirectoryPath);
+            var backupEnricherDirectoryInfo = _directoryInfoWrapper.GetDirectoryInfo(backupEnricherDirectoryPath);
 
             if (mdcMappedRecord.MessageType == MessageType.Start)
             {
-                _backupService.CreateDirectory(newEnricherDirectory);
+                
+                _backupService.CreateDirectory(newEnricherDirectoryInfo);
 
                 _logger.LogInformation("Enricher summary | Metadata enrichment started for DataSource : {dataSource}.", dataSource);
             }
             else if (mdcMappedRecord.MessageType == MessageType.End)
             {
                 
-                _backupService.MoveFiles(enricherDirectory, backupEnricherDirectory);                
-                _backupService.MoveFiles(newEnricherDirectory, enricherDirectory);
+                _backupService.MoveFiles(enricherDirectoryInfo, backupEnricherDirectoryInfo);                
+                _backupService.MoveFiles(newEnricherDirectoryInfo, enricherDirectoryInfo);
 
                 _logger.LogInformation("Enricher summary | Metadata enrichment ended for DataSource : {dataSource}.", dataSource);
             }

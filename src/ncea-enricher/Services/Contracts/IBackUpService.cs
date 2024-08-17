@@ -1,7 +1,9 @@
-﻿namespace Ncea.Harvester.Services.Contracts;
+﻿using Ncea.Enricher.Infrastructure.Contracts;
+
+namespace Ncea.Harvester.Services.Contracts;
 
 public interface IBackUpService
 {
-    void MoveFiles(string sourceDirectory, string targetDirectory);
-    void CreateDirectory(string directoryName);
+    void MoveFiles(IDirectoryInfoWrapper sourceDirectory, IDirectoryInfoWrapper targetDirectory);
+    void CreateDirectory(IDirectoryInfoWrapper directory);
 }

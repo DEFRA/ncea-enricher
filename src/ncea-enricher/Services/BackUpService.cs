@@ -1,55 +1,44 @@
-﻿using Azure;
-using Ncea.Harvester.Services.Contracts;
-using Ncea.Enricher.Infrastructure.Contracts;
-using Ncea.Enricher.Infrastructure.Models.Requests;
+﻿using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Utils;
-using Ncea.Enricher.Enums;
-using System.IO;
+using Ncea.Harvester.Services.Contracts;
 
 namespace Ncea.Enricher.Services;
 
 public class BackUpService : IBackUpService
 {
-    private readonly string _fileSharePath;
     private readonly ILogger _logger;
 
-    public BackUpService(IConfiguration configuration, ILogger<BackUpService> logger)
+    public BackUpService(ILogger<BackUpService> logger)
     {
-        _fileSharePath = configuration.GetValue<string>("FileShareName")!;
         _logger = logger;
     }
 
-    public void CreateDirectory(string directoryName)
+    public void CreateDirectory(IDirectoryInfoWrapper directory)
     {
         try
         {
-            var dirPath = Path.Combine(_fileSharePath!, directoryName.ToLowerInvariant());
-            CreateDirectoryWithPath(dirPath);
+            CreateDirectoryWithPath(directory);
         }
         catch (Exception ex)
         {
-            var errorMessage = $"Error occurred while creating directory: {directoryName}";
+            var errorMessage = $"Error occurred while creating directory: {directory.Name}";
             CustomLogger.LogErrorMessage(_logger, errorMessage, ex);
         }
     }
 
-    private static void CreateDirectoryWithPath(string dirPath)
+    private static void CreateDirectoryWithPath(IDirectoryInfoWrapper directory)
     {
-        var dirInfo = new DirectoryInfo(dirPath);
-        if (!dirInfo.Exists)
+        if (!directory.Exists)
         {
-            dirInfo.Create();
+            directory.Create();
         }
     }
 
-    public void MoveFiles(string sourceDirectory, string targetDirectory)
+    public void MoveFiles(IDirectoryInfoWrapper sourceDirectory, IDirectoryInfoWrapper targetDirectory)
     {
         try
         {
-            var srcDirPath = Path.Combine(_fileSharePath, sourceDirectory);
-            var targetDirPath = Path.Combine(_fileSharePath, targetDirectory);
-
-            RenameFolder(srcDirPath, targetDirPath);
+            RenameFolder(sourceDirectory, targetDirectory);
         }
         catch (Exception ex)
         {
@@ -58,14 +47,11 @@ public class BackUpService : IBackUpService
         }       
     }
 
-    private static void RenameFolder(string sourceDirectoryPath, string targetDirectoryPath)
+    private static void RenameFolder(IDirectoryInfoWrapper sourceDirectory, IDirectoryInfoWrapper targetDirectory)
     {
-        var sourceDirectory = new DirectoryInfo(sourceDirectoryPath);
-        var targetDirectory = new DirectoryInfo(targetDirectoryPath);
-
         if (!sourceDirectory.Exists)
         {
-            throw new DirectoryNotFoundException($"Given datasouce directory not found {sourceDirectoryPath}");
+            throw new DirectoryNotFoundException($"Given datasouce directory not found {sourceDirectory.Name}");
         }
 
         if (!targetDirectory.Exists)
@@ -74,12 +60,12 @@ public class BackUpService : IBackUpService
         }
         else
         {
-            foreach (FileInfo file in targetDirectory.GetFiles())
+            foreach (var file in targetDirectory.GetFiles())
             {
                 file.Delete();
             }
         }
 
-        sourceDirectory.MoveTo(targetDirectoryPath);
+        sourceDirectory.MoveTo(targetDirectory.FullName);
     }
 }
