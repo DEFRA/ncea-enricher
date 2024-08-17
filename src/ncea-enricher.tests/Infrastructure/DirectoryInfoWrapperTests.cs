@@ -8,25 +8,29 @@ namespace Ncea.Enricher.Tests.Infrastructure
 {
     public class DirectoryInfoWrapperTests
     {
-        private Mock<DirectoryInfoWrapper> _directoryInfoWrapperMock;
+        private DirectoryInfo _directoryInfo;
+        private readonly string _dirPath = Path.Combine(Directory.GetCurrentDirectory(), "DirectoryInfoWrapper_Test_Direcory");
 
         public DirectoryInfoWrapperTests()
         {
-            _directoryInfoWrapperMock = new Mock<DirectoryInfoWrapper>();
+            _directoryInfo = new DirectoryInfo(_dirPath);
         }
 
         [Fact]
         public void GetDirectoryInfo_ShouldSetDirectoryPathAndDirectoryInfo()
         {
             // Arrange
-            var result = true;
-            var dirInfo = new DirectoryInfo(It.IsAny<string>());
-            _directoryInfoWrapperMock.Setup(x => x.DirectoryInfo).Returns(dirInfo);
-            _directoryInfoWrapperMock.Setup(x => x.DirectoryInfo.Exists).Returns(true);
+            _directoryInfo.Create();
+            var dirInfoObj = new DirectoryInfoWrapper().GetDirectoryInfo(_dirPath);
 
             // Act
             // Assert
-            Assert.Equal(result, _directoryInfoWrapperMock.Object.Exists);
+            Assert.Equal(_directoryInfo.Exists, dirInfoObj.Exists);
+            Assert.Equal(_directoryInfo.Exists, dirInfoObj.DirectoryInfo.Exists);
+
+            //Cleanup
+            _directoryInfo.Delete();
+
         }
 
         //[Fact]
