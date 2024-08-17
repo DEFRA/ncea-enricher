@@ -15,8 +15,9 @@ namespace Ncea.Harvester.Tests.Processors;
 public class BackUpServiceTests
 {
     private readonly BackUpService _backupService;
+#pragma warning disable IDE0052 // Remove unread private members
     private readonly IConfiguration _configuration;
-    private readonly IDirectoryInfo _directoryInfo;
+#pragma warning restore IDE0052 // Remove unread private members
     private readonly Mock<ILogger<BackUpService>> _loggerMock;
 
     public BackUpServiceTests()
@@ -167,17 +168,5 @@ public class BackUpServiceTests
             Times.Exactly(1),
             It.IsAny<string>()
         );
-    }
-
-    private static Mock<IDirectoryInfo> GetDirectoryInfo(string directoryPath, bool isDirectoryExisting, Mock<System.IO.Abstractions.IFileInfo> _fileInfoMock)
-    {
-        Mock<IDirectoryInfo> _directoryInfoMock = new Mock<IDirectoryInfo>();
-        _directoryInfoMock.Setup(x => x.Exists).Returns(isDirectoryExisting);
-        _directoryInfoMock.Setup(x => x.Create()).Verifiable();
-        _directoryInfoMock.Setup(x => x.Delete()).Verifiable();
-        _directoryInfoMock.Setup(x => x.MoveTo(directoryPath)).Verifiable();
-        _fileInfoMock.Setup(x => x.Delete()).Verifiable();
-        _directoryInfoMock.Setup(x => x.GetFiles()).Returns(new System.IO.Abstractions.IFileInfo[] { _fileInfoMock.Object });
-        return _directoryInfoMock;
     }
 }
