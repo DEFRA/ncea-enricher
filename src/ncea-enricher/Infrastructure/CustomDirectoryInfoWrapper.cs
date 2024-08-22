@@ -10,6 +10,8 @@ namespace Ncea.Enricher.Infrastructure
         {
             DirectoryPath = dirPath;
             DirectoryInfo = new DirectoryInfo(DirectoryPath);
+            var files = DirectoryInfo.GetFiles();
+            FileCount = files.Count();
             return this;
         }
         public string DirectoryPath { get; set; } = null!;
@@ -22,6 +24,12 @@ namespace Ncea.Enricher.Infrastructure
         public string FullName => DirectoryInfo.FullName;
 
         public string Name => DirectoryInfo.Name;
+        public int FileCount { get; set; }
+
+        private int GetFileCount()
+        {
+            return ((GetFiles() != null) ? GetFiles().Count() : 0);
+        }
 
         public void Create()
         {
@@ -35,7 +43,7 @@ namespace Ncea.Enricher.Infrastructure
 
         public FileInfo[] GetFiles()
         {
-            return DirectoryInfo.GetFiles();
+            return (DirectoryInfo != null) ? DirectoryInfo.GetFiles() : [];
         }
 
         public void MoveTo(string destDirName)

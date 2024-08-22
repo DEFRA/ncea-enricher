@@ -8,6 +8,7 @@
         string Extension { get; }
         string FullName { get; }
         string Name { get; }
+        int FileCount { get; set; }
 
         void Create();
         void Delete();

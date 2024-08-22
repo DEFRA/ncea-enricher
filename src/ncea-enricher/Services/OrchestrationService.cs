@@ -101,8 +101,7 @@ public class OrchestrationService : IOrchestrationService
             }
             else if (mdcMappedRecord.MessageType == MessageType.End)
             {
-                int countOfEnrichedFiles = GetCountOfEnrichedFiles(newEnricherDirectoryInfo);
-                if (countOfEnrichedFiles > 0)
+                if (newEnricherDirectoryInfo.FileCount > 0)
                 {
                     _backupService.MoveFiles(enricherDirectoryInfo, backupEnricherDirectoryInfo);
                     _backupService.MoveFiles(newEnricherDirectoryInfo, enricherDirectoryInfo);
