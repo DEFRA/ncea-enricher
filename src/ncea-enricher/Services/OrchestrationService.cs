@@ -69,7 +69,6 @@ public class OrchestrationService : IOrchestrationService
         await _processor.StartProcessingAsync(cancellationToken);
     }
 
-    private Func<CustomDirectoryInfoWrapper, int> GetCountOfEnrichedFiles = (directoryInfoWrapper) => ( directoryInfoWrapper == null ? 0 : directoryInfoWrapper.GetFiles().Length );
     private async Task ProcessMessagesAsync(ProcessMessageEventArgs args)
     {
         var dataSource = string.Empty;

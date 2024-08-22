@@ -180,7 +180,6 @@ public class OrchestrationServiceTests
             _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
-        Func<CustomDirectoryInfoWrapper, int> GetCountOfEnrichedFiles = (directoryInfoWrapper) => 2;
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
         
