@@ -16,6 +16,11 @@ using Ncea.Enricher.Models;
 using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Infrastructure.Contracts;
 using System.Text.Json.Serialization;
+using Ncea.Enricher.Enums;
+using Ncea.Harvester.Services.Contracts;
+using Microsoft.Azure.Amqp.Framing;
+using System.IO.Abstractions;
+using Ncea.Enricher.Infrastructure;
 
 namespace Ncea.Enricher.Services;
 
@@ -24,9 +29,11 @@ public class OrchestrationService : IOrchestrationService
     private const string ProcessorErrorMessage = "Enricher Exception | Error in processing message in ncea-enricher service";
 
     private readonly string _fileShareName;
+    private readonly IBackUpService _backupService;
     private readonly IBlobService _blobService;
     private readonly ServiceBusProcessor _processor;
     private readonly IEnricherService _mdcEnricherSerivice;
+    private readonly ICustomDirectoryInfoWrapper _directoryInfoWrapper;
     private readonly ILogger<OrchestrationService> _logger;
     private static readonly JsonSerializerOptions _serializerOptions = new()
     {
@@ -36,9 +43,11 @@ public class OrchestrationService : IOrchestrationService
     private readonly string _mapperStagingContainerSuffix;
 
     public OrchestrationService(IConfiguration configuration,
+        IBackUpService backupService,
         IBlobService blobService,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
         IEnricherService mdcEnricherSerivice,
+        ICustomDirectoryInfoWrapper directoryInfoWrapper,
         ILogger<OrchestrationService> logger)
     {
         var mapperQueueName = configuration.GetValue<string>("MapperQueueName");
@@ -47,7 +56,9 @@ public class OrchestrationService : IOrchestrationService
 
         _processor = serviceBusProcessorFactory.CreateClient(mapperQueueName);
         _mdcEnricherSerivice = mdcEnricherSerivice;
+        _backupService = backupService;
         _blobService = blobService;
+        _directoryInfoWrapper = directoryInfoWrapper;
         _logger = logger;
     }
 
@@ -72,26 +83,54 @@ public class OrchestrationService : IOrchestrationService
 
             var body = Encoding.UTF8.GetString(args.Message.Body);
             var mdcMappedRecord = JsonSerializer.Deserialize<MdcMappedRecordMessage>(body, _serializerOptions)!;
-
             dataSource = mdcMappedRecord.DataSource.ToString();
-            fileIdentifier = mdcMappedRecord.FileIdentifier;
+            var enricherDirectoryPath = Path.Combine(_fileShareName, dataSource);
+            var backupEnricherDirectoryPath = Path.Combine(_fileShareName, $"{dataSource}-backup");
+            var newEnricherDirectoryPath = Path.Combine(_fileShareName, $"{dataSource}-new");
+            var newEnricherDirectoryInfo = _directoryInfoWrapper.GetDirectoryInfo(newEnricherDirectoryPath);
+            var enricherDirectoryInfo = _directoryInfoWrapper.GetDirectoryInfo(enricherDirectoryPath);
+            var backupEnricherDirectoryInfo = _directoryInfoWrapper.GetDirectoryInfo(backupEnricherDirectoryPath);
 
-            _logger.LogInformation("Enricher summary | Metadata enrichment started for DataSource : {dataSource}, FileIdentifier : {fileIdentifier}", dataSource, fileIdentifier);
+            if (mdcMappedRecord.MessageType == MessageType.Start)
+            {
+                
+                _backupService.CreateDirectory(newEnricherDirectoryInfo);
 
-            var dataSourceNameInLowerCase = dataSource.ToLowerInvariant();
-            var fileName = string.Concat(fileIdentifier, ".xml");
-            var mapperContainerName = $"{dataSourceNameInLowerCase}-{_mapperStagingContainerSuffix}";
+                _logger.LogInformation("Enricher summary | Metadata enrichment started for DataSource : {dataSource}.", dataSource);
+            }
+            else if (mdcMappedRecord.MessageType == MessageType.End)
+            {
+                if (newEnricherDirectoryInfo.FileCount > 0)
+                {
+                    _backupService.MoveFiles(enricherDirectoryInfo, backupEnricherDirectoryInfo);
+                    _backupService.MoveFiles(newEnricherDirectoryInfo, enricherDirectoryInfo);
 
-            var mdcMappedData = await _blobService.GetContentAsync(new GetBlobContentRequest(fileName, mapperContainerName), args.CancellationToken);
+                    _logger.LogInformation("Enricher summary | Metadata enrichment ended for DataSource : {dataSource}.", dataSource);
+                }
+                else
+                {
+                    _logger.LogInformation("Enricher summary | Metadata enrichment ended for DataSource. No files are enriched with current run. : {dataSource}.", dataSource);
+                }
+            }
+            else
+            {
+                fileIdentifier = mdcMappedRecord.FileIdentifier;
 
-            _fileIdentifier = GetFileIdentifier(mdcMappedData)!;
-            var enrichedMetadata = await _mdcEnricherSerivice.Enrich(dataSource, _fileIdentifier, mdcMappedData);
+                var dataSourceNameInLowerCase = dataSource.ToLowerInvariant();
+                var fileName = string.Concat(fileIdentifier, ".xml");
+                var mapperContainerName = $"{dataSourceNameInLowerCase}-{_mapperStagingContainerSuffix}";
 
-            await SaveEnrichedXmlAsync(enrichedMetadata, dataSourceNameInLowerCase);
+                var mdcMappedData = await _blobService.GetContentAsync(new GetBlobContentRequest(fileName, mapperContainerName), args.CancellationToken);
 
-            await _blobService.DeleteBlobAsync(new DeleteBlobRequest(fileName, mapperContainerName), args.CancellationToken);
+                _fileIdentifier = GetFileIdentifier(mdcMappedData)!;
+                var enrichedMetadata = await _mdcEnricherSerivice.Enrich(dataSource, _fileIdentifier, mdcMappedData);
 
-            _logger.LogInformation("Enricher summary | Metadata enrichment completed for DataSource : {dataSource}, FileIdentifier : {fileIdentifier}", dataSource, fileIdentifier);
+                await SaveEnrichedXmlAsync(enrichedMetadata, dataSourceNameInLowerCase);
+
+                await _blobService.DeleteBlobAsync(new DeleteBlobRequest(fileName, mapperContainerName), args.CancellationToken);
+                _logger.LogInformation("Enricher summary | Metadata enrichment completed for DataSource : {dataSource}, FileIdentifier : {fileIdentifier}", dataSource, fileIdentifier);
+            }
+            
 
             await args.CompleteMessageAsync(args.Message);
         }
@@ -120,7 +159,7 @@ public class OrchestrationService : IOrchestrationService
             await HandleException(args, ex, new EnricherException(errorMessage, ex));
         }
     }
-    
+
     private async Task SaveEnrichedXmlAsync(string mdcMappedData, string dataSource)
     {
         if (string.IsNullOrWhiteSpace(mdcMappedData))
@@ -148,7 +187,8 @@ public class OrchestrationService : IOrchestrationService
         }
 
         var fileName = string.Concat(_fileIdentifier, ".xml");
-        var filePath = Path.Combine(_fileShareName, dataSource, fileName);
+        var newDatasourceConatinerName = $"{dataSource}-new";
+        var filePath = Path.Combine(_fileShareName, newDatasourceConatinerName, fileName);
         return filePath;
     }
 
