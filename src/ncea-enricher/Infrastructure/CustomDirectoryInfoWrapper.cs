@@ -11,7 +11,7 @@ namespace Ncea.Enricher.Infrastructure
             DirectoryPath = dirPath;
             DirectoryInfo = new DirectoryInfo(DirectoryPath);
             var files = DirectoryInfo.GetFiles();
-            FileCount = files.Count();
+            FileCount = files.Length;
             return this;
         }
         public string DirectoryPath { get; set; } = null!;
@@ -25,11 +25,6 @@ namespace Ncea.Enricher.Infrastructure
 
         public string Name => DirectoryInfo.Name;
         public int FileCount { get; set; }
-
-        private int GetFileCount()
-        {
-            return ((GetFiles() != null) ? GetFiles().Count() : 0);
-        }
 
         public void Create()
         {
