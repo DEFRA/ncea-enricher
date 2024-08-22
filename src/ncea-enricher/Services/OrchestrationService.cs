@@ -20,6 +20,7 @@ using Ncea.Enricher.Enums;
 using Ncea.Harvester.Services.Contracts;
 using Microsoft.Azure.Amqp.Framing;
 using System.IO.Abstractions;
+using Ncea.Enricher.Infrastructure;
 
 namespace Ncea.Enricher.Services;
 
@@ -32,7 +33,7 @@ public class OrchestrationService : IOrchestrationService
     private readonly IBlobService _blobService;
     private readonly ServiceBusProcessor _processor;
     private readonly IEnricherService _mdcEnricherSerivice;
-    private readonly IDirectoryInfoWrapper _directoryInfoWrapper;
+    private readonly ICustomDirectoryInfoWrapper _directoryInfoWrapper;
     private readonly ILogger<OrchestrationService> _logger;
     private static readonly JsonSerializerOptions _serializerOptions = new()
     {
@@ -46,7 +47,7 @@ public class OrchestrationService : IOrchestrationService
         IBlobService blobService,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
         IEnricherService mdcEnricherSerivice,
-        IDirectoryInfoWrapper directoryInfoWrapper,
+        ICustomDirectoryInfoWrapper directoryInfoWrapper,
         ILogger<OrchestrationService> logger)
     {
         var mapperQueueName = configuration.GetValue<string>("MapperQueueName");
@@ -68,6 +69,7 @@ public class OrchestrationService : IOrchestrationService
         await _processor.StartProcessingAsync(cancellationToken);
     }
 
+    private Func<CustomDirectoryInfoWrapper, int> GetCountOfEnrichedFiles = (directoryInfoWrapper) => ( directoryInfoWrapper == null ? 0 : directoryInfoWrapper.GetFiles().Length );
     private async Task ProcessMessagesAsync(ProcessMessageEventArgs args)
     {
         var dataSource = string.Empty;
@@ -99,11 +101,18 @@ public class OrchestrationService : IOrchestrationService
             }
             else if (mdcMappedRecord.MessageType == MessageType.End)
             {
-                
-                _backupService.MoveFiles(enricherDirectoryInfo, backupEnricherDirectoryInfo);                
-                _backupService.MoveFiles(newEnricherDirectoryInfo, enricherDirectoryInfo);
+                int countOfEnrichedFiles = GetCountOfEnrichedFiles(newEnricherDirectoryInfo);
+                if (countOfEnrichedFiles > 0)
+                {
+                    _backupService.MoveFiles(enricherDirectoryInfo, backupEnricherDirectoryInfo);
+                    _backupService.MoveFiles(newEnricherDirectoryInfo, enricherDirectoryInfo);
 
-                _logger.LogInformation("Enricher summary | Metadata enrichment ended for DataSource : {dataSource}.", dataSource);
+                    _logger.LogInformation("Enricher summary | Metadata enrichment ended for DataSource : {dataSource}.", dataSource);
+                }
+                else
+                {
+                    _logger.LogInformation("Enricher summary | Metadata enrichment ended for DataSource. No files are enriched with current run. : {dataSource}.", dataSource);
+                }
             }
             else
             {
@@ -152,7 +161,7 @@ public class OrchestrationService : IOrchestrationService
             await HandleException(args, ex, new EnricherException(errorMessage, ex));
         }
     }
-    
+
     private async Task SaveEnrichedXmlAsync(string mdcMappedData, string dataSource)
     {
         if (string.IsNullOrWhiteSpace(mdcMappedData))

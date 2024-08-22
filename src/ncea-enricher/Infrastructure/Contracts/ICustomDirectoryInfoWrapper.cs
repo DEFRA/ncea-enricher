@@ -1,6 +1,6 @@
 ﻿namespace Ncea.Enricher.Infrastructure.Contracts
 {
-    public interface IDirectoryInfoWrapper
+    public interface ICustomDirectoryInfoWrapper
     {
         DirectoryInfo DirectoryInfo { get; set; }
         string DirectoryPath { get; set; }
@@ -11,7 +11,7 @@
 
         void Create();
         void Delete();
-        DirectoryInfoWrapper GetDirectoryInfo(string dirPath);
+        CustomDirectoryInfoWrapper GetDirectoryInfo(string dirPath);
         FileInfo[] GetFiles();
         void MoveTo(string destDirName);
     }

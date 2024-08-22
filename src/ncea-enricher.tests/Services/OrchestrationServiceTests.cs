@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Ncea.Enricher.BusinessExceptions;
+using Ncea.Enricher.Infrastructure;
 using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Processor.Contracts;
@@ -22,12 +23,12 @@ public class OrchestrationServiceTests
 {
     private Mock<IEnricherService> _enricherServiceMock;
     private Mock<IBackUpService> _backupServiceMock;
-    private Mock<IDirectoryInfoWrapper> _directoryInfoWrapperMock;
+    private Mock<ICustomDirectoryInfoWrapper> _directoryInfoWrapperMock;
     public OrchestrationServiceTests()
     {
         _enricherServiceMock = new Mock<IEnricherService>();
         _backupServiceMock = new Mock<IBackUpService>();
-        _directoryInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        _directoryInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
     }
 
     [Fact]
@@ -116,7 +117,7 @@ public class OrchestrationServiceTests
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
         mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        _backupServiceMock.Setup(x => x.CreateDirectory(It.IsNotNull<IDirectoryInfoWrapper>())).Verifiable();
+        _backupServiceMock.Setup(x => x.CreateDirectory(It.IsNotNull<ICustomDirectoryInfoWrapper>())).Verifiable();
 
         // Act
         var service = new OrchestrationService(configuration,
@@ -130,7 +131,7 @@ public class OrchestrationServiceTests
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
 
         // Assert
-        _backupServiceMock.Verify(x => x.CreateDirectory(It.IsAny<IDirectoryInfoWrapper>()), Times.Once);
+        _backupServiceMock.Verify(x => x.CreateDirectory(It.IsAny<ICustomDirectoryInfoWrapper>()), Times.Once);
         loggerMock.Verify(
             m => m.Log(
                 LogLevel.Information,
@@ -167,7 +168,7 @@ public class OrchestrationServiceTests
         var mockProcessMessageEventArgs = new Mock<ProcessMessageEventArgs>(MockBehavior.Strict, new object[] { receivedMessage, mockReceiver.Object, It.IsAny<string>(), It.IsAny<CancellationToken>() });
         mockProcessMessageEventArgs.Setup(receiver => receiver.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         mockProcessMessageEventArgs.Setup(receiver => receiver.AbandonMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        _backupServiceMock.Setup(x => x.MoveFiles(It.IsNotNull<IDirectoryInfoWrapper>(), It.IsNotNull<IDirectoryInfoWrapper>())).Verifiable();
+        _backupServiceMock.Setup(x => x.MoveFiles(It.IsNotNull<ICustomDirectoryInfoWrapper>(), It.IsNotNull<ICustomDirectoryInfoWrapper>())).Verifiable();
 
         // Act
         var service = new OrchestrationService(configuration,
@@ -177,11 +178,12 @@ public class OrchestrationServiceTests
             _enricherServiceMock.Object, _directoryInfoWrapperMock.Object,
             loggerMock.Object);
 
+        Func<CustomDirectoryInfoWrapper, int> GetCountOfEnrichedFiles = (directoryInfoWrapper) => 2;
         var processMessagesAsyncMethod = typeof(OrchestrationService).GetMethod("ProcessMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var task = (Task?)(processMessagesAsyncMethod?.Invoke(service, new object[] { mockProcessMessageEventArgs.Object }));
-
+        
         // Assert
-        _backupServiceMock.Verify(x => x.MoveFiles(It.IsAny<IDirectoryInfoWrapper>(), It.IsAny<IDirectoryInfoWrapper>()), Times.Exactly(2));
+        _backupServiceMock.Verify(x => x.MoveFiles(It.IsAny<ICustomDirectoryInfoWrapper>(), It.IsAny<ICustomDirectoryInfoWrapper>()), Times.Never);
         loggerMock.Verify(
             m => m.Log(
                 LogLevel.Information,

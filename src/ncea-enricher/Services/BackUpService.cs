@@ -13,7 +13,7 @@ public class BackUpService : IBackUpService
         _logger = logger;
     }
 
-    public void CreateDirectory(IDirectoryInfoWrapper directory)
+    public void CreateDirectory(ICustomDirectoryInfoWrapper directory)
     {
         try
         {
@@ -26,7 +26,7 @@ public class BackUpService : IBackUpService
         }
     }
 
-    private static void CreateDirectoryWithPath(IDirectoryInfoWrapper directory)
+    private static void CreateDirectoryWithPath(ICustomDirectoryInfoWrapper directory)
     {
         if (!directory.Exists)
         {
@@ -34,7 +34,7 @@ public class BackUpService : IBackUpService
         }
     }
 
-    public void MoveFiles(IDirectoryInfoWrapper sourceDirectory, IDirectoryInfoWrapper targetDirectory)
+    public void MoveFiles(ICustomDirectoryInfoWrapper sourceDirectory, ICustomDirectoryInfoWrapper targetDirectory)
     {
         try
         {
@@ -47,7 +47,7 @@ public class BackUpService : IBackUpService
         }       
     }
 
-    private static void RenameFolder(IDirectoryInfoWrapper sourceDirectory, IDirectoryInfoWrapper targetDirectory)
+    private static void RenameFolder(ICustomDirectoryInfoWrapper sourceDirectory, ICustomDirectoryInfoWrapper targetDirectory)
     {
         if (!sourceDirectory.Exists)
         {

@@ -48,9 +48,9 @@ public class BackUpServiceTests
     public void MoveFilesn_WhenSourceDirectory_NotExist_ThrowAnException()
     {
         //Arrange
-        var srcDirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        var srcDirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
         srcDirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
-        var trgDirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        var trgDirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
         trgDirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
         trgDirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
 
@@ -74,10 +74,10 @@ public class BackUpServiceTests
     public void MoveFilesn_When_SourceDirectory_Exist_TargetDirectory_NotExist()
     {
         //Arrange
-        var srcDirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        var srcDirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
         srcDirInfoWrapperMock.Setup(x => x.Exists).Returns(true);
         srcDirInfoWrapperMock.Setup(x => x.MoveTo(It.IsNotNull<string>())).Verifiable();
-        var trgDirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        var trgDirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
         trgDirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
         trgDirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
 
@@ -94,11 +94,11 @@ public class BackUpServiceTests
     public void MoveFilesn_When_SourceDirectory_Exist_TargetDirectory_Exist()
     {
         //Arrange
-        var srcDirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        var srcDirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
         srcDirInfoWrapperMock.Setup(x => x.Exists).Returns(true);
         srcDirInfoWrapperMock.Setup(x => x.GetFiles()).Verifiable();
         srcDirInfoWrapperMock.Setup(x => x.MoveTo(It.IsNotNull<string>())).Verifiable();
-        var trgDirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        var trgDirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
         trgDirInfoWrapperMock.Setup(x => x.Exists).Returns(true);
         trgDirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
 
@@ -117,7 +117,7 @@ public class BackUpServiceTests
         //Arrange
         var dataSourceName = string.Empty;
         var _fileInfoMock = new Mock<System.IO.Abstractions.IFileInfo>();
-        var dirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        var dirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
         dirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
         dirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
 
@@ -134,7 +134,7 @@ public class BackUpServiceTests
         //Arrange
         var dataSourceName = string.Empty;
         var _fileInfoMock = new Mock<System.IO.Abstractions.IFileInfo>();
-        var dirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        var dirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
         dirInfoWrapperMock.Setup(x => x.Exists).Returns(true);
         dirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
 
@@ -150,7 +150,7 @@ public class BackUpServiceTests
     public void CreateDirectory_When_DirectoryName_IsNull()
     {
         //Arrange
-        var dirInfoWrapperMock = new Mock<IDirectoryInfoWrapper>();
+        var dirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
         dirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
         dirInfoWrapperMock.Setup(x => x.Create()).Throws<Exception>();
 

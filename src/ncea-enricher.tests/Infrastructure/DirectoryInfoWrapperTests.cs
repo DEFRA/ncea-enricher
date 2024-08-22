@@ -21,7 +21,7 @@ namespace Ncea.Enricher.Tests.Infrastructure
         {
             // Arrange
             _directoryInfo.Create();
-            var dirInfoWrapper = new DirectoryInfoWrapper().GetDirectoryInfo(_dirPath);
+            var dirInfoWrapper = new CustomDirectoryInfoWrapper().GetDirectoryInfo(_dirPath);
 
             // Act
             // Assert

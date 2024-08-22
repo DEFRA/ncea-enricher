@@ -4,9 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 namespace Ncea.Enricher.Infrastructure
 {
     [ExcludeFromCodeCoverage]
-    public class DirectoryInfoWrapper : IDirectoryInfoWrapper
+    public class CustomDirectoryInfoWrapper : ICustomDirectoryInfoWrapper
     {
-        public DirectoryInfoWrapper GetDirectoryInfo(string dirPath)
+        public CustomDirectoryInfoWrapper GetDirectoryInfo(string dirPath)
         {
             DirectoryPath = dirPath;
             DirectoryInfo = new DirectoryInfo(DirectoryPath);
