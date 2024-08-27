@@ -87,29 +87,26 @@ public class OrchestrationService : IOrchestrationService
             var enricherDirectoryPath = Path.Combine(_fileShareName, dataSource);
             var backupEnricherDirectoryPath = Path.Combine(_fileShareName, $"{dataSource}-backup");
             var newEnricherDirectoryPath = Path.Combine(_fileShareName, $"{dataSource}-new");
-            var newEnricherDirectoryInfo = _directoryInfoWrapper.GetDirectoryInfo(newEnricherDirectoryPath);
-            var enricherDirectoryInfo = _directoryInfoWrapper.GetDirectoryInfo(enricherDirectoryPath);
-            var backupEnricherDirectoryInfo = _directoryInfoWrapper.GetDirectoryInfo(backupEnricherDirectoryPath);
 
             if (mdcMappedRecord.MessageType == MessageType.Start)
             {
                 
-                _backupService.CreateDirectory(newEnricherDirectoryInfo);
+                _backupService.CreateDirectory(_directoryInfoWrapper.GetDirectoryInfo(newEnricherDirectoryPath));
 
-                _logger.LogInformation("Enricher summary | Metadata enrichment started for DataSource : {dataSource}.", dataSource);
+                _logger.LogInformation($"Enricher summary | Metadata enrichment started for DataSource : {dataSource}.", dataSource);
             }
             else if (mdcMappedRecord.MessageType == MessageType.End)
             {
-                if (newEnricherDirectoryInfo.FileCount > 0)
+                if (_directoryInfoWrapper.GetDirectoryInfo(newEnricherDirectoryPath).FileCount > 0)
                 {
-                    _backupService.MoveFiles(enricherDirectoryInfo, backupEnricherDirectoryInfo);
-                    _backupService.MoveFiles(newEnricherDirectoryInfo, enricherDirectoryInfo);
+                    _backupService.MoveFiles(_directoryInfoWrapper.GetDirectoryInfo(enricherDirectoryPath), _directoryInfoWrapper.GetDirectoryInfo(backupEnricherDirectoryPath));
+                    _backupService.MoveFiles(_directoryInfoWrapper.GetDirectoryInfo(newEnricherDirectoryPath), _directoryInfoWrapper.GetDirectoryInfo(enricherDirectoryPath));
 
-                    _logger.LogInformation("Enricher summary | Metadata enrichment ended for DataSource : {dataSource}.", dataSource);
+                    _logger.LogInformation($"Enricher summary | Metadata enrichment ended for DataSource : {dataSource}.", dataSource);
                 }
                 else
                 {
-                    _logger.LogInformation("Enricher summary | Metadata enrichment ended for DataSource. No files are enriched with current run. : {dataSource}.", dataSource);
+                    _logger.LogInformation($"Enricher summary | Metadata enrichment ended for DataSource. No files are enriched with current run. : {dataSource}.", dataSource);
                 }
             }
             else
@@ -128,7 +125,7 @@ public class OrchestrationService : IOrchestrationService
                 await SaveEnrichedXmlAsync(enrichedMetadata, dataSourceNameInLowerCase);
 
                 await _blobService.DeleteBlobAsync(new DeleteBlobRequest(fileName, mapperContainerName), args.CancellationToken);
-                _logger.LogInformation("Enricher summary | Metadata enrichment completed for DataSource : {dataSource}, FileIdentifier : {fileIdentifier}", dataSource, fileIdentifier);
+                _logger.LogInformation($"Enricher summary | Metadata enrichment completed for DataSource : {dataSource}, FileIdentifier : {fileIdentifier}", dataSource, fileIdentifier);
             }
             
 
