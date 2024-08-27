@@ -1,14 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Ncea.Enricher.Infrastructure.Contracts;
-using Ncea.Harvester.Services;
-using FluentAssertions;
-using Azure;
-using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Services;
-using Microsoft.Extensions.FileProviders;
-using System.IO.Abstractions;
 
 namespace Ncea.Harvester.Tests.Processors;
 
@@ -19,6 +12,11 @@ public class BackUpServiceTests
     private readonly IConfiguration _configuration;
 #pragma warning restore IDE0052 // Remove unread private members
     private readonly Mock<ILogger<BackUpService>> _loggerMock;
+
+    private readonly string testFileShare = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "FileShare");
+    private readonly string medinDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Medin");
+    private readonly string medinNewDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Medin-new");
+    private readonly string medinBackupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Medin-backup");
 
     public BackUpServiceTests()
     {
@@ -31,31 +29,41 @@ public class BackUpServiceTests
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()
             )
         );
+        CreateTestFilshare();
 
         List<KeyValuePair<string, string?>> lstProps =
             [
-                new KeyValuePair<string, string?>("FileShareName", Directory.GetCurrentDirectory()),
+                new KeyValuePair<string, string?>("FileShareName", testFileShare),
             ];
 
         _configuration = new ConfigurationBuilder()
                             .AddInMemoryCollection(lstProps)
                             .Build();
         _backupService = new BackUpService(_loggerMock.Object);
-        
+
+    }
+
+    private void CreateTestFilshare()
+    {
+        new DirectoryInfo(testFileShare).Create();
+        new DirectoryInfo(medinDirectory).Create();
+        new DirectoryInfo(medinNewDirectory).Create();
+        new DirectoryInfo(medinBackupDirectory).Create();
+    }
+
+    private void DeleteTestFilshare()
+    {
+        new DirectoryInfo(testFileShare).Delete();
+        new DirectoryInfo(medinDirectory).Delete();
+        new DirectoryInfo(medinNewDirectory).Delete();
+        new DirectoryInfo(medinBackupDirectory).Delete();
     }
 
     [Fact]
     public void MoveFilesn_WhenSourceDirectory_NotExist_ThrowAnException()
     {
-        //Arrange
-        var srcDirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
-        srcDirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
-        var trgDirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
-        trgDirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
-        trgDirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
-
         //Act
-        _backupService.MoveFiles(srcDirInfoWrapperMock.Object, trgDirInfoWrapperMock.Object);
+        _backupService.MoveFiles(medinDirectory, medinBackupDirectory);
 
         //Assert
         _loggerMock.Verify(
@@ -74,88 +82,14 @@ public class BackUpServiceTests
     public void MoveFilesn_When_SourceDirectory_Exist_TargetDirectory_NotExist()
     {
         //Arrange
-        var srcDirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
-        srcDirInfoWrapperMock.Setup(x => x.Exists).Returns(true);
-        srcDirInfoWrapperMock.Setup(x => x.MoveTo(It.IsNotNull<string>())).Verifiable();
-        var trgDirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
-        trgDirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
-        trgDirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
+        var fileshareDir = new DirectoryInfo(testFileShare);
+        fileshareDir.Create();
+        var srcDir = new DirectoryInfo(medinDirectory);
+        srcDir.Create();
 
 
         //Act
-        _backupService.MoveFiles(srcDirInfoWrapperMock.Object, trgDirInfoWrapperMock.Object);
-
-        //Assert
-        trgDirInfoWrapperMock.Verify(x => x.Create(), Times.Once);
-        srcDirInfoWrapperMock.Verify(x => x.MoveTo(It.IsAny<string>()), Times.Once);
-    }
-
-    [Fact]
-    public void MoveFilesn_When_SourceDirectory_Exist_TargetDirectory_Exist()
-    {
-        //Arrange
-        var srcDirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
-        srcDirInfoWrapperMock.Setup(x => x.Exists).Returns(true);
-        srcDirInfoWrapperMock.Setup(x => x.GetFiles()).Verifiable();
-        srcDirInfoWrapperMock.Setup(x => x.MoveTo(It.IsNotNull<string>())).Verifiable();
-        var trgDirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
-        trgDirInfoWrapperMock.Setup(x => x.Exists).Returns(true);
-        trgDirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
-
-
-        //Act
-        _backupService.MoveFiles(srcDirInfoWrapperMock.Object, trgDirInfoWrapperMock.Object);
-
-        //Assert
-        trgDirInfoWrapperMock.Verify(x => x.GetFiles(), Times.Once);
-        srcDirInfoWrapperMock.Verify(x => x.MoveTo(It.IsAny<string>()), Times.Once);
-    }
-
-    [Fact]
-    public void CreateDirectory_When_Directory_NotExist_Create_Once()
-    {
-        //Arrange
-        var dataSourceName = string.Empty;
-        var _fileInfoMock = new Mock<System.IO.Abstractions.IFileInfo>();
-        var dirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
-        dirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
-        dirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
-
-        //Act
-        _backupService.CreateDirectory(dirInfoWrapperMock.Object);
-
-        //Assert
-        dirInfoWrapperMock.Verify(x => x.Create(), Times.Once);
-    }
-
-    [Fact]
-    public void CreateDirectory_When_Directory_Exist()
-    {
-        //Arrange
-        var dataSourceName = string.Empty;
-        var _fileInfoMock = new Mock<System.IO.Abstractions.IFileInfo>();
-        var dirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
-        dirInfoWrapperMock.Setup(x => x.Exists).Returns(true);
-        dirInfoWrapperMock.Setup(x => x.Create()).Verifiable();
-
-        //Act
-        _backupService.CreateDirectory(dirInfoWrapperMock.Object);
-
-        //Assert
-        dirInfoWrapperMock.Verify(x => x.Exists, Times.Once);
-        dirInfoWrapperMock.Verify(x => x.Create(), Times.Never);
-    }
-
-    [Fact]
-    public void CreateDirectory_When_DirectoryName_IsNull()
-    {
-        //Arrange
-        var dirInfoWrapperMock = new Mock<ICustomDirectoryInfoWrapper>();
-        dirInfoWrapperMock.Setup(x => x.Exists).Returns(false);
-        dirInfoWrapperMock.Setup(x => x.Create()).Throws<Exception>();
-
-        //Act
-        _backupService.CreateDirectory(dirInfoWrapperMock.Object);
+        _backupService.MoveFiles(medinDirectory, medinBackupDirectory);
 
         //Assert
         _loggerMock.Verify(
@@ -168,5 +102,9 @@ public class BackUpServiceTests
             Times.Exactly(1),
             It.IsAny<string>()
         );
+
+        //Cleanup
+        fileshareDir.Delete();
+        srcDir.Delete();
     }
 }

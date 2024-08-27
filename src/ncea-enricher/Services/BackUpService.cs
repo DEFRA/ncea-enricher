@@ -13,32 +13,24 @@ public class BackUpService : IBackUpService
         _logger = logger;
     }
 
-    public void CreateDirectory(ICustomDirectoryInfoWrapper directory)
+    public void MoveFiles(string sourceDirectoryPath, string targetDirectoryPath)
     {
+        var sourceDirectory = new DirectoryInfo(sourceDirectoryPath);
+        var targetDirectory = new DirectoryInfo(targetDirectoryPath);
         try
         {
-            CreateDirectoryWithPath(directory);
-        }
-        catch (Exception ex)
-        {
-            var errorMessage = $"Error occurred while creating directory: {directory.Name}";
-            CustomLogger.LogErrorMessage(_logger, errorMessage, ex);
-        }
-    }
+            if (!sourceDirectory.Exists)
+            {
+                throw new DirectoryNotFoundException($"Given datasouce directory not found {sourceDirectory.Name}");
+            }
 
-    private static void CreateDirectoryWithPath(ICustomDirectoryInfoWrapper directory)
-    {
-        if (!directory.Exists)
-        {
-            directory.Create();
-        }
-    }
+            if (!targetDirectory.Exists)
+            {
+                throw new DirectoryNotFoundException($"Given datasouce directory not found {targetDirectory.Name}");
+            }
 
-    public void MoveFiles(ICustomDirectoryInfoWrapper sourceDirectory, ICustomDirectoryInfoWrapper targetDirectory)
-    {
-        try
-        {
-            RenameFolder(sourceDirectory, targetDirectory);
+            DeleteFiles(targetDirectory);
+            MoveFiles(sourceDirectory, targetDirectory);
         }
         catch (Exception ex)
         {
@@ -47,25 +39,16 @@ public class BackUpService : IBackUpService
         }       
     }
 
-    private static void RenameFolder(ICustomDirectoryInfoWrapper sourceDirectory, ICustomDirectoryInfoWrapper targetDirectory)
+    private static void MoveFiles(DirectoryInfo sourceDirectory, DirectoryInfo targetDirectory)
     {
-        if (!sourceDirectory.Exists)
-        {
-            throw new DirectoryNotFoundException($"Given datasouce directory not found {sourceDirectory.Name}");
-        }
-
-        if (!targetDirectory.Exists)
-        {
-            targetDirectory.Create();
-        }
-        else
-        {
-            foreach (var file in targetDirectory.GetFiles())
-            {
-                file.Delete();
-            }
-        }
-
         sourceDirectory.MoveTo(targetDirectory.FullName);
+    }
+
+    private static void DeleteFiles(DirectoryInfo targetDirectory)
+    {
+        foreach (var file in targetDirectory.GetFiles())
+        {
+            file.Delete();
+        }
     }
 }
