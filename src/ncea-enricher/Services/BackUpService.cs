@@ -1,9 +1,11 @@
 ﻿using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Utils;
 using Ncea.Harvester.Services.Contracts;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ncea.Enricher.Services;
 
+[ExcludeFromCodeCoverage]
 public class BackUpService : IBackUpService
 {
     private readonly ILogger _logger;
@@ -29,26 +31,17 @@ public class BackUpService : IBackUpService
                 throw new DirectoryNotFoundException($"Given datasouce directory not found {targetDirectory.Name}");
             }
 
-            DeleteFiles(targetDirectory);
-            MoveFiles(sourceDirectory, targetDirectory);
+            targetDirectory.Delete(true);
+            sourceDirectory.MoveTo(targetDirectory.FullName);
+        }
+        catch(DirectoryNotFoundException ex)
+        {
+            CustomLogger.LogErrorMessage(_logger, ex.Message, ex);
         }
         catch (Exception ex)
         {
             var errorMessage = $"Error occurred while moving file: {sourceDirectory} to {targetDirectory}";
             CustomLogger.LogErrorMessage(_logger, errorMessage, ex);
-        }       
-    }
-
-    private static void MoveFiles(DirectoryInfo sourceDirectory, DirectoryInfo targetDirectory)
-    {
-        sourceDirectory.MoveTo(targetDirectory.FullName);
-    }
-
-    private static void DeleteFiles(DirectoryInfo targetDirectory)
-    {
-        foreach (var file in targetDirectory.GetFiles())
-        {
-            file.Delete();
         }
     }
 }

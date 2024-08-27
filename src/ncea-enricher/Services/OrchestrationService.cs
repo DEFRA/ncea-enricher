@@ -87,7 +87,7 @@ public class OrchestrationService : IOrchestrationService
 
             if (mdcMappedRecord.MessageType == MessageType.Start)
             {
-                _logger.LogInformation($"Enricher summary | Metadata enrichment started for DataSource : {dataSource}.", dataSource);
+                _logger.LogInformation("Enricher summary | Metadata enrichment started for DataSource : {dataSource}.", dataSource);
             }
             else if (mdcMappedRecord.MessageType == MessageType.End)
             {
@@ -101,7 +101,7 @@ public class OrchestrationService : IOrchestrationService
                 }
                 else
                 {
-                    _logger.LogInformation(string.Format($"Enricher summary | Metadata enrichment ended for DataSource. No files are enriched with current run. : {dataSource}.", dataSource));
+                    _logger.LogInformation("Enricher summary | Metadata enrichment ended for DataSource. No files are enriched with current run. : {dataSource}.", dataSource);
                 }
             }
             else
@@ -180,8 +180,17 @@ public class OrchestrationService : IOrchestrationService
 
         var fileName = string.Concat(_fileIdentifier, ".xml");
         var newDatasourceConatinerName = $"{dataSource}-new";
-        var filePath = Path.Combine(_fileShareName, newDatasourceConatinerName, fileName);
+        var newDatasourceConatinerDirPath = Path.Combine(_fileShareName, newDatasourceConatinerName);
+        CreateNewDataSourceContainerIfNotExist(newDatasourceConatinerDirPath);
+        var filePath = Path.Combine(newDatasourceConatinerDirPath, fileName);
         return filePath;
+    }
+
+    private void CreateNewDataSourceContainerIfNotExist(string newDatasourceConatinerDirPath)
+    {        
+        var newDatasourceConatinerDir = new DirectoryInfo(newDatasourceConatinerDirPath);
+        if (!newDatasourceConatinerDir.Exists)
+            newDatasourceConatinerDir.Create();
     }
 
     private static MemoryStream GenerateStreamFromString(string fileContent)

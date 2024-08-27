@@ -14,9 +14,9 @@ public class BackUpServiceTests
     private readonly Mock<ILogger<BackUpService>> _loggerMock;
 
     private readonly string testFileShare = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "FileShare");
-    private readonly string medinDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Medin");
-    private readonly string medinNewDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Medin-new");
-    private readonly string medinBackupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Medin-backup");
+    private readonly string medinDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "FileShare", "Medin");
+    private readonly string medinNewDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "FileShare", "Medin-new");
+    private readonly string medinBackupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "FileShare", "Medin-backup");
 
     public BackUpServiceTests()
     {
@@ -29,7 +29,6 @@ public class BackUpServiceTests
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()
             )
         );
-        CreateTestFilshare();
 
         List<KeyValuePair<string, string?>> lstProps =
             [
@@ -43,20 +42,9 @@ public class BackUpServiceTests
 
     }
 
-    private void CreateTestFilshare()
-    {
-        new DirectoryInfo(testFileShare).Create();
-        new DirectoryInfo(medinDirectory).Create();
-        new DirectoryInfo(medinNewDirectory).Create();
-        new DirectoryInfo(medinBackupDirectory).Create();
-    }
-
     private void DeleteTestFilshare()
     {
-        new DirectoryInfo(testFileShare).Delete();
-        new DirectoryInfo(medinDirectory).Delete();
-        new DirectoryInfo(medinNewDirectory).Delete();
-        new DirectoryInfo(medinBackupDirectory).Delete();
+        new DirectoryInfo(testFileShare).Delete(true);
     }
 
     [Fact]
@@ -104,7 +92,6 @@ public class BackUpServiceTests
         );
 
         //Cleanup
-        fileshareDir.Delete();
-        srcDir.Delete();
+        fileshareDir.Delete(true);
     }
 }
