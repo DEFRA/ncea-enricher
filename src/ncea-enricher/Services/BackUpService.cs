@@ -37,7 +37,6 @@ public class BackUpService : IBackUpService
             {
                 targetDirectory.Delete(true);
             }
-
             sourceDirectory.MoveTo(targetDirectory.FullName);
         }
         catch(DirectoryNotFoundException ex)
