@@ -181,16 +181,9 @@ public class OrchestrationService : IOrchestrationService
         var fileName = string.Concat(_fileIdentifier, ".xml");
         var newDatasourceConatinerName = $"{dataSource}-new";
         var newDatasourceConatinerDirPath = Path.Combine(_fileShareName, newDatasourceConatinerName);
-        CreateNewDataSourceContainerIfNotExist(newDatasourceConatinerDirPath);
+        _backupService.CreateNewDataSourceContainerIfNotExist(newDatasourceConatinerDirPath);
         var filePath = Path.Combine(newDatasourceConatinerDirPath, fileName);
         return filePath;
-    }
-
-    private void CreateNewDataSourceContainerIfNotExist(string newDatasourceConatinerDirPath)
-    {        
-        var newDatasourceConatinerDir = new DirectoryInfo(newDatasourceConatinerDirPath);
-        if (!newDatasourceConatinerDir.Exists)
-            newDatasourceConatinerDir.Create();
     }
 
     private static MemoryStream GenerateStreamFromString(string fileContent)

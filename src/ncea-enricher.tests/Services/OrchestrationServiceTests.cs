@@ -265,7 +265,7 @@ public class OrchestrationServiceTests
     }
 
     [Fact]
-    public async Task ProcessMessagesAsync_WhenMessageTypeIsEndAndEnricherDirectoryNotExist_ThenThrowException()
+    public void ProcessMessagesAsync_WhenMessageTypeIsEndAndEnricherDirectoryNotExist_ThenThrowException()
     {
         // Arrange
         OrchestrationServiceForTests.Get(out IConfiguration configuration,

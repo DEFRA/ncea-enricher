@@ -15,6 +15,13 @@ public class BackUpService : IBackUpService
         _logger = logger;
     }
 
+    public void CreateNewDataSourceContainerIfNotExist(string dirPath)
+    {
+        var dir = new DirectoryInfo(dirPath);
+        if (!dir.Exists)
+            dir.Create();
+    }
+
     public void MoveFiles(string sourceDirectoryPath, string targetDirectoryPath)
     {
         var sourceDirectory = new DirectoryInfo(sourceDirectoryPath);
