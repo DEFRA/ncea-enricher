@@ -128,7 +128,6 @@ static void ConfigureLogging(HostApplicationBuilder builder)
 static void ConfigureServices(HostApplicationBuilder builder)
 {
     builder.Services.AddSingleton<IApiClient, ApiClient>();
-    builder.Services.AddSingleton<ICustomDirectoryInfoWrapper, CustomDirectoryInfoWrapper>();
     builder.Services.AddSingleton<IBackUpService, BackUpService>();
     builder.Services.AddSingleton<IOrchestrationService, OrchestrationService>();
     builder.Services.AddSingleton<IBlobService, BlobService>();

@@ -33,7 +33,6 @@ public class OrchestrationService : IOrchestrationService
     private readonly IBlobService _blobService;
     private readonly ServiceBusProcessor _processor;
     private readonly IEnricherService _mdcEnricherSerivice;
-    private readonly ICustomDirectoryInfoWrapper _directoryInfoWrapper;
     private readonly ILogger<OrchestrationService> _logger;
     private static readonly JsonSerializerOptions _serializerOptions = new()
     {
@@ -47,7 +46,6 @@ public class OrchestrationService : IOrchestrationService
         IBlobService blobService,
         IAzureClientFactory<ServiceBusProcessor> serviceBusProcessorFactory,
         IEnricherService mdcEnricherSerivice,
-        ICustomDirectoryInfoWrapper directoryInfoWrapper,
         ILogger<OrchestrationService> logger)
     {
         var mapperQueueName = configuration.GetValue<string>("MapperQueueName");
@@ -58,7 +56,6 @@ public class OrchestrationService : IOrchestrationService
         _mdcEnricherSerivice = mdcEnricherSerivice;
         _backupService = backupService;
         _blobService = blobService;
-        _directoryInfoWrapper = directoryInfoWrapper;
         _logger = logger;
     }
 
@@ -87,23 +84,18 @@ public class OrchestrationService : IOrchestrationService
             var enricherDirectoryPath = Path.Combine(_fileShareName, dataSource);
             var backupEnricherDirectoryPath = Path.Combine(_fileShareName, $"{dataSource}-backup");
             var newEnricherDirectoryPath = Path.Combine(_fileShareName, $"{dataSource}-new");
-            var newEnricherDirectoryInfo = _directoryInfoWrapper.GetDirectoryInfo(newEnricherDirectoryPath);
-            var enricherDirectoryInfo = _directoryInfoWrapper.GetDirectoryInfo(enricherDirectoryPath);
-            var backupEnricherDirectoryInfo = _directoryInfoWrapper.GetDirectoryInfo(backupEnricherDirectoryPath);
 
             if (mdcMappedRecord.MessageType == MessageType.Start)
             {
-                
-                _backupService.CreateDirectory(newEnricherDirectoryInfo);
-
                 _logger.LogInformation("Enricher summary | Metadata enrichment started for DataSource : {dataSource}.", dataSource);
             }
             else if (mdcMappedRecord.MessageType == MessageType.End)
             {
-                if (newEnricherDirectoryInfo.FileCount > 0)
+                var _enrichedFileCount = new DirectoryInfo(newEnricherDirectoryPath).GetFiles().Length;
+                if (_enrichedFileCount > 0)
                 {
-                    _backupService.MoveFiles(enricherDirectoryInfo, backupEnricherDirectoryInfo);
-                    _backupService.MoveFiles(newEnricherDirectoryInfo, enricherDirectoryInfo);
+                    _backupService.MoveFiles(enricherDirectoryPath, backupEnricherDirectoryPath);
+                    _backupService.MoveFiles(newEnricherDirectoryPath, enricherDirectoryPath);
 
                     _logger.LogInformation("Enricher summary | Metadata enrichment ended for DataSource : {dataSource}.", dataSource);
                 }
@@ -188,7 +180,9 @@ public class OrchestrationService : IOrchestrationService
 
         var fileName = string.Concat(_fileIdentifier, ".xml");
         var newDatasourceConatinerName = $"{dataSource}-new";
-        var filePath = Path.Combine(_fileShareName, newDatasourceConatinerName, fileName);
+        var newDatasourceConatinerDirPath = Path.Combine(_fileShareName, newDatasourceConatinerName);
+        _backupService.CreateNewDataSourceContainerIfNotExist(newDatasourceConatinerDirPath);
+        var filePath = Path.Combine(newDatasourceConatinerDirPath, fileName);
         return filePath;
     }
 

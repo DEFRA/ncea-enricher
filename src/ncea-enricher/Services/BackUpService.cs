@@ -1,9 +1,11 @@
 ﻿using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Utils;
 using Ncea.Harvester.Services.Contracts;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ncea.Enricher.Services;
 
+[ExcludeFromCodeCoverage]
 public class BackUpService : IBackUpService
 {
     private readonly ILogger _logger;
@@ -13,59 +15,40 @@ public class BackUpService : IBackUpService
         _logger = logger;
     }
 
-    public void CreateDirectory(ICustomDirectoryInfoWrapper directory)
+    public void CreateNewDataSourceContainerIfNotExist(string dirPath)
     {
-        try
-        {
-            CreateDirectoryWithPath(directory);
-        }
-        catch (Exception ex)
-        {
-            var errorMessage = $"Error occurred while creating directory: {directory.Name}";
-            CustomLogger.LogErrorMessage(_logger, errorMessage, ex);
-        }
+        var dir = new DirectoryInfo(dirPath);
+        if (!dir.Exists)
+            dir.Create();
     }
 
-    private static void CreateDirectoryWithPath(ICustomDirectoryInfoWrapper directory)
+    public void MoveFiles(string sourceDirectoryPath, string targetDirectoryPath)
     {
-        if (!directory.Exists)
-        {
-            directory.Create();
-        }
-    }
-
-    public void MoveFiles(ICustomDirectoryInfoWrapper sourceDirectory, ICustomDirectoryInfoWrapper targetDirectory)
-    {
+        var sourceDirectory = new DirectoryInfo(sourceDirectoryPath);
+        var targetDirectory = new DirectoryInfo(targetDirectoryPath);
         try
         {
-            RenameFolder(sourceDirectory, targetDirectory);
+            if (!sourceDirectory.Exists)
+            {
+                throw new DirectoryNotFoundException($"Given datasouce directory not found {sourceDirectory.Name}");
+            }
+
+            if (!targetDirectory.Exists)
+            {
+                throw new DirectoryNotFoundException($"Given datasouce directory not found {targetDirectory.Name}");
+            }
+
+            targetDirectory.Delete(true);
+            sourceDirectory.MoveTo(targetDirectory.FullName);
+        }
+        catch(DirectoryNotFoundException ex)
+        {
+            CustomLogger.LogErrorMessage(_logger, ex.Message, ex);
         }
         catch (Exception ex)
         {
             var errorMessage = $"Error occurred while moving file: {sourceDirectory} to {targetDirectory}";
             CustomLogger.LogErrorMessage(_logger, errorMessage, ex);
-        }       
-    }
-
-    private static void RenameFolder(ICustomDirectoryInfoWrapper sourceDirectory, ICustomDirectoryInfoWrapper targetDirectory)
-    {
-        if (!sourceDirectory.Exists)
-        {
-            throw new DirectoryNotFoundException($"Given datasouce directory not found {sourceDirectory.Name}");
         }
-
-        if (!targetDirectory.Exists)
-        {
-            targetDirectory.Create();
-        }
-        else
-        {
-            foreach (var file in targetDirectory.GetFiles())
-            {
-                file.Delete();
-            }
-        }
-
-        sourceDirectory.MoveTo(targetDirectory.FullName);
     }
 }
