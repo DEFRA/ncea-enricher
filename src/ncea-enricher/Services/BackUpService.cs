@@ -33,16 +33,9 @@ public class BackUpService : IBackUpService
                 throw new DirectoryNotFoundException($"Given datasouce directory not found {sourceDirectory.Name}");
             }
 
-            if (!targetDirectory.Exists)
+            if (targetDirectory.Exists)
             {
-                targetDirectory.Create();
-            }
-            else
-            {
-                foreach (var file in targetDirectory.GetFiles())
-                {
-                    file.Delete();
-                }
+                targetDirectory.Delete(true);
             }
 
             sourceDirectory.MoveTo(targetDirectory.FullName);
