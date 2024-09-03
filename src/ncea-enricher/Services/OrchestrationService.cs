@@ -98,6 +98,7 @@ public class OrchestrationService : IOrchestrationService
                 else
                 {
                     _logger.LogInformation("Enricher summary | Metadata enrichment ended for DataSource. No files are enriched with current run. : {dataSource}.", dataSource);
+                    _logger.LogError("Metadata enrichment completed for DataSource: {dataSource}. And no enriched files are saved from the current run.", dataSource);
                 }
             }
             else
