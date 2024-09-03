@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="MLTrainedModels\AssetTrainedModel.zip" />
+    <None Remove="MLTrainedModels\Asset_Theme_TrainedModel.zip" />
     <None Remove="MLTrainedModels\BenefitTrainedModel.zip" />
     <None Remove="MLTrainedModels\CategoryTrainedModel.zip" />
     <None Remove="MLTrainedModels\PressureTrainedModel.zip" />
@@ -27,27 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="MLTrainedModels\AssetTrainedModel.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MLTrainedModels\BenefitTrainedModel.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MLTrainedModels\CategoryTrainedModel.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MLTrainedModels\PressureTrainedModel.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MLTrainedModels\SubCategoryTrainedModel.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MLTrainedModels\ThemeTrainedModel.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MLTrainedModels\ValuationTrainedModel.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="Schema\gco\basicTypes.xsd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -101,5 +80,86 @@
     <Content Update="appsettings-fieldconfigurations.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="MLTrainedModels\Asset_Category_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\Benefit_CategoryTrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-001_Terrestrial and freshwater habitats_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-002_Coastal and estuarine habitats_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-003_Marine habitats_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-004_Generalist species (spanning multiple habitats)_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-005_Ecosystem component_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-006_Provisioning services_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-007_Regulating services_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-008_Cultural services_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-011_Climate change_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-012_Chemical pollution_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-013_Biological disturbances_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-014_Hydrological changes_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-015_Land and sea use change_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lv2-016_Other pollution or physical pressure_SubCategory_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lvl1-001_Natural asset_Category_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lvl1-001_Natural asset_Theme_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lvl1-002_Ecosystem service or benefit_Category_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lvl1-002_Ecosystem service or benefit_Theme_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lvl1-003_Natural capital valuation_Category_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lvl1-003_Natural capital valuation_Theme_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lvl1-004_Pressure_Category_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\lvl1-004_Pressure_Theme_TrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\Pressure_CategoryTrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MLTrainedModels\Valuation_CategoryTrainedModel.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

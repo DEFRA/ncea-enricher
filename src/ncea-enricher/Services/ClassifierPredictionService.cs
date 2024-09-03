@@ -30,25 +30,12 @@ public class ClassifierPredictionService : IClassifierPredictionService
         var allVocabulary = await _vocabularyProvider.GetAll(cancellationToken);
         var themes = allVocabulary.Where(x => x.Level == 1);
         var themeModelList = new List<string>();
-
-        PredictTheme(TrainedModels.Asset, Themes.Asset, inputData, themes, themeModelList);
-        PredictTheme(TrainedModels.Preassure, Themes.Preassure, inputData, themes, themeModelList);
-        PredictTheme(TrainedModels.Benefit, Themes.Benefit, inputData, themes, themeModelList);
-        PredictTheme(TrainedModels.Valuation, Themes.Valuation, inputData, themes, themeModelList);
-
         string themeModelListStr = string.Empty;
 
-        if (themeModelList.Count == 0)
-        {
-            var themePrediction = _themePredictionEnginePool.Predict(TrainedModels.Theme, inputData);
-            var predictedThemes = themePrediction.PredictedLabel!.GetClassifierIds();
-
-            foreach(var predictedTheme in predictedThemes!)
-            {
-                var theme = themes.FirstOrDefault(x => x.Id == predictedTheme.Code);
-                themeModelList.Add($"{theme!.Id} {theme!.Name}");
-            }
-        }
+        PredictTheme(TrainedModels.AssetTrainedModel, Themes.Asset, inputData, themes, themeModelList);
+        PredictTheme(TrainedModels.PreassureTrainedModel, Themes.Preassure, inputData, themes, themeModelList);
+        PredictTheme(TrainedModels.BenefitTrainedModel, Themes.Benefit, inputData, themes, themeModelList);
+        PredictTheme(TrainedModels.ValuationTrainedModel, Themes.Valuation, inputData, themes, themeModelList);
 
         themeModelListStr = string.Join(",", themeModelList);
         return new ModelOutput() { PredictedLabel = themeModelListStr };
