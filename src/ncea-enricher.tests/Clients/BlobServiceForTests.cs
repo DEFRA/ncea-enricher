@@ -3,7 +3,6 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Moq;
 using Ncea.Enricher.Infrastructure;
-using Ncea.Enricher.Infrastructure.Models.Requests;
 
 namespace Ncea.Enricher.Tests.Clients;
 
