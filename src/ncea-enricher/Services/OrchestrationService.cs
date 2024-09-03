@@ -17,10 +17,6 @@ using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Infrastructure.Contracts;
 using System.Text.Json.Serialization;
 using Ncea.Enricher.Enums;
-using Ncea.Enricher.Services.Contracts;
-using Microsoft.Azure.Amqp.Framing;
-using System.IO.Abstractions;
-using Ncea.Enricher.Infrastructure;
 
 namespace Ncea.Enricher.Services;
 
@@ -121,8 +117,7 @@ public class OrchestrationService : IOrchestrationService
 
                 await _blobService.DeleteBlobAsync(new DeleteBlobRequest(fileName, mapperContainerName), args.CancellationToken);
                 _logger.LogInformation("Enricher summary | Metadata enrichment completed for DataSource : {dataSource}, FileIdentifier : {fileIdentifier}", dataSource, fileIdentifier);
-            }
-            
+            }            
 
             await args.CompleteMessageAsync(args.Message);
         }
