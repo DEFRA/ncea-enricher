@@ -1,19 +1,16 @@
 ﻿using Azure;
 using Azure.Messaging.ServiceBus;
-using Azure.Storage.Blobs;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Ncea.Enricher.BusinessExceptions;
-using Ncea.Enricher.Infrastructure;
 using Ncea.Enricher.Infrastructure.Contracts;
 using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
-using Ncea.Harvester.Services.Contracts;
 using System.Reflection;
 using System.Xml.Schema;
 

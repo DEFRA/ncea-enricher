@@ -1,6 +1,4 @@
-﻿using Ncea.Enricher.Infrastructure.Contracts;
-
-namespace Ncea.Harvester.Services.Contracts;
+﻿namespace Ncea.Enricher.Services.Contracts;
 
 public interface IBackUpService
 {

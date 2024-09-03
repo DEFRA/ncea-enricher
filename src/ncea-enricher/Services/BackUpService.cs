@@ -1,6 +1,5 @@
-﻿using Ncea.Enricher.Infrastructure.Contracts;
-using Ncea.Enricher.Utils;
-using Ncea.Harvester.Services.Contracts;
+﻿using Ncea.Enricher.Utils;
+using Ncea.Enricher.Services.Contracts;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Ncea.Enricher.Services;
