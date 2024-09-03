@@ -17,7 +17,7 @@ using Ncea.Enricher.Infrastructure.Models.Requests;
 using Ncea.Enricher.Infrastructure.Contracts;
 using System.Text.Json.Serialization;
 using Ncea.Enricher.Enums;
-using Ncea.Harvester.Services.Contracts;
+using Ncea.Enricher.Services.Contracts;
 using Microsoft.Azure.Amqp.Framing;
 using System.IO.Abstractions;
 using Ncea.Enricher.Infrastructure;

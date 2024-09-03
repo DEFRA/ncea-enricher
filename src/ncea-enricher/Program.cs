@@ -21,7 +21,7 @@ using Microsoft.Extensions.ML;
 using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Constants;
 using Ncea.Classifier.Microservice.Clients;
-using Ncea.Harvester.Services.Contracts;
+using Ncea.Enricher.Services.Contracts;
 
 var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())

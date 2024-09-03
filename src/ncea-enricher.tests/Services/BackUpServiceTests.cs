@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Ncea.Enricher.Services;
 
-namespace Ncea.Harvester.Tests.Processors;
+namespace Ncea.Enricher.Tests.Processors;
 
 public class BackUpServiceTests
 {

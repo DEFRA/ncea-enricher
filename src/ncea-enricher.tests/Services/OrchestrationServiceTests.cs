@@ -13,7 +13,7 @@ using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
-using Ncea.Harvester.Services.Contracts;
+using Ncea.Enricher.Services.Contracts;
 using System.Reflection;
 using System.Xml.Schema;
 
