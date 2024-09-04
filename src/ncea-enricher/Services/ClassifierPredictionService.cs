@@ -77,17 +77,17 @@ public class ClassifierPredictionService : IClassifierPredictionService
     {
         var _prediction = _categoryPredictionEnginePool.Predict(modelName, inputData);
         var confidenceThreshold = float.Parse(_categoryConfidenceThreshold);
-        return checkConfidenceAndReturnPrediction(_prediction, confidenceThreshold);
+        return CheckConfidenceAndReturnPrediction(_prediction, confidenceThreshold);
     }
 
     public ModelOutput PredictSubCategory(string modelName, ModelInputSubCategory inputData)
     {
         var _prediction = _subcategoryPredictionEnginePool.Predict(modelName, inputData);
         var confidenceThreshold = float.Parse(_subCategoryConfidenceThreshold);
-        return checkConfidenceAndReturnPrediction(_prediction, confidenceThreshold);
+        return CheckConfidenceAndReturnPrediction(_prediction, confidenceThreshold);
     }
 
-    private static ModelOutput checkConfidenceAndReturnPrediction(ModelOutput _prediction, float confidenceThreshold)
+    private static ModelOutput CheckConfidenceAndReturnPrediction(ModelOutput _prediction, float confidenceThreshold)
     {
         var metConfidence = Array.Exists(_prediction.Score!, score => score > confidenceThreshold);
 
