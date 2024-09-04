@@ -3,8 +3,6 @@ using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Constants;
 using Ncea.Enricher.Models;
-using Ncea.Enricher.Extensions;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace Ncea.Enricher.Services;
 
