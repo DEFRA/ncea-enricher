@@ -17,6 +17,7 @@ env:
   keyVaultUri: $(keyVaultUri)
   blobStorageUri: $(blobStorageUri)
   classifierApiBaseUri: $(classifierApiBaseUri)
+  microsoftMlResourcePath: "/tmp/mlnet"
 
 podAnnotations: {}
 podLabels: 
