@@ -151,7 +151,7 @@ public class ClassifierPredictionServiceTests
         var input = new ModelInputCategory();
 
         //Act
-        var result = _classifierPredictionService.PredictCategory(TrainedModels.Category, input);
+        var result = _classifierPredictionService.PredictCategory(TrainedModels.lvl1_001, input);
 
         //Assert
         result.Should().NotBeNull();
@@ -175,7 +175,7 @@ public class ClassifierPredictionServiceTests
         };
 
         //Act
-        var result = _classifierPredictionService.PredictCategory(TrainedModels.Category, input);
+        var result = _classifierPredictionService.PredictCategory(TrainedModels.lvl1_001, input);
 
         //Assert
         result.Should().NotBeNull();
@@ -189,7 +189,7 @@ public class ClassifierPredictionServiceTests
         var input = new ModelInputSubCategory();
 
         //Act
-        var result = _classifierPredictionService.PredictSubCategory(TrainedModels.SubCategory, input);
+        var result = _classifierPredictionService.PredictSubCategory(TrainedModels.lv2_001, input);
 
         //Assert
         result.Should().NotBeNull();
@@ -214,7 +214,7 @@ public class ClassifierPredictionServiceTests
         };
 
         //Act
-        var result = _classifierPredictionService.PredictSubCategory(TrainedModels.SubCategory, input);
+        var result = _classifierPredictionService.PredictSubCategory(TrainedModels.lv2_001, input);
 
         //Assert
         result.Should().NotBeNull();
