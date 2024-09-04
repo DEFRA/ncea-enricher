@@ -62,12 +62,14 @@ public class ClassifierPredictionService : IClassifierPredictionService
 
         if (themePrediction.PredictedLabel == "1")
         {
-            var _scores = themePrediction.Score;
             var confidenceThreshold = float.Parse(themeConfidenceThreshold);
-            var metConfidence = !_scores!.Any(score => score > confidenceThreshold);
+            var metConfidence = Array.Exists(themePrediction.Score!, score => score > confidenceThreshold);
 
-            var theme = themes.FirstOrDefault(x => x.Id == themeName);
-            themeModelList.Add($"{theme!.Id} {theme!.Name}");
+            if (metConfidence)
+            {
+                var theme = themes.FirstOrDefault(x => x.Id == themeName);
+                themeModelList.Add($"{theme!.Id} {theme!.Name}");
+            }
         }
     }
 
@@ -87,9 +89,9 @@ public class ClassifierPredictionService : IClassifierPredictionService
 
     private static ModelOutput checkConfidenceAndReturnPrediction(ModelOutput _prediction, float confidenceThreshold)
     {
-        var _scores = _prediction.Score;
+        var metConfidence = Array.Exists(_prediction.Score!, score => score > confidenceThreshold);
 
-        if (!_scores!.Any(score => score > confidenceThreshold))
+        if (!metConfidence)
         {
             _prediction.PredictedLabel = string.Empty;
         }
