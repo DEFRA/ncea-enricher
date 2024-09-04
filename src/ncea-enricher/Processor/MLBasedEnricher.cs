@@ -100,8 +100,9 @@ public class MLBasedEnricher : IEnricherService
                 subCategoryInput.Theme = !string.IsNullOrWhiteSpace(predictedThemeCategory.Theme) ? predictedThemeCategory.Theme : null;
                 subCategoryInput.CategoryL2 = !string.IsNullOrWhiteSpace(predictedThemeCategory.Category) ? predictedThemeCategory.Category : null;
 
+                var categoryCode = predictedCategories.FirstOrDefault(x => x.OriginalValue == subCategoryInput.CategoryL2)?.Code;
 
-                var subCategories = _classifierPredictionService.PredictSubCategory(predictedThemeCategory.Category, subCategoryInput)
+                var subCategories = _classifierPredictionService.PredictSubCategory(categoryCode!, subCategoryInput)
                     .PredictedLabel!
                     .GetClassifierIds();
 
