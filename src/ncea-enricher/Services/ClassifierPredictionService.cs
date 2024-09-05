@@ -85,7 +85,7 @@ public class ClassifierPredictionService : IClassifierPredictionService
         }
         catch (Exception ex) 
         {
-            _logger.LogDebug(ex, "Exception Occured during ML Prediction for Model: {modelName}", modelName);
+            _logger.LogError(ex, "Exception Occured during ML Prediction for Model: {modelName}", modelName);
             return new ModelOutput() { PredictedLabel = string.Empty };
         }        
     }
@@ -100,7 +100,7 @@ public class ClassifierPredictionService : IClassifierPredictionService
         }
         catch (Exception ex)
         {
-            _logger.LogDebug(ex, "Exception Occured during ML Prediction for Model: {modelName}", modelName);
+            _logger.LogError(ex, "Exception Occured during ML Prediction for Model: {modelName}", modelName);
             return new ModelOutput() { PredictedLabel = string.Empty};
         }        
     }
