@@ -126,7 +126,7 @@ public class MLBasedEnricher : IEnricherService
                 var codeValue = predictedTheme.Code;
                 categoryInput.Theme = !string.IsNullOrWhiteSpace(originalValue) ? originalValue : null;
 
-                if (string.IsNullOrWhiteSpace(predictedTheme.Code))
+                if (!string.IsNullOrWhiteSpace(predictedTheme.Code))
                 {
                     var categories = _classifierPredictionService.PredictCategory(codeValue, categoryInput)
                         .PredictedLabel!
