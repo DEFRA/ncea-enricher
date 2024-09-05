@@ -3,7 +3,6 @@ using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Constants;
 using Ncea.Enricher.Models;
-using Ncea.Enricher.Processors;
 
 namespace Ncea.Enricher.Services;
 
@@ -86,7 +85,7 @@ public class ClassifierPredictionService : IClassifierPredictionService
         }
         catch (Exception ex) 
         {
-            _logger.LogError(ex, "Exception Occured during ML Prediction for Model: {modelName}", modelName);
+            _logger.LogDebug(ex, "Exception Occured during ML Prediction for Model: {modelName}", modelName);
             return new ModelOutput() { PredictedLabel = string.Empty };
         }        
     }
@@ -101,7 +100,7 @@ public class ClassifierPredictionService : IClassifierPredictionService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception Occured during ML Prediction for Model: {modelName}", modelName);
+            _logger.LogDebug(ex, "Exception Occured during ML Prediction for Model: {modelName}", modelName);
             return new ModelOutput() { PredictedLabel = string.Empty};
         }        
     }
