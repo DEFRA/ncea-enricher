@@ -6,9 +6,9 @@ public static class ClassifierStringExtensions
 {
     public static IEnumerable<PredictedItem>? GetClassifierIds(this string str)
     {
-        return (str != null) ? str.Trim()
+        return !string.IsNullOrWhiteSpace(str) ? str.Trim()
             .Split(',')
             .Select(x => new PredictedItem(x.Trim().Substring(0, x.IndexOf(' ')), x))
-            .DistinctBy(x => x.OriginalValue) : null;
+            .DistinctBy(x => x.OriginalValue) : [];
     }
 }

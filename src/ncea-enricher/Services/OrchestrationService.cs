@@ -124,8 +124,9 @@ public class OrchestrationService : IOrchestrationService
         }
         catch (ArgumentException ex)
         {
+            var errorMessage = $"Error occured during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
             await HandleException(args, ex, new EnricherArgumentException(ex.Message, ex));
-        }
+        }       
         catch (RequestFailedException ex)
         {
             var errorMessage = $"Error occured while reading the file from Blob storage during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";

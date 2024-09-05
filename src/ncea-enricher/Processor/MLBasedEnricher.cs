@@ -100,9 +100,7 @@ public class MLBasedEnricher : IEnricherService
                 subCategoryInput.Theme = !string.IsNullOrWhiteSpace(predictedThemeCategory.Theme) ? predictedThemeCategory.Theme : null;
                 subCategoryInput.CategoryL2 = !string.IsNullOrWhiteSpace(predictedThemeCategory.Category) ? predictedThemeCategory.Category : null;
 
-                var categoryCode = predictedCategories.Find(x => x.OriginalValue == subCategoryInput.CategoryL2)?.Code;
-
-                var subCategories = _classifierPredictionService.PredictSubCategory(categoryCode!, subCategoryInput)
+                var subCategories = _classifierPredictionService.PredictSubCategory(predictedThemeCategory.CategoryCode, subCategoryInput)
                     .PredictedLabel!
                     .GetClassifierIds();
 
@@ -132,7 +130,7 @@ public class MLBasedEnricher : IEnricherService
                 if (categories != null && categories.Any())
                 {
                     predictedCategories.AddRange(categories);
-                    predictedThemeCategories.AddRange(categories.Select(x => new PredictedHierarchy(originalValue, x.OriginalValue, string.Empty)));
+                    predictedThemeCategories.AddRange(categories.Select(x => new PredictedHierarchy(originalValue, codeValue, x.OriginalValue, x.Code, string.Empty)));
                 }
             }
         }
