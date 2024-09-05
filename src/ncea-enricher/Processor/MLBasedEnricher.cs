@@ -100,14 +100,17 @@ public class MLBasedEnricher : IEnricherService
                 subCategoryInput.Theme = !string.IsNullOrWhiteSpace(predictedThemeCategory.Theme) ? predictedThemeCategory.Theme : null;
                 subCategoryInput.CategoryL2 = !string.IsNullOrWhiteSpace(predictedThemeCategory.Category) ? predictedThemeCategory.Category : null;
 
-                var subCategories = _classifierPredictionService.PredictSubCategory(predictedThemeCategory.CategoryCode, subCategoryInput)
+                if (!string.IsNullOrWhiteSpace(predictedThemeCategory.CategoryCode))
+                {
+                    var subCategories = _classifierPredictionService.PredictSubCategory(predictedThemeCategory.CategoryCode, subCategoryInput)
                     .PredictedLabel!
                     .GetClassifierIds();
 
-                if (subCategories != null && subCategories.Any())
-                {
-                    predictedSubCategories.AddRange(subCategories);
-                }
+                    if (subCategories != null && subCategories.Any())
+                    {
+                        predictedSubCategories.AddRange(subCategories);
+                    }
+                }                
             }
         }
     }
@@ -123,14 +126,17 @@ public class MLBasedEnricher : IEnricherService
                 var codeValue = predictedTheme.Code;
                 categoryInput.Theme = !string.IsNullOrWhiteSpace(originalValue) ? originalValue : null;
 
-                var categories = _classifierPredictionService.PredictCategory(codeValue, categoryInput)
-                    .PredictedLabel!
-                    .GetClassifierIds();
-
-                if (categories != null && categories.Any())
+                if (string.IsNullOrWhiteSpace(predictedTheme.Code))
                 {
-                    predictedCategories.AddRange(categories);
-                    predictedThemeCategories.AddRange(categories.Select(x => new PredictedHierarchy(originalValue, codeValue, x.OriginalValue, x.Code, string.Empty)));
+                    var categories = _classifierPredictionService.PredictCategory(codeValue, categoryInput)
+                        .PredictedLabel!
+                        .GetClassifierIds();
+
+                    if (categories != null && categories.Any())
+                    {
+                        predictedCategories.AddRange(categories);
+                        predictedThemeCategories.AddRange(categories.Select(x => new PredictedHierarchy(originalValue, codeValue, x.OriginalValue, x.Code, string.Empty)));
+                    }
                 }
             }
         }
