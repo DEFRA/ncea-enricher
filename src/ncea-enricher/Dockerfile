@@ -1,8 +1,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
 USER root
-RUN apt-get -y update && apt-get -y install --no-install-recommends curl \
-	rm -rf /var/lib/apt/lists/* 
+RUN apt-get -y update && apt-get -y install --no-install-recommends curl 
+RUN rm -rf /var/lib/apt/lists/*
 
 USER app
 WORKDIR /app
