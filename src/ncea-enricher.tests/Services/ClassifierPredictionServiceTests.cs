@@ -34,7 +34,7 @@ public class ClassifierPredictionServiceTests
         _subCategoryPredictionPool = _serviceProvider.GetService<PredictionEnginePool<ModelInputSubCategory, ModelOutput>>()!;
         _configuration = _serviceProvider.GetService<IConfiguration>()!;
         _mocklogger.Setup(x => x.Log(
-                    LogLevel.Error,
+                    LogLevel.Debug,
                     It.IsAny<EventId>(),
                     It.IsAny<It.IsAnyType>(),
                     It.IsAny<Exception>(),
@@ -187,7 +187,7 @@ public class ClassifierPredictionServiceTests
         _mockClassifierPredictionService.PredictCategory(invalidModelName, input);
 
         //Assert
-        _mocklogger.Verify(x => x.Log(LogLevel.Error,
+        _mocklogger.Verify(x => x.Log(LogLevel.Debug,
             It.IsAny<EventId>(),
             It.IsAny<It.IsAnyType>(),
             It.IsAny<Exception>(),
@@ -264,7 +264,7 @@ public class ClassifierPredictionServiceTests
         _mockClassifierPredictionService.PredictSubCategory(invalidModelName, input);
 
         //Assert
-        _mocklogger.Verify(x => x.Log(LogLevel.Error,
+        _mocklogger.Verify(x => x.Log(LogLevel.Debug,
             It.IsAny<EventId>(),
             It.IsAny<It.IsAnyType>(),
             It.IsAny<Exception>(),
