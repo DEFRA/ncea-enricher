@@ -97,11 +97,12 @@ public class MLBasedEnricher : IEnricherService
             var subCategoryInput = JsonConvert.DeserializeObject<ModelInputSubCategory>(modelInputs)!;
             foreach (var predictedThemeCategory in predictedThemeCategories)
             {                
-                subCategoryInput.Theme = !string.IsNullOrWhiteSpace(predictedThemeCategory.Theme) ? predictedThemeCategory.Theme : null;
-                subCategoryInput.CategoryL2 = !string.IsNullOrWhiteSpace(predictedThemeCategory.Category) ? predictedThemeCategory.Category : null;
+                subCategoryInput.Theme = !string.IsNullOrWhiteSpace(predictedThemeCategory.Theme) ? predictedThemeCategory.Theme : null;                
 
                 if (!string.IsNullOrWhiteSpace(predictedThemeCategory.CategoryCode))
                 {
+                    subCategoryInput.CategoryL2 = predictedThemeCategory.Category;
+
                     var subCategories = _classifierPredictionService.PredictSubCategory(predictedThemeCategory.CategoryCode, subCategoryInput)
                     .PredictedLabel!
                     .GetClassifierIds();
