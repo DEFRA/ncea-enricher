@@ -12,6 +12,7 @@ public class ClassifierPredictionService : IClassifierPredictionService
     private readonly PredictionEnginePool<ModelInputCategory, ModelOutput> _categoryPredictionEnginePool;
     private readonly PredictionEnginePool<ModelInputSubCategory, ModelOutput> _subcategoryPredictionEnginePool;
     private readonly IClassifierVocabularyProvider _vocabularyProvider;
+    private readonly ILogger _logger;
     private readonly string _assetConfidenceThreshold;
     private readonly string _pressureConfidenceThreshold;
     private readonly string _benefitConfidenceThreshold;
@@ -23,12 +24,15 @@ public class ClassifierPredictionService : IClassifierPredictionService
         PredictionEnginePool<ModelInputCategory, ModelOutput> categoryPredictionEnginePool,
         PredictionEnginePool<ModelInputSubCategory, ModelOutput> subcategoryPredictionEnginePool,
         IClassifierVocabularyProvider vocabularyProvider,
+        ILogger<ClassifierPredictionService> logger,
         IConfiguration configuration)
     {
         _themePredictionEnginePool = themePredictionEnginePool;
         _categoryPredictionEnginePool = categoryPredictionEnginePool;
         _subcategoryPredictionEnginePool = subcategoryPredictionEnginePool;
         _vocabularyProvider = vocabularyProvider;
+        _logger = logger;
+
         _assetConfidenceThreshold = configuration.GetValue<string>("AssetConfidenceThreshold")!;
         _pressureConfidenceThreshold = configuration.GetValue<string>("PressureConfidenceThreshold")!;
         _benefitConfidenceThreshold = configuration.GetValue<string>("BenefitConfidenceThreshold")!;
@@ -41,9 +45,9 @@ public class ClassifierPredictionService : IClassifierPredictionService
     {
         var allVocabulary = await _vocabularyProvider.GetAll(cancellationToken);
         var themes = allVocabulary.Where(x => x.Level == 1);
+
         var themeModelList = new List<string>();
-        string themeModelListStr = string.Empty;
-        
+        string themeModelListStr = string.Empty;        
 
         PredictTheme(TrainedModels.AssetTrainedModel, Themes.Asset, inputData, themes, themeModelList, _assetConfidenceThreshold);
         PredictTheme(TrainedModels.PreassureTrainedModel, Themes.Preassure, inputData, themes, themeModelList, _pressureConfidenceThreshold);
@@ -73,16 +77,32 @@ public class ClassifierPredictionService : IClassifierPredictionService
 
     public ModelOutput PredictCategory(string modelName, ModelInputCategory inputData)
     {
-        var _prediction = _categoryPredictionEnginePool.Predict(modelName, inputData);
-        var confidenceThreshold = float.Parse(_categoryConfidenceThreshold);
-        return CheckConfidenceAndReturnPrediction(_prediction, confidenceThreshold);
+        try
+        {
+            var _prediction = _categoryPredictionEnginePool.Predict(modelName, inputData);
+            var confidenceThreshold = float.Parse(_categoryConfidenceThreshold);
+            return CheckConfidenceAndReturnPrediction(_prediction, confidenceThreshold);
+        }
+        catch (Exception ex) 
+        {
+            _logger.LogDebug(ex, "Exception Occured during ML Prediction for Model: {modelName}", modelName);
+            return new ModelOutput() { PredictedLabel = string.Empty };
+        }        
     }
 
     public ModelOutput PredictSubCategory(string modelName, ModelInputSubCategory inputData)
     {
-        var _prediction = _subcategoryPredictionEnginePool.Predict(modelName, inputData);
-        var confidenceThreshold = float.Parse(_subCategoryConfidenceThreshold);
-        return CheckConfidenceAndReturnPrediction(_prediction, confidenceThreshold);
+        try
+        {
+            var _prediction = _subcategoryPredictionEnginePool.Predict(modelName, inputData);
+            var confidenceThreshold = float.Parse(_subCategoryConfidenceThreshold);
+            return CheckConfidenceAndReturnPrediction(_prediction, confidenceThreshold);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Exception Occured during ML Prediction for Model: {modelName}", modelName);
+            return new ModelOutput() { PredictedLabel = string.Empty};
+        }        
     }
 
     private static ModelOutput CheckConfidenceAndReturnPrediction(ModelOutput _prediction, float confidenceThreshold)
