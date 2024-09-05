@@ -22,7 +22,7 @@ RUN dotnet publish "./ncea-enricher.csproj" -c "$BUILD_CONFIGURATION" -o /app/pu
 FROM base AS final
 WORKDIR /app
 
-RUN mkdir -p /app/Text/Sswe && curl -o -L /app/Text/Sswe/sentiment.emd https://aka.ms/mlnet-resources/Text/Sswe/sentiment.emd 
+RUN mkdir -p /app/Text/Sswe && curl -kLo /app/Text/Sswe/sentiment.emd https://aka.ms/mlnet-resources/Text/Sswe/sentiment.emd 
 
 EXPOSE 5000
 
