@@ -4,6 +4,11 @@ using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Tests.Clients;
 using Ncea.Enricher.Models.ML;
 using FluentAssertions;
+using Moq;
+using Ncea.Enricher.Services;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.ML;
+using Microsoft.Extensions.Configuration;
 
 namespace Ncea.Enricher.Tests.Services;
 
@@ -11,11 +16,31 @@ public class ClassifierPredictionServiceTests
 {
     private IServiceProvider _serviceProvider;
     private IClassifierPredictionService _classifierPredictionService;
+    private Mock<ILogger<ClassifierPredictionService>> _mocklogger;
+    private IClassifierVocabularyProvider _classifierVocabularyProvider;
+    private PredictionEnginePool<ModelInputTheme, ModelOutput> _themePredictionPool;
+    private PredictionEnginePool<ModelInputCategory, ModelOutput> _categoryPredictionPool;
+    private PredictionEnginePool<ModelInputSubCategory, ModelOutput> _subCategoryPredictionPool;
+    private IConfiguration _configuration;
 
     public ClassifierPredictionServiceTests()
     {
         _serviceProvider = ServiceProviderForTests.Get();
+        _mocklogger = new Mock<ILogger<ClassifierPredictionService>>()!;
         _classifierPredictionService = _serviceProvider.GetService<IClassifierPredictionService>()!;
+        _classifierVocabularyProvider = _serviceProvider.GetService<IClassifierVocabularyProvider>()!;
+        _themePredictionPool = _serviceProvider.GetService<PredictionEnginePool<ModelInputTheme, ModelOutput>>()!;
+        _categoryPredictionPool = _serviceProvider.GetService<PredictionEnginePool<ModelInputCategory, ModelOutput>>()!;
+        _subCategoryPredictionPool = _serviceProvider.GetService<PredictionEnginePool<ModelInputSubCategory, ModelOutput>>()!;
+        _configuration = _serviceProvider.GetService<IConfiguration>()!;
+        _mocklogger.Setup(x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+                )
+            );
     }
 
     [Fact]
@@ -145,6 +170,31 @@ public class ClassifierPredictionServiceTests
     }
 
     [Fact]
+    public void GivenPredictCategory_WhenInvalidModelNameIsUsedforPrediction_ThenThrowException()
+    {
+        //Arrange
+        var input = new ModelInputCategory();
+        var invalidModelName = "InvalidModel";
+
+        //Act
+        var _mockClassifierPredictionService = new ClassifierPredictionService(
+            _themePredictionPool,
+            _categoryPredictionPool,
+            _subCategoryPredictionPool,
+            _classifierVocabularyProvider,
+            _mocklogger.Object,
+            _configuration)!;
+        _mockClassifierPredictionService.PredictCategory(invalidModelName, input);
+
+        //Assert
+        _mocklogger.Verify(x => x.Log(LogLevel.Error,
+            It.IsAny<EventId>(),
+            It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+    }
+
+    [Fact]
     public void GivenPredictCategory_WhenInputValuesAreNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
@@ -194,6 +244,31 @@ public class ClassifierPredictionServiceTests
         //Assert
         result.Should().NotBeNull();
         result.Should().BeOfType<ModelOutput>();
+    }
+
+    [Fact]
+    public void GivenPredictSubCategory_WhenInvalidModelNameIsUsedforPrediction_ThenThrowException()
+    {
+        //Arrange
+        var input = new ModelInputSubCategory();
+        var invalidModelName = "InvalidModel";
+
+        //Act
+        var _mockClassifierPredictionService = new ClassifierPredictionService(
+            _themePredictionPool,
+            _categoryPredictionPool,
+            _subCategoryPredictionPool,
+            _classifierVocabularyProvider,
+            _mocklogger.Object,
+            _configuration)!;
+        _mockClassifierPredictionService.PredictSubCategory(invalidModelName, input);
+
+        //Assert
+        _mocklogger.Verify(x => x.Log(LogLevel.Error,
+            It.IsAny<EventId>(),
+            It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [Fact]
