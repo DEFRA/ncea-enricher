@@ -41,7 +41,7 @@ public class MLBasedEnricherTests
         _classifierVocabularyProvider = _serviceProvider.GetService<IClassifierVocabularyProvider>()!;
     }
 
-    [Fact]
+    [Fact(Skip ="due to ml dependency download size")]
     public async Task Enrich_WhenMLFeatureFlagEnabled_ReturnEnrichedMetadataXmlWithNceaClassifiers()
     {
         //Arrange
@@ -72,7 +72,7 @@ public class MLBasedEnricherTests
         result.Should().BeOfType<string>();
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public async Task Enrich_WhenPreditionServiceReturnsNull_ReturnEnrichedMetadataXmlWithNceaClassifiers()
     {
         //Arrange

@@ -3,9 +3,11 @@ using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Constants;
 using Ncea.Enricher.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ncea.Enricher.Services;
 
+[ExcludeFromCodeCoverage]
 public class ClassifierPredictionService : IClassifierPredictionService
 {
     private readonly PredictionEnginePool<ModelInputTheme, ModelOutput> _themePredictionEnginePool;

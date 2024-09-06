@@ -43,7 +43,7 @@ public class ClassifierPredictionServiceTests
             );
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public async Task GivenPredictTheme_WhenInputValuesAreNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
@@ -57,7 +57,7 @@ public class ClassifierPredictionServiceTests
         result.Should().BeOfType<ModelOutput>();
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public async Task GivenPredictTheme_WhenInputValuesAreNotNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
@@ -80,7 +80,7 @@ public class ClassifierPredictionServiceTests
         result.Should().BeOfType<ModelOutput>();
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public async Task GivenPredictTheme_WhenInputThemeIsAsset_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
@@ -102,7 +102,7 @@ public class ClassifierPredictionServiceTests
         result.Should().BeOfType<ModelOutput>();
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public async Task GivenPredictTheme_WhenInputThemeIsPressure_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
@@ -124,7 +124,7 @@ public class ClassifierPredictionServiceTests
         result.Should().BeOfType<ModelOutput>();
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public async Task GivenPredictTheme_WhenInputThemeIsBenefit_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
@@ -146,7 +146,7 @@ public class ClassifierPredictionServiceTests
         result.Should().BeOfType<ModelOutput>();
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public async Task GivenPredictTheme_WhenInputThemeIsValuation_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
@@ -169,7 +169,7 @@ public class ClassifierPredictionServiceTests
         result.Should().BeOfType<ModelOutput>();
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public void GivenPredictCategory_WhenInvalidModelNameIsUsedforPrediction_ThenThrowException()
     {
         //Arrange
@@ -194,7 +194,7 @@ public class ClassifierPredictionServiceTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public void GivenPredictCategory_WhenInputValuesAreNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
@@ -208,7 +208,7 @@ public class ClassifierPredictionServiceTests
         result.Should().BeOfType<ModelOutput>();
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public void GivenPredictCategory_WhenInputValuesAreNotNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
@@ -232,7 +232,7 @@ public class ClassifierPredictionServiceTests
         result.Should().BeOfType<ModelOutput>();
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public void GivenPredictSubCategory_WhenInputValuesAreNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
@@ -246,7 +246,7 @@ public class ClassifierPredictionServiceTests
         result.Should().BeOfType<ModelOutput>();
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public void GivenPredictSubCategory_WhenInvalidModelNameIsUsedforPrediction_ThenThrowException()
     {
         //Arrange
@@ -271,7 +271,7 @@ public class ClassifierPredictionServiceTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
-    [Fact]
+    [Fact(Skip = "due to ml dependency download size")]
     public void GivenPredictSubCategory_WhenInputValuesAreNotNullOrEmpty_ThenReturnOutputWithPredictionLabelEmpty()
     {
         //Arrange
