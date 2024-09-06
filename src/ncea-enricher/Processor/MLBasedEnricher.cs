@@ -6,10 +6,12 @@ using Ncea.Enricher.Models.ML;
 using Ncea.Enricher.Processor.Contracts;
 using Ncea.Enricher.Services.Contracts;
 using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml.Linq;
 
 namespace Ncea.Enricher.Processors;
 
+[ExcludeFromCodeCoverage]
 public class MLBasedEnricher : IEnricherService
 {
     private readonly IFeatureManager _featureManager;
