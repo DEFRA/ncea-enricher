@@ -17,7 +17,7 @@ env:
   keyVaultUri: $(keyVaultUri)
   blobStorageUri: $(blobStorageUri)
   classifierApiBaseUri: $(classifierApiBaseUri)
-  microsoftMlResourcePath: "/metadata-import/WordVectors"
+  microsoftMlResourcePath: "/metadata-import"
 
 podAnnotations: {}
 podLabels: 
@@ -33,7 +33,7 @@ resources:
     memory: "250Mi"
     cpu: "10m"
   limits:
-    memory: "500Mi"
+    memory: "750Mi"
     cpu: "75m"
 
 autoscaling:
