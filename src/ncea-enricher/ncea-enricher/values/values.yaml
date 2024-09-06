@@ -33,7 +33,7 @@ resources:
     memory: "8Gi"
     cpu: "4"
   limits:
-    memory: "16Gi"
+    memory: "12Gi"
     cpu: "8"
 
 autoscaling:
