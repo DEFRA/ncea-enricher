@@ -31,10 +31,10 @@ securityContext: {}
 resources:
   requests:
     memory: "8Gi"
-    cpu: "4"
+    cpu: "1"
   limits:
     memory: "12Gi"
-    cpu: "8"
+    cpu: "2"
 
 autoscaling:
   enabled: $(autoScalingEnabled)
