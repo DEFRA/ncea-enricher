@@ -15,7 +15,7 @@ public class ClassifierPredictionService : IClassifierPredictionService
     private readonly string _benefitConfidenceThreshold;
     private readonly string _valuationConfidenceThreshold;
     private readonly string _categoryConfidenceThreshold;
-    private readonly string _subCategoryConfidenceThreshold;
+    private readonly string _subCategoryConfidenceThreshold;    
 
     private readonly PredictionEnginePool<ModelInputTheme, ModelOutput> _themePredictionEnginePool;
     private readonly PredictionEnginePool<ModelInputCategory, ModelOutput> _categoryPredictionEnginePool;
@@ -88,7 +88,7 @@ public class ClassifierPredictionService : IClassifierPredictionService
         }
         catch (Exception ex) 
         {
-            _logger.LogInformation("Exception Occured during ML Prediction for Model: {modelName}. {innerException}", modelName, ex.Message);
+            _logger.LogInformation(ex, "Exception Occured during ML Prediction for Model: {modelName}. {innerException}", modelName, ex.Message);
             return new ModelOutput() { PredictedLabel = string.Empty };
         }        
     }
@@ -103,7 +103,7 @@ public class ClassifierPredictionService : IClassifierPredictionService
         }
         catch (Exception ex)
         {
-            _logger.LogInformation("Exception Occured during ML Prediction for Model: {modelName}. {innerException}", modelName, ex.Message);
+            _logger.LogInformation(ex, "Exception Occured during ML Prediction for Model: {modelName}. {innerException}", modelName, ex.Message);
             return new ModelOutput() { PredictedLabel = string.Empty};
         }        
     }
