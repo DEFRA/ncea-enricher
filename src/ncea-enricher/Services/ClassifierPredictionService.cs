@@ -10,17 +10,18 @@ namespace Ncea.Enricher.Services;
 [ExcludeFromCodeCoverage]
 public class ClassifierPredictionService : IClassifierPredictionService
 {
-    private readonly PredictionEnginePool<ModelInputTheme, ModelOutput> _themePredictionEnginePool;
-    private readonly PredictionEnginePool<ModelInputCategory, ModelOutput> _categoryPredictionEnginePool;
-    private readonly PredictionEnginePool<ModelInputSubCategory, ModelOutput> _subcategoryPredictionEnginePool;
-    private readonly IClassifierVocabularyProvider _vocabularyProvider;
-    private readonly ILogger _logger;
     private readonly string _assetConfidenceThreshold;
     private readonly string _pressureConfidenceThreshold;
     private readonly string _benefitConfidenceThreshold;
     private readonly string _valuationConfidenceThreshold;
     private readonly string _categoryConfidenceThreshold;
-    private readonly string _subCategoryConfidenceThreshold;
+    private readonly string _subCategoryConfidenceThreshold;    
+
+    private readonly PredictionEnginePool<ModelInputTheme, ModelOutput> _themePredictionEnginePool;
+    private readonly PredictionEnginePool<ModelInputCategory, ModelOutput> _categoryPredictionEnginePool;
+    private readonly PredictionEnginePool<ModelInputSubCategory, ModelOutput> _subcategoryPredictionEnginePool;
+    private readonly IClassifierVocabularyProvider _vocabularyProvider;
+    private readonly ILogger _logger;
 
     public ClassifierPredictionService(PredictionEnginePool<ModelInputTheme, ModelOutput> themePredictionEnginePool,
         PredictionEnginePool<ModelInputCategory, ModelOutput> categoryPredictionEnginePool,
@@ -29,18 +30,18 @@ public class ClassifierPredictionService : IClassifierPredictionService
         ILogger<ClassifierPredictionService> logger,
         IConfiguration configuration)
     {
-        _themePredictionEnginePool = themePredictionEnginePool;
-        _categoryPredictionEnginePool = categoryPredictionEnginePool;
-        _subcategoryPredictionEnginePool = subcategoryPredictionEnginePool;
-        _vocabularyProvider = vocabularyProvider;
-        _logger = logger;
-
         _assetConfidenceThreshold = configuration.GetValue<string>("AssetConfidenceThreshold")!;
         _pressureConfidenceThreshold = configuration.GetValue<string>("PressureConfidenceThreshold")!;
         _benefitConfidenceThreshold = configuration.GetValue<string>("BenefitConfidenceThreshold")!;
         _valuationConfidenceThreshold = configuration.GetValue<string>("ValuationConfidenceThreshold")!;
         _categoryConfidenceThreshold = configuration.GetValue<string>("CategoryConfidenceThreshold")!;
         _subCategoryConfidenceThreshold = configuration.GetValue<string>("SubCategoryConfidenceThreshold")!;
+
+        _themePredictionEnginePool = themePredictionEnginePool;
+        _categoryPredictionEnginePool = categoryPredictionEnginePool;
+        _subcategoryPredictionEnginePool = subcategoryPredictionEnginePool;
+        _vocabularyProvider = vocabularyProvider;
+        _logger = logger;        
     }
 
     public async Task<ModelOutput> PredictTheme(ModelInputTheme inputData, CancellationToken cancellationToken)
@@ -87,7 +88,7 @@ public class ClassifierPredictionService : IClassifierPredictionService
         }
         catch (Exception ex) 
         {
-            _logger.LogInformation(ex, "Exception Occured during ML Prediction for Model: {modelName}", modelName);
+            _logger.LogInformation(ex, "Exception Occured during ML Prediction for Model: {modelName}. {innerException}", modelName, ex.Message);
             return new ModelOutput() { PredictedLabel = string.Empty };
         }        
     }
@@ -102,7 +103,7 @@ public class ClassifierPredictionService : IClassifierPredictionService
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, "Exception Occured during ML Prediction for Model: {modelName}", modelName);
+            _logger.LogInformation(ex, "Exception Occured during ML Prediction for Model: {modelName}. {innerException}", modelName, ex.Message);
             return new ModelOutput() { PredictedLabel = string.Empty};
         }        
     }

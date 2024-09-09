@@ -14,6 +14,8 @@ namespace Ncea.Enricher.Processors;
 [ExcludeFromCodeCoverage]
 public class MLBasedEnricher : IEnricherService
 {
+    private readonly string[] _categoriesToBeExcludedForSubCategoryPredictions = ["lv2-009", "lv2-010"];
+
     private readonly IFeatureManager _featureManager;
     private readonly IXmlNodeService _xmlNodeService;
     private readonly IXmlValidationService _xmlValidationService;
@@ -101,7 +103,7 @@ public class MLBasedEnricher : IEnricherService
             {                
                 subCategoryInput.Theme = !string.IsNullOrWhiteSpace(predictedThemeCategory.Theme) ? predictedThemeCategory.Theme : null;                
 
-                if (!string.IsNullOrWhiteSpace(predictedThemeCategory.CategoryCode))
+                if (!string.IsNullOrWhiteSpace(predictedThemeCategory.CategoryCode) && !_categoriesToBeExcludedForSubCategoryPredictions.Contains(predictedThemeCategory.CategoryCode))
                 {
                     subCategoryInput.CategoryL2 = predictedThemeCategory.Category;
 
