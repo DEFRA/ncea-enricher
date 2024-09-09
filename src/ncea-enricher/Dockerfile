@@ -1,8 +1,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
-USER root
-RUN apt-get -y update && apt-get -y install --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/*
+#USER root
+#RUN apt-get -y update && apt-get -y install --no-install-recommends curl \
+    #&& rm -rf /var/lib/apt/lists/*
 
 USER app
 WORKDIR /app
@@ -23,8 +23,8 @@ RUN dotnet publish "./ncea-enricher.csproj" -c "$BUILD_CONFIGURATION" -o /app/pu
 FROM base AS final
 WORKDIR /app
 
-RUN mkdir -p /app/Text/Sswe && \
-    curl -kLo /app/Text/Sswe/sentiment.emd https://aka.ms/mlnet-resources/Text/Sswe/sentiment.emd 
+#RUN mkdir -p /app/Text/Sswe && \
+    #curl -kLo /app/Text/Sswe/sentiment.emd https://aka.ms/mlnet-resources/Text/Sswe/sentiment.emd 
 
 EXPOSE 5000
 
