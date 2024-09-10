@@ -125,7 +125,7 @@ public class OrchestrationService : IOrchestrationService
         catch (ArgumentException ex)
         {
             var errorMessage = $"Error occured during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
-            await HandleException(args, ex, new EnricherArgumentException(ex.Message, ex));
+            await HandleException(args, ex, new EnricherArgumentException(errorMessage, ex));
         }       
         catch (RequestFailedException ex)
         {
