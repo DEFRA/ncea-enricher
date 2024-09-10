@@ -124,11 +124,12 @@ public class OrchestrationService : IOrchestrationService
         }
         catch (ArgumentException ex)
         {
+            var errorMessage = $"Error occured during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
             await HandleException(args, ex, new EnricherArgumentException(ex.Message, ex));
-        }
+        }       
         catch (RequestFailedException ex)
         {
-            var errorMessage = $"Error occured while reading the synonyms file during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
+            var errorMessage = $"Error occured while reading the file from Blob storage during enrichment process for Data source: {dataSource}, file-id: {_fileIdentifier}";
             await HandleException(args, ex, new BlobStorageNotAccessibleException(errorMessage, ex));
         }
         catch (DirectoryNotFoundException ex)
@@ -217,7 +218,6 @@ public class OrchestrationService : IOrchestrationService
 
     private async Task HandleException(ProcessMessageEventArgs args, Exception ex, BusinessException businessException)
     {
-        _logger.LogError(businessException, ProcessorErrorMessage);
         CustomLogger.LogErrorMessage(_logger, businessException.Message, ex);
         await args.AbandonMessageAsync(args.Message);
         throw businessException;

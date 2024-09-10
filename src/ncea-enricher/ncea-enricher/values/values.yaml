@@ -17,6 +17,7 @@ env:
   keyVaultUri: $(keyVaultUri)
   blobStorageUri: $(blobStorageUri)
   classifierApiBaseUri: $(classifierApiBaseUri)
+  microsoftMlResourcePath: "/metadata-import"
 
 podAnnotations: {}
 podLabels: 
@@ -29,11 +30,11 @@ securityContext: {}
 #resources: {}
 resources:
   requests:
-    memory: "250Mi"
-    cpu: "10m"
+    memory: "8Gi"
+    cpu: "1"
   limits:
-    memory: "500Mi"
-    cpu: "75m"
+    memory: "12Gi"
+    cpu: "2"
 
 autoscaling:
   enabled: $(autoScalingEnabled)
