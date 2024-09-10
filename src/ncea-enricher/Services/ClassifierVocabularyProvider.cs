@@ -1,5 +1,5 @@
 ﻿using Microsoft.Identity.Abstractions;
-using Ncea.Classifier.Microservice.Clients;
+using Ncea.Classifier.Microservice.Clients.Responses;
 using Ncea.Enricher.Services.Contracts;
 
 namespace Ncea.Enricher.Services;

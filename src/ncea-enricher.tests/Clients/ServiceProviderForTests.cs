@@ -3,7 +3,7 @@ using Moq;
 using Ncea.Enricher.Processor.Contracts;
 using Microsoft.Extensions.Configuration;
 using Ncea.Enricher.Processors;
-using Ncea.Classifier.Microservice.Clients;
+using Ncea.Classifier.Microservice.Clients.Responses;
 using Ncea.Enricher.Constants;
 using Ncea.Enricher.Services.Contracts;
 using Ncea.Enricher.Services;

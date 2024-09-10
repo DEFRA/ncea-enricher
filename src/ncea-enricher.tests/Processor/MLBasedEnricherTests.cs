@@ -41,7 +41,7 @@
 //        _classifierVocabularyProvider = _serviceProvider.GetService<IClassifierVocabularyProvider>()!;
 //    }
 
-//    [Fact(Skip ="due to ml dependency download size")]
+//    [Fact]
 //    public async Task Enrich_WhenMLFeatureFlagEnabled_ReturnEnrichedMetadataXmlWithNceaClassifiers()
 //    {
 //        //Arrange
@@ -72,7 +72,7 @@
 //        result.Should().BeOfType<string>();
 //    }
 
-//    [Fact(Skip = "due to ml dependency download size")]
+//    [Fact]
 //    public async Task Enrich_WhenPreditionServiceReturnsNull_ReturnEnrichedMetadataXmlWithNceaClassifiers()
 //    {
 //        //Arrange
