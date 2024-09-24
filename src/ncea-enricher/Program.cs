@@ -133,7 +133,7 @@ static void ConfigureClassifierApi(HostApplicationBuilder builder)
     var apiScope = $"api://{classifierApiClientId}/.default";
 
     var azureAdSection = builder.Configuration.GetSection("AzureAd");
-    azureAdSection.GetSection("TenantId").Value = clientId;
+    azureAdSection.GetSection("TenantId").Value = tenantId;
     azureAdSection.GetSection("ClientId").Value = clientId;
     azureAdSection.GetSection("ClientCredentials:0:ClientSecret").Value = builder.Configuration.GetValue<string>("daemon-app-secret");
 
