@@ -57,6 +57,7 @@ steps:
         env.keyVaultUri=$(keyVaultUri)
         env.blobStorageUri=$(blobStorageUri)
         env.classifierApiBaseUri=$(classifierApiBaseUri)
+        env.azureADTenantId=$(azureADTenantId)
         autoscaling.enabled=$(autoScalingEnabled)
         autoscaling.maxReplicas=$(autoScalingMaxReplicas)
     install: true

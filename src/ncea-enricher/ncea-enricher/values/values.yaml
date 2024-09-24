@@ -17,6 +17,7 @@ env:
   keyVaultUri: $(keyVaultUri)
   blobStorageUri: $(blobStorageUri)
   classifierApiBaseUri: $(classifierApiBaseUri)
+  azureADTenantId: $(azureADTenantId)
   microsoftMlResourcePath: "/metadata-import"
 
 podAnnotations: {}
