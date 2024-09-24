@@ -61,6 +61,8 @@ spec:
               value: {{ .Values.env.blobStorageUri }}
             - name: ClassifierApiBaseUri
               value: {{ .Values.env.classifierApiBaseUri }}
+            - name: AzureADTenantId
+              value: {{ .Values.env.azureADTenantId }}
             - name: MICROSOFTML_RESOURCE_PATH
               value: {{ .Values.env.microsoftMlResourcePath }}
           resources:
