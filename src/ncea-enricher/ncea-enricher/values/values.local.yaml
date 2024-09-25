@@ -1,22 +1,22 @@
 replicaCount: 1
 
 image:
-  repository: nceapocsbox.azurecr.io/defra/ncea-enricher-service
+  repository: $(containerRepositoryFullPath)
   pullPolicy: IfNotPresent
-  tag: 20240304.19_feature-310857-Enricher-Boilerplate
+  tag: $(imageTag)
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  name: serviceaccount-nceaenricher-sbox
+  name: $(serviceAccountEnricher)
 
 env:
-  serviceBusHostName: DEVNCESBINF1401.servicebus.windows.net
-  keyVaultUri: https://devnceinfkvt1401.vault.azure.net/
-  blobStorageUri: https://devnceinfst1401.blob.core.windows.net
-  classifierApiBaseUri: https://dev-ncea-classifier.azure.defra.cloud/
+  serviceBusHostName: $(serviceBusHostName)
+  keyVaultUri: $(keyVaultUri)
+  blobStorageUri: $(blobStorageUri)
+  classifierApiBaseUri: $(classifierApiBaseUri)
   microsoftMlResourcePath: "/metadata-import"
 
 podAnnotations: {}
